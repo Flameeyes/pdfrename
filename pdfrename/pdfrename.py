@@ -29,6 +29,9 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     assert text_boxes[1] == "Hello, here is your statement.\n"
 
+    # Find the account holder name at the start of the PDF.
+    account_holder_name = text_boxes[0].split("\n", 1)[0].strip()
+
     period_line = text_boxes[2]
     logger.debug("found period specification: %r", period_line)
     period_match = re.match(
@@ -39,7 +42,10 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
     statement_date = datetime.datetime.strptime(period_match.group(1), "%d %b %Y")
 
     return NameComponents(
-        statement_date, "So Energy", additional_components=("Statement")
+        statement_date,
+        "So Energy",
+        account_holder_name,
+        additional_components=("Statement",),
     )
 
 
