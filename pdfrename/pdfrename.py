@@ -22,6 +22,53 @@ from utils import extract_account_holder_from_address, build_dict_from_fake_tabl
 tool_logger = logging.getLogger("pdfrename")
 
 
+def try_enel(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("enel")
+
+    enel_address_box = [box for box in text_boxes if box.startswith("Enel Energia - Mercato libero dell'energia\n")]
+    if len(enel_address_box) != 1:
+        return None
+    enel_address_index = text_boxes.index(enel_address_box[0])
+
+    # Late 2019: the ENEL address is at the beginning, the address is two boxes before the
+    # payment due date.
+    due_date_box = [box for box in text_boxes if box.startswith('Entro il ')]
+    assert len(due_date_box) == 1
+    
+    address_box_index = text_boxes.index(due_date_box[0]) - 2
+    address_box = text_boxes[address_box_index]
+
+    # In 2020: the account holder address is _before_ the ENEL address. We can tell if we
+    # got the wrong address box if it's too short in lines.
+    if address_box.count('\n') < 2:
+        address_box_index = enel_address_index - 1
+        address_box = text_boxes[address_box_index]
+
+    account_holder_name = extract_account_holder_from_address(address_box)
+
+    # In 2018, the address was before the customer number instead, try again.
+    if account_holder_name == "Periodo":
+        customer_id_box = [box for box in text_boxes if box.startswith('N° CLIENTE\n')]
+        assert len(customer_id_box) == 1
+        customer_id_box_index = text_boxes.index(customer_id_box[0])
+
+        address_box = text_boxes[customer_id_box_index -1]
+        account_holder_name = extract_account_holder_from_address(address_box)
+
+    # The date follows the invoice number, look for the invoce number, then take the next.
+    invoice_number_box = [box for box in text_boxes if box.startswith('N. Fattura ')]
+    assert len(invoice_number_box) == 1
+
+    date_box_index = text_boxes.index(invoice_number_box[0]) + 1
+    date_box = text_boxes[date_box_index]
+
+    bill_date = datetime.datetime.strptime(date_box, "Del %d/%m/%Y\n")
+
+    return NameComponents(
+        bill_date, "ENEL Energia", account_holder_name, additional_components=("Bolletta",)
+    )
+
+
 def try_o2(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("o2")
 
@@ -110,6 +157,7 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 
 ALL_FUNCTIONS = (
+    try_enel,
     hyperoptic.try_hyperoptic,
     try_o2,
     santander.try_santander,
