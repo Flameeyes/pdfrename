@@ -25,13 +25,13 @@ def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     # There are at least two different possible boxes as the bottom of page 1 since 2017,
     # but they all include a link to TW's website.
-    if 'thameswater.co.uk/' not in text_boxes[-1]:
+    if "thameswater.co.uk/" not in text_boxes[-1]:
         return None
-    
-    assert text_boxes[0].startswith('Page 1 of ')
+
+    assert text_boxes[0].startswith("Page 1 of ")
 
     date_line = text_boxes[1]
-    date_match = re.search('^Date\n([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n', date_line)
+    date_match = re.search("^Date\n([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n", date_line)
     assert date_match
 
     document_date = datetime.datetime.strptime(date_match.group(1), "%d %B %Y")
@@ -40,14 +40,19 @@ def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
     account_holder_name = address_box.split("\n", 1)[0].strip().title()
 
     document_subject = text_boxes[7]
-    if document_subject == "Your payment plan.\n" or document_subject == "Your new payment plan.\n":
+    if (
+        document_subject == "Your payment plan.\n"
+        or document_subject == "Your new payment plan.\n"
+    ):
         document_type = "Payment Plan"
     elif document_subject == "Your water and wastewater bill.\n":
         document_type = "Bill"
     else:
         document_type = "Other"
 
-    return NameComponents(document_date, 'Thames Water', account_holder_name, (document_type,))
+    return NameComponents(
+        document_date, "Thames Water", account_holder_name, (document_type,)
+    )
 
 
 def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
