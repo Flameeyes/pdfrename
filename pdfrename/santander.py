@@ -7,26 +7,10 @@ import re
 
 from typing import Optional
 
+import dateparser
+
 from components import NameComponents
 from utils import extract_account_holder_from_address
-
-
-def _parse_date(date: str) -> datetime.datetime:
-    """Parse Santander documents date into a datetime object.
-
-    Santander appears to use a fairly verbose date format, including the ordinal suffixes
-    (1st, 2nd, 3rd, 4th). Sometimes with a full month name (September) and other times
-    with a short month name (Apr).
-
-    To make sure to support both, always match the first three letters of the month, since
-    English month names and their abbreviations match.
-    """
-    parsed_date = re.match(
-        "^([0-9]{1,2})[a-z]{2} ([A-Z][a-z]{2})[a-z]* ([0-9]{4})$", date
-    )
-    assert parsed_date
-
-    return datetime.datetime.strptime(" ".join(parsed_date.groups()), "%d %b %Y")
 
 
 def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
@@ -60,7 +44,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
                 period_line[0],
             )
             assert period_match
-            statement_date = _parse_date(period_match.group(1))
+            statement_date = dateparser.parse(period_match.group(1), languages=["en"])
         else:
             document_type = "Statement"
 
@@ -76,7 +60,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
                 period_line[0],
             )
             assert period_match
-            statement_date = _parse_date(period_match.group(1))
+            statement_date = dateparser.parse(period_match.group(1), languages=["en"])
 
         return NameComponents(
             statement_date,
@@ -103,7 +87,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
             period_line[0],
         )
         assert period_match
-        statement_date = _parse_date(period_match.group(1))
+        statement_date = dateparser.parse(period_match.group(1), languages=["en"])
 
         return NameComponents(
             statement_date,

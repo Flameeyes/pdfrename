@@ -11,6 +11,7 @@ import shutil
 import sys
 from typing import Optional
 
+import dateparser
 import pdfminer.high_level
 import pdfminer.layout
 
@@ -33,7 +34,7 @@ def try_o2(text_boxes, parent_logger) -> Optional[NameComponents]:
     values_box = text_boxes[2]
 
     bill_info = build_dict_from_fake_table(fields_box, values_box)
-    bill_date = datetime.datetime.strptime(bill_info["Bill date"], "%d %b %y")
+    bill_date = dateparser.parse(bill_info["Bill date"], languages=["en"])
 
     address_box = text_boxes[3]
     account_holder_name = extract_account_holder_from_address(address_box)
@@ -57,7 +58,7 @@ def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
     date_match = re.search("^Date\n([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n", date_line)
     assert date_match
 
-    document_date = datetime.datetime.strptime(date_match.group(1), "%d %B %Y")
+    document_date = dateparser.parse(date_match.group(1), languages=["en"])
 
     address_box = text_boxes[5]
     account_holder_name = extract_account_holder_from_address(address_box)
@@ -98,7 +99,7 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
         period_line,
     )
     assert period_match
-    statement_date = datetime.datetime.strptime(period_match.group(1), "%d %b %Y")
+    statement_date = dateparser.parse(period_match.group(1), languages=["en"])
 
     return NameComponents(
         statement_date,
