@@ -14,7 +14,7 @@ from typing import Optional
 import pdfminer.high_level
 import pdfminer.layout
 
-import santander
+import hyperoptic, santander
 from components import NameComponents
 
 tool_logger = logging.getLogger("pdfrename")
@@ -44,6 +44,7 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 
 ALL_FUNCTIONS = (
+    hyperoptic.try_hyperoptic,
     santander.try_santander,
     try_soenergy,
 )
