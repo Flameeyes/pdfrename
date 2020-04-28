@@ -91,7 +91,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
     is_santander_select = any(box == "Select Current Account\n" for box in text_boxes)
 
     if is_santander_select:
-        # Always include the account holder name, which is found in the second text box.
+        # Always include the account holder name, which is found in the third text box.
         account_holder_name = _extract_account_holder_name(text_boxes[2])
 
         period_line = [
@@ -113,4 +113,29 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
             "Santander",
             account_holder=account_holder_name,
             additional_components=("Select Current Account", "Statement"),
+        )
+
+    is_statement_of_fees = any(box == "Statement of Fees\n" for box in text_boxes)
+
+    if is_statement_of_fees:
+        # Always include the account holder name, which is found in the fourth text box.
+        account_holder_name = _extract_account_holder_name(text_boxes[3])
+
+        # Find the account this refers to. It's the text box after the title column.
+        account_idx = text_boxes.index("Account\n")
+        account_type = text_boxes[account_idx + 1].strip().title()
+
+        # Find the date this statement was issued. It's the second text box after tht
+        # title column (why?)
+        date_idx = text_boxes.index("Date\n")
+        date_str = text_boxes[date_idx + 2]
+
+        # Unlike the other documents, this uses a normal date format.
+        statement_date = datetime.datetime.strptime(date_str, "%d/%m/%Y\n")
+
+        return NameComponents(
+            statement_date,
+            "Santander",
+            account_holder=account_holder_name,
+            additional_components=(account_type, "Statement of Fees"),
         )

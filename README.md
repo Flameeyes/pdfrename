@@ -16,6 +16,7 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
 
  * [Santander UK](https://www.santander.co.uk)
    - Select Current Account Statements
+   - Statements of Fees
    - Credit Card Statements
    - Credit Card Annual Statements
  * [So Energy](https://www.so.energy/)
