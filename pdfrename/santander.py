@@ -8,10 +8,7 @@ import re
 from typing import Optional
 
 from components import NameComponents
-
-
-def _extract_account_holder_name(address: str) -> str:
-    return address.split("\n")[0].strip().title()
+from utils import extract_account_holder_from_address
 
 
 def _parse_date(date: str) -> datetime.datetime:
@@ -41,7 +38,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     if is_santander_credit_card:
         # Always include the account holder name, which is found in the second text box.
-        account_holder_name = _extract_account_holder_name(text_boxes[1])
+        account_holder_name = extract_account_holder_from_address(text_boxes[1])
 
         # Could be an annual statement, look for it.
         is_annual_statement = any(
@@ -92,7 +89,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     if is_santander_select:
         # Always include the account holder name, which is found in the third text box.
-        account_holder_name = _extract_account_holder_name(text_boxes[2])
+        account_holder_name = extract_account_holder_from_address(text_boxes[2])
 
         period_line = [
             box for box in text_boxes if box.startswith("Your account summary for  \n")
@@ -119,7 +116,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     if is_statement_of_fees:
         # Always include the account holder name, which is found in the fourth text box.
-        account_holder_name = _extract_account_holder_name(text_boxes[3])
+        account_holder_name = extract_account_holder_from_address(text_boxes[3])
 
         # Find the account this refers to. It's the text box after the title column.
         account_idx = text_boxes.index("Account\n")

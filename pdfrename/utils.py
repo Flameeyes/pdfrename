@@ -18,3 +18,7 @@ def build_dict_from_fake_table(fields_box: str, values_box: str) -> Mapping[str,
     # Ignore them.
     valid_fields_length = min(len(fields), len(values))
     return dict(zip(fields[:valid_fields_length], values[:valid_fields_length]))
+
+
+def extract_account_holder_from_address(address: str) -> str:
+    return address.split("\n", 1)[0].strip().title()

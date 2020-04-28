@@ -16,6 +16,7 @@ import pdfminer.layout
 
 import hyperoptic, santander
 from components import NameComponents
+from utils import extract_account_holder_from_address
 
 tool_logger = logging.getLogger("pdfrename")
 
@@ -37,7 +38,7 @@ def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
     document_date = datetime.datetime.strptime(date_match.group(1), "%d %B %Y")
 
     address_box = text_boxes[5]
-    account_holder_name = address_box.split("\n", 1)[0].strip().title()
+    account_holder_name = extract_account_holder_from_address(address_box)
 
     document_subject = text_boxes[7]
     if (
@@ -65,7 +66,8 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
     assert text_boxes[1] == "Hello, here is your statement.\n"
 
     # Find the account holder name at the start of the PDF.
-    account_holder_name = text_boxes[0].split("\n", 1)[0].strip()
+    address_box = text_boxes[0]
+    account_holder_name = extract_account_holder_from_address(address_box)
 
     period_line = text_boxes[2]
     logger.debug("found period specification: %r", period_line)
