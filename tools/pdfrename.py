@@ -126,7 +126,8 @@ def main():
     )
 
     args = parser.parse_args()
-    tool_logger.setLevel(args.vlog)
+    if args.vlog is not None:
+        tool_logger.setLevel(args.vlog)
     logging.basicConfig()
 
     for original_filename in args.input_files:
