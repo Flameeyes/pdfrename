@@ -16,9 +16,31 @@ import pdfminer.layout
 
 import hyperoptic, santander
 from components import NameComponents
-from utils import extract_account_holder_from_address
+from utils import extract_account_holder_from_address, build_dict_from_fake_table
 
 tool_logger = logging.getLogger("pdfrename")
+
+
+def try_o2(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("o2")
+
+    if "Telefónica UK Limited" not in text_boxes[-1]:
+        return None
+
+    assert text_boxes[0] == "Copy Bill\n"
+
+    fields_box = text_boxes[1]
+    values_box = text_boxes[2]
+
+    bill_info = build_dict_from_fake_table(fields_box, values_box)
+    bill_date = datetime.datetime.strptime(bill_info["Bill date"], "%d %b %y")
+
+    address_box = text_boxes[3]
+    account_holder_name = extract_account_holder_from_address(address_box)
+
+    return NameComponents(
+        bill_date, "O2 UK", account_holder_name, additional_components=("Bill",)
+    )
 
 
 def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
@@ -88,6 +110,7 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 ALL_FUNCTIONS = (
     hyperoptic.try_hyperoptic,
+    try_o2,
     santander.try_santander,
     try_soenergy,
     try_thameswater,
