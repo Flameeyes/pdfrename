@@ -7,29 +7,7 @@ import re
 from typing import Optional, Sequence
 
 from components import NameComponents
-
-
-def _extract_bill_date_from_fake_table(text_boxes: Sequence[str]) -> datetime.datetime:
-    """Extract the bill date from a "fake table".
-
-    Older (2017~2018) Hyperoptic bills have two multi-line text boxes, one including all
-    the labels, and the other including all of the values.
-
-    They thankfully sit next to each other, so once one is found, it's possible to find
-    the invoice date with relative ease.
-    """
-    titles_str = [box for box in text_boxes if box.startswith("DD Ref:\n")]
-    assert len(titles_str) == 1
-    titles_idx = text_boxes.index(titles_str[0])
-    values_str = text_boxes[titles_idx + 1]
-
-    titles = titles_str[0].split("\n")
-    values = values_str.split("\n")
-
-    invoice_date_idx = titles.index("Invoice date:")
-    invoice_date_str = values[invoice_date_idx]
-
-    return datetime.datetime.strptime(invoice_date_str, "%d %b %Y")
+from utils import build_dict_from_fake_table
 
 
 def _try_old_hyperoptic(text_boxes, logger) -> Optional[NameComponents]:
@@ -47,7 +25,22 @@ def _try_old_hyperoptic(text_boxes, logger) -> Optional[NameComponents]:
     account_holder_match = re.search(r"Customer Name: ([^\n]+)\n", account_holder_box)
     assert account_holder_match
     account_holder_name = account_holder_match.group(1)
-    bill_date = _extract_bill_date_from_fake_table(text_boxes)
+
+    # Extract the bill date from a "fake table".
+    #
+    # Older (2017~2018) Hyperoptic bills have two multi-line text boxes, one including all
+    # the labels, and the other including all of the values.
+    #
+    # They thankfully sit next to each other, so once one is found, it's possible to find
+    # the invoice date with relative ease.
+    titles_str = [box for box in text_boxes if box.startswith("DD Ref:\n")]
+    assert len(titles_str) == 1
+    titles_idx = text_boxes.index(titles_str[0])
+    values_str = text_boxes[titles_idx + 1]
+
+    document_info = build_dict_from_fake_table(titles_str[0], values_str)
+    bill_date_str = document_info["Invoice date:"]
+    bill_date = datetime.datetime.strptime(bill_date_str, "%d %b %Y")
 
     return NameComponents(
         bill_date,
