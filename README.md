@@ -14,6 +14,7 @@ what they are, and propose (or applies) a new name to them based on their conten
 As this is aimed at my (@Flameeyes) own use, the list of supported PDFs pretty much
 focuses on bills and statements from UK, Italian, or Irish services and banks.
 
+ * [American Express UK](https://www.americanexpress.com/uk/)
  * [ENEL Energia](https://www.enel.it/)
  * [Hyperoptic](https://www.hyperoptic.com/)
    - Bills (templates from 2017 to 2020)

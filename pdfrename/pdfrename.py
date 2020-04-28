@@ -17,9 +17,42 @@ import pdfminer.layout
 
 import hyperoptic, santander
 from components import NameComponents
-from utils import extract_account_holder_from_address, build_dict_from_fake_table
+from utils import (
+    extract_account_holder_from_address,
+    find_box_starting_with,
+    build_dict_from_fake_table,
+)
 
 tool_logger = logging.getLogger("pdfrename")
+
+
+def try_americanexpress(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("americanexpress")
+
+    if text_boxes[0] != "www.americanexpress.co.uk\n":
+        return None
+
+    document_type = text_boxes[4].strip()
+    if document_type == "Statement of Account":
+        document_type = "Statement"
+
+    account_holder_box = find_box_starting_with(text_boxes, "Prepared for\n")
+    account_holder_index = text_boxes.index(account_holder_box)
+    account_holder_name = account_holder_box.split("\n")[1].strip().title()
+
+    # The date is always two boxes after the account holder name. We can't look for the
+    # one starting with "Date" because there's more than one.
+    date_box = text_boxes[account_holder_index + 2]
+    date_str = date_box.split("\n")[1]
+
+    statement_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
+
+    return NameComponents(
+        statement_date,
+        "American Express",
+        account_holder_name,
+        additional_components=("Statement",),
+    )
 
 
 def try_enel(text_boxes, parent_logger) -> Optional[NameComponents]:
@@ -254,6 +287,7 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 
 ALL_FUNCTIONS = (
+    try_americanexpress,
     try_enel,
     hyperoptic.try_hyperoptic,
     try_ms_bank,
