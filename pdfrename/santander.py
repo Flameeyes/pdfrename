@@ -13,6 +13,7 @@ from components import NameComponents
 def _extract_account_holder_name(address: str) -> str:
     return address.split("\n")[0].strip().title()
 
+
 def _parse_date(date: str) -> datetime.datetime:
     """Parse Santander documents date into a datetime object.
 
@@ -23,37 +24,35 @@ def _parse_date(date: str) -> datetime.datetime:
     To make sure to support both, always match the first three letters of the month, since
     English month names and their abbreviations match.
     """
-    parsed_date = re.match('^([0-9]{1,2})[a-z]{2} ([A-Z][a-z]{2})[a-z]* ([0-9]{4})$', date)
+    parsed_date = re.match(
+        "^([0-9]{1,2})[a-z]{2} ([A-Z][a-z]{2})[a-z]* ([0-9]{4})$", date
+    )
     assert parsed_date
-    
-    return datetime.datetime.strptime(
-        " ".join(parsed_date.groups()), "%d %b %Y"
-        )
+
+    return datetime.datetime.strptime(" ".join(parsed_date.groups()), "%d %b %Y")
+
 
 def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("santander")
 
     is_santander_credit_card = any(
-        box.get_text() == "Santander Credit Card \n" for box in text_boxes
+        box == "Santander Credit Card \n" for box in text_boxes
     )
 
     if is_santander_credit_card:
         # Always include the account holder name, which is found in the second text box.
-        account_holder_name = _extract_account_holder_name(text_boxes[1].get_text())
+        account_holder_name = _extract_account_holder_name(text_boxes[1])
 
         # Could be an annual statement, look for it.
         is_annual_statement = any(
-            box.get_text().startswith('Annual Statement:')
-            for box in text_boxes
+            box.startswith("Annual Statement:") for box in text_boxes
         )
 
         if is_annual_statement:
-            document_type = 'Annual Statement'
+            document_type = "Annual Statement"
 
             period_line = [
-                box.get_text()
-                for box in text_boxes
-                if box.get_text().startswith('Annual Statement:')
+                box for box in text_boxes if box.startswith("Annual Statement:")
             ]
             assert len(period_line) == 1
 
@@ -66,12 +65,10 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
             assert period_match
             statement_date = _parse_date(period_match.group(1))
         else:
-            document_type = 'Statement'
+            document_type = "Statement"
 
             period_line = [
-                box.get_text()
-                for box in text_boxes
-                if box.get_text().startswith("Account summary as at:")
+                box for box in text_boxes if box.startswith("Account summary as at:")
             ]
             assert len(period_line) == 1
 
@@ -91,18 +88,14 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
             additional_components=("Credit Card", document_type),
         )
 
-    is_santander_select = any(
-        box.get_text() == "Select Current Account\n" for box in text_boxes
-    )
+    is_santander_select = any(box == "Select Current Account\n" for box in text_boxes)
 
     if is_santander_select:
         # Always include the account holder name, which is found in the second text box.
-        account_holder_name = _extract_account_holder_name(text_boxes[2].get_text())
+        account_holder_name = _extract_account_holder_name(text_boxes[2])
 
         period_line = [
-            box.get_text()
-            for box in text_boxes
-            if box.get_text().startswith('Your account summary for  \n')
+            box for box in text_boxes if box.startswith("Your account summary for  \n")
         ]
         assert len(period_line) == 1
 

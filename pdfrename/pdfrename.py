@@ -23,13 +23,13 @@ tool_logger = logging.getLogger("pdfrename")
 def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("soenergy")
 
-    is_soenergy = any(box.get_text() == "www.so.energy\n" for box in text_boxes)
+    is_soenergy = any(box == "www.so.energy\n" for box in text_boxes)
     if not is_soenergy:
         return None
 
-    assert text_boxes[1].get_text() == "Hello, here is your statement.\n"
+    assert text_boxes[1] == "Hello, here is your statement.\n"
 
-    period_line = text_boxes[2].get_text()
+    period_line = text_boxes[2]
     logger.debug("found period specification: %r", period_line)
     period_match = re.match(
         r"^For the period of [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4} - ([0-9]{1,2} [A-Z][a-z]{2} [0-9]{4})\n$",
@@ -53,7 +53,7 @@ def find_filename(original_filename):
     first_page = next(pdfminer.high_level.extract_pages(original_filename, maxpages=1))
 
     text_boxes = [
-        obj
+        obj.get_text()
         for obj in first_page
         if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal)
     ]
@@ -66,7 +66,9 @@ def find_filename(original_filename):
             if name:
                 return name.render_filename(True, True)
         except Exception:
-            logging.exception('Function %s failed on file %s', function, original_filename)
+            logging.exception(
+                "Function %s failed on file %s", function, original_filename
+            )
 
     return original_filename
 
