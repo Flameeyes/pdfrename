@@ -167,7 +167,11 @@ ALL_FUNCTIONS = (
 
 
 def find_filename(original_filename):
-    pages = list(pdfminer.high_level.extract_pages(original_filename))
+    try:
+        pages = list(pdfminer.high_level.extract_pages(original_filename))
+    except pdfminer.pdfdocument.PDFTextExtractionNotAllowed:
+        logging.warning('Unable to extract text from %s', original_filename)
+        return original_filename
 
     text_boxes = [
         obj.get_text()
