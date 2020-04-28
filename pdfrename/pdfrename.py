@@ -9,14 +9,17 @@ import os
 import re
 import shutil
 import sys
+from typing import Optional
 
 import pdfminer.high_level
 import pdfminer.layout
 
+from components import NameComponents
+
 tool_logger = logging.getLogger("pdfrename")
 
 
-def try_santander(text_boxes):
+def try_santander(text_boxes) -> Optional[NameComponents]:
     logger = tool_logger.getChild("santander")
 
     is_santander_credit_card = any(
@@ -51,10 +54,15 @@ def try_santander(text_boxes):
             f"{period_match.group(1)} {period_match.group(2)}", "%d %B %Y"
         )
 
-        return f'{statement_date.strftime("%Y-%m-%d")} - Santander - {account_holder_name} - Credit Card - Statement.pdf'
+        return NameComponents(
+            statement_date,
+            "Santander",
+            account_holder=account_holder_name,
+            additional_components=("Credit Card", "Statement"),
+        )
 
 
-def try_soenergy(text_boxes):
+def try_soenergy(text_boxes) -> Optional[NameComponents]:
     logger = tool_logger.getChild("soenergy")
 
     is_soenergy = any(box.get_text() == "www.so.energy\n" for box in text_boxes)
@@ -72,7 +80,9 @@ def try_soenergy(text_boxes):
     assert period_match
     statement_date = datetime.datetime.strptime(period_match.group(1), "%d %b %Y")
 
-    return f'{statement_date.strftime("%Y-%m-%d")} - So Energy - Statement.pdf'
+    return NameComponents(
+        statement_date, "So Energy", additional_components=("Statement")
+    )
 
 
 ALL_FUNCTIONS = (
@@ -95,7 +105,7 @@ def find_filename(original_filename):
     for function in ALL_FUNCTIONS:
         name = function(text_boxes)
         if name:
-            return name
+            return name.render_filename(True, True)
 
     return original_filename
 
