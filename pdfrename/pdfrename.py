@@ -76,6 +76,39 @@ def try_enel(text_boxes, parent_logger) -> Optional[NameComponents]:
     )
 
 
+def try_ms_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("ms_bank")
+
+    if "M&S Bank" not in text_boxes[-1]:
+        return None
+
+    account_name_box = [box for box in text_boxes if box.startswith("Account Name\n")]
+    assert len(account_name_box) == 1
+
+    account_holder_name = account_name_box[0].split("\n")[1].strip()
+
+    # The statement period is just before the account name box.
+    period_box_index = text_boxes.index(account_name_box[0]) - 1
+    period_line = text_boxes[period_box_index]
+
+    logger.debug("found period specification %r", period_line)
+
+    period_match = re.search(
+        r"^[0-9]{2} [A-Z][a-z]+(?: [0-9]{4})? to ([0-9]{2} [A-Z][a-z]+ [0-9]{4})\n$",
+        period_line,
+    )
+    assert period_match
+
+    statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+
+    return NameComponents(
+        statement_date,
+        "M&S Bank",
+        account_holder_name,
+        additional_components=("Statement",),
+    )
+
+
 def try_o2(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("o2")
 
@@ -166,6 +199,7 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
 ALL_FUNCTIONS = (
     try_enel,
     hyperoptic.try_hyperoptic,
+    try_ms_bank,
     try_o2,
     santander.try_santander,
     try_soenergy,
