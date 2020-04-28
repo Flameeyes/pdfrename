@@ -138,6 +138,11 @@ def main():
             continue
         if args.rename:
             logging.info("Renaming %s to %s", original_filename, new_filename)
+            if os.path.exists(new_filename):
+                logging.warning(
+                    "File %s already exists, not overwriting.", new_filename
+                )
+                continue
             shutil.move(original_filename, new_filename)
         else:
             print(f'ren "{original_filename}" "{new_filename}"')
