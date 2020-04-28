@@ -14,56 +14,14 @@ from typing import Optional
 import pdfminer.high_level
 import pdfminer.layout
 
+import santander
 from components import NameComponents
 
 tool_logger = logging.getLogger("pdfrename")
 
 
-def try_santander(text_boxes) -> Optional[NameComponents]:
-    logger = tool_logger.getChild("santander")
-
-    is_santander_credit_card = any(
-        box.get_text() == "Santander Credit Card \n" for box in text_boxes
-    )
-
-    if is_santander_credit_card:
-        # Always include the account holder name, which is found in the second text box.
-        account_holder_address = text_boxes[1].get_text()
-        account_holder_name = account_holder_address.split("\n")[0].strip().title()
-
-        period_line = [
-            box.get_text()
-            for box in text_boxes
-            if box.get_text().startswith("Account summary as at:")
-        ]
-        assert len(period_line) == 1
-
-        logger.debug("found period specification: %r", period_line[0])
-
-        # Very annoying: the date is printed as "18th November 2019" -- which probably
-        # would also mean "2nd" if the statement is earlier in the month.
-        #
-        # To workaround this, use two match groups and recompose the string to build up
-        # with it.
-        period_match = re.match(
-            r"^Account summary as at: ([0-9]{2})[a-z]{2} ([A-Z][a-z]+ [0-9]{4}) for card number ending [0-9]{4}\n$",
-            period_line[0],
-        )
-        assert period_match
-        statement_date = datetime.datetime.strptime(
-            f"{period_match.group(1)} {period_match.group(2)}", "%d %B %Y"
-        )
-
-        return NameComponents(
-            statement_date,
-            "Santander",
-            account_holder=account_holder_name,
-            additional_components=("Credit Card", "Statement"),
-        )
-
-
-def try_soenergy(text_boxes) -> Optional[NameComponents]:
-    logger = tool_logger.getChild("soenergy")
+def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("soenergy")
 
     is_soenergy = any(box.get_text() == "www.so.energy\n" for box in text_boxes)
     if not is_soenergy:
@@ -86,7 +44,7 @@ def try_soenergy(text_boxes) -> Optional[NameComponents]:
 
 
 ALL_FUNCTIONS = (
-    try_santander,
+    santander.try_santander,
     try_soenergy,
 )
 
@@ -103,9 +61,12 @@ def find_filename(original_filename):
     tool_logger.debug("textboxes: %r", text_boxes)
 
     for function in ALL_FUNCTIONS:
-        name = function(text_boxes)
-        if name:
-            return name.render_filename(True, True)
+        try:
+            name = function(text_boxes, tool_logger)
+            if name:
+                return name.render_filename(True, True)
+        except Exception:
+            logging.exception('Function %s failed on file %s', function, original_filename)
 
     return original_filename
 

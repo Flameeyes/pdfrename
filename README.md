@@ -14,4 +14,8 @@ what they are, and propose (or applies) a new name to them based on their conten
 As this is aimed at my (@Flameeyes) own use, the list of supported PDFs pretty much
 focuses on bills and statements from UK, Italian, or Irish services and banks.
 
+ * [Santander UK](https://www.santander.co.uk)
+   - Select Current Account Statements
+   - Credit Card Statements
+   - Credit Card Annual Statements
  * [So Energy](https://www.so.energy/)
