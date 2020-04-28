@@ -131,6 +131,63 @@ def try_o2(text_boxes, parent_logger) -> Optional[NameComponents]:
     )
 
 
+def try_tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("tesco_bank")
+
+    # Before checking for statements, check other communications.
+    if text_boxes[0].startswith("Tesco Bank\n") and any(
+        box.startswith("Annual Summary of Interest\n") for box in text_boxes
+    ):
+        assert "Minicom:" in text_boxes[2]
+
+        account_holder_name = text_boxes[4].strip()
+        tax_year_line = [box for box in text_boxes if box.startswith("Tax Year:")]
+        assert len(tax_year_line) == 1
+
+        tax_year_match = re.search(
+            r"^Tax Year: [0-9]{1,2} [A-Z][a-z]+ [0-9]{4} to ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n$",
+            tax_year_line[0],
+        )
+        assert tax_year_match
+
+        document_date = dateparser.parse(tax_year_match.group(1))
+
+        return NameComponents(
+            document_date,
+            "Tesco Bank",
+            account_holder_name,
+            additional_components=("Annual Summary of Interest",),
+        )
+
+    if not any("tescobank.com/mmc" in box for box in text_boxes):
+        return None
+
+    assert "Current Account\n" in text_boxes[0]
+
+    if text_boxes[1] == "Monthly statement\n":
+        document_type = "Statement"
+    else:
+        document_type = text_boxes[1].strip().title()
+
+    account_holder_name = extract_account_holder_from_address(text_boxes[2])
+
+    fields_box = text_boxes[3]
+    values_box = text_boxes[4]
+
+    statement_info = build_dict_from_fake_table(fields_box, values_box)
+
+    statement_date = dateparser.parse(
+        statement_info["Statement date:"], languages=["en"]
+    )
+
+    return NameComponents(
+        statement_date,
+        "Tesco Bank",
+        account_holder_name,
+        additional_components=(document_type,),
+    )
+
+
 def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("thameswater")
 
@@ -203,6 +260,7 @@ ALL_FUNCTIONS = (
     try_o2,
     santander.try_santander,
     try_soenergy,
+    try_tesco_bank,
     try_thameswater,
 )
 

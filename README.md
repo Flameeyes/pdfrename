@@ -27,3 +27,4 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
    - Credit Card Annual Statements
  * [So Energy](https://www.so.energy/)
  * [Thames Water](https://www.thameswater.co.uk/)
+ * [Tesco Bank](https://www.tescobank.com/)
