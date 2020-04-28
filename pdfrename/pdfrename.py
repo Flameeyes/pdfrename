@@ -119,13 +119,17 @@ ALL_FUNCTIONS = (
 
 
 def find_filename(original_filename):
-    first_page = next(pdfminer.high_level.extract_pages(original_filename, maxpages=1))
+    pages = list(pdfminer.high_level.extract_pages(original_filename))
 
     text_boxes = [
         obj.get_text()
-        for obj in first_page
+        for obj in pages[0]
         if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal)
     ]
+
+    if not text_boxes:
+        tool_logger.warning('No text boxes found on first page: %r', [list(page) for page in pages])
+        return original_filename
 
     tool_logger.debug("textboxes: %r", text_boxes)
 
