@@ -40,12 +40,16 @@ def try_americanexpress(text_boxes, parent_logger) -> Optional[NameComponents]:
     account_holder_index = text_boxes.index(account_holder_box)
     account_holder_name = account_holder_box.split("\n")[1].strip().title()
 
-    # The date is always two boxes after the account holder name. We can't look for the
-    # one starting with "Date" because there's more than one.
-    date_box = text_boxes[account_holder_index + 2]
-    date_str = date_box.split("\n")[1]
+    # The date is the box after the Membership Number. We can't look for the one starting
+    # with "Date" because there's more than one.
+    membership_box = find_box_starting_with(text_boxes, "Membership Number\n")
+    membership_index = text_boxes.index(membership_box)
 
-    statement_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
+    date_box = text_boxes[membership_index + 1]
+    date_fields = date_box.split("\n")
+    assert date_fields[0] == "Date"
+
+    statement_date = datetime.datetime.strptime(date_fields[1], "%d/%m/%y")
 
     return NameComponents(
         statement_date,
