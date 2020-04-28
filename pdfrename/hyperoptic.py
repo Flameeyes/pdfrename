@@ -16,7 +16,7 @@ def _try_old_hyperoptic(text_boxes, logger) -> Optional[NameComponents]:
         or text_boxes[0] == "www.hyperoptic.com \n"
     ):
         account_holder_box = text_boxes[1]
-    elif text_boxes[7] == "www.hyperoptic.com \n":
+    elif len(text_boxes) > 8 and text_boxes[7] == "www.hyperoptic.com \n":
         account_holder_box = text_boxes[0]
     else:
         return None
