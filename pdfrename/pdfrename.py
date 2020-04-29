@@ -15,7 +15,7 @@ import dateparser
 import pdfminer.high_level
 import pdfminer.layout
 
-import chase, hyperoptic, santander, scaleway
+import aws, chase, hyperoptic, santander, scaleway
 from components import NameComponents
 from utils import (
     extract_account_holder_from_address,
@@ -271,6 +271,7 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 ALL_FUNCTIONS = (
     try_americanexpress,
+    aws.try_aws,
     chase.try_chase,
     try_enel,
     hyperoptic.try_hyperoptic,
