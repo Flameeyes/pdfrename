@@ -93,11 +93,16 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
         assert period_match
         statement_date = dateparser.parse(period_match.group(1), languages=["en"])
 
+        if is_santander_select:
+            account_type = "Select Current Account"
+        elif is_santander_123:
+            account_type = "123 Current Account"
+
         return NameComponents(
             statement_date,
             "Santander",
             account_holder_name,
-            "Select Current Account",
+            account_type,
             additional_components=("Statement",),
         )
 
