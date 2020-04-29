@@ -303,12 +303,12 @@ ALL_FUNCTIONS = (
 )
 
 
-def find_filename(original_filename):
+def find_filename(original_filename: str) -> Optional[str]:
     try:
         pages = list(pdfminer.high_level.extract_pages(original_filename))
     except pdfminer.pdfdocument.PDFTextExtractionNotAllowed:
         logging.warning("Unable to extract text from %s", original_filename)
-        return original_filename
+        return None
 
     text_boxes = [
         obj.get_text()
@@ -320,7 +320,7 @@ def find_filename(original_filename):
         tool_logger.warning(
             "No text boxes found on first page: %r", [list(page) for page in pages]
         )
-        return original_filename
+        return None
 
     tool_logger.debug("textboxes: %r", text_boxes)
 
@@ -334,7 +334,7 @@ def find_filename(original_filename):
                 "Function %s failed on file %s", function, original_filename
             )
 
-    return original_filename
+    return None
 
 
 def main():
@@ -355,6 +355,11 @@ def main():
         help="Whether to actually rename the files, or just output the rename commands.",
     )
     parser.add_argument(
+        "--list_all",
+        action="store_true",
+        help="Whether to print checkmarks/question marks as comment next to files that are note being renamed.",
+    )
+    parser.add_argument(
         "input_files",
         action="store",
         type=str,
@@ -368,12 +373,22 @@ def main():
     logging.basicConfig()
 
     for original_filename in args.input_files:
+        new_basename = find_filename(original_filename)
+
+        if new_basename is None:
+            tool_logger.debug("No match for %s", original_filename)
+            if args.list_all:
+                print(f"# ? {original_filename}")
+            continue
+
         dirname = os.path.dirname(original_filename)
-        new_filename = os.path.join(dirname, find_filename(original_filename))
+        new_filename = os.path.join(dirname, new_basename)
         if new_filename == original_filename:
+            if args.list_all:
+                print(f"# ✓ {original_filename}")
             continue
         if args.rename:
-            logging.info("Renaming %s to %s", original_filename, new_filename)
+            tool_logger.info("Renaming %s to %s", original_filename, new_filename)
             if os.path.exists(new_filename):
                 logging.warning(
                     "File %s already exists, not overwriting.", new_filename
