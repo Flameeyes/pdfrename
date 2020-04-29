@@ -17,6 +17,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [American Express UK](https://www.americanexpress.com/uk/)
  * [Chase](https://www.chase.com/)
  * [ENEL Energia](https://www.enel.it/)
+ * [London Borough of Hounslow](https://www.hounslow.gov.uk/)
+   - Council Tax Bills
  * [Hyperoptic](https://www.hyperoptic.com/)
    - Bills (templates from 2017 to 2020)
  * [M & S Bank](https://bank.marksandspencer.com/)
