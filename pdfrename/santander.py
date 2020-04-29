@@ -65,8 +65,9 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
         return NameComponents(
             statement_date,
             "Santander",
-            account_holder=account_holder_name,
-            additional_components=("Credit Card", document_type),
+            account_holder_name,
+            "Credit Card",
+            additional_components=(document_type,),
         )
 
     is_santander_select = any(box == "Select Current Account\n" for box in text_boxes)
@@ -92,8 +93,9 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
         return NameComponents(
             statement_date,
             "Santander",
-            account_holder=account_holder_name,
-            additional_components=("Select Current Account", "Statement"),
+            account_holder_name,
+            "Select Current Account",
+            additional_components=("Statement",),
         )
 
     is_statement_of_fees = any(box == "Statement of Fees\n" for box in text_boxes)
@@ -117,6 +119,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
         return NameComponents(
             statement_date,
             "Santander",
-            account_holder=account_holder_name,
-            additional_components=(account_type, "Statement of Fees"),
+            account_holder_name,
+            account_type,
+            additional_components=("Statement of Fees",),
         )

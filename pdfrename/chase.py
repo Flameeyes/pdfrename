@@ -64,9 +64,4 @@ def try_chase(text_boxes, parent_logger) -> Optional[NameComponents]:
 
         account_holder_name = extract_account_holder_from_address(address_box)
 
-    return NameComponents(
-        statement_date,
-        "Chase",
-        account_holder_name,
-        additional_components=("Statement",),
-    )
+    return NameComponents(statement_date, "Chase", account_holder_name, "Statement",)

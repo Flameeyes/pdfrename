@@ -25,8 +25,9 @@ def _drop_honorific(holder_name):
 class NameComponents:
     date: datetime.datetime
     service_name: str
-    account_holder: Optional[str]
-    additional_components: Sequence[str]
+    account_holder: str
+    document_type: str
+    additional_components: Sequence[str] = ()
 
     def render_filename(
         self, include_account_holder: bool, drop_honorific: bool
@@ -42,6 +43,8 @@ class NameComponents:
                 filename_components.append(_drop_honorific(self.account_holder))
             else:
                 filename_components.append(self.account_holder)
+
+        filename_components.append(self.document_type)
 
         filename_components.extend(self.additional_components)
 
