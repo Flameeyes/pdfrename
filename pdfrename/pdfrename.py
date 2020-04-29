@@ -64,21 +64,19 @@ def try_americanexpress(text_boxes, parent_logger) -> Optional[NameComponents]:
 def try_enel(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("enel")
 
-    enel_address_box = [
-        box
-        for box in text_boxes
-        if box.startswith("Enel Energia - Mercato libero dell'energia\n")
-    ]
-    if len(enel_address_box) != 1:
+    enel_address_box = find_box_starting_with(
+        text_boxes, "Enel Energia - Mercato libero dell'energia\n"
+    )
+    if not enel_address_box:
         return None
-    enel_address_index = text_boxes.index(enel_address_box[0])
+    enel_address_index = text_boxes.index(enel_address_box)
 
     # Late 2019: the ENEL address is at the beginning, the address is two boxes before the
     # payment due date.
-    due_date_box = [box for box in text_boxes if box.startswith("Entro il ")]
-    assert len(due_date_box) == 1
+    due_date_box = find_box_starting_with(text_boxes, "Entro il ")
+    assert due_date_box
 
-    address_box_index = text_boxes.index(due_date_box[0]) - 2
+    address_box_index = text_boxes.index(due_date_box) - 2
     address_box = text_boxes[address_box_index]
 
     # In 2020: the account holder address is _before_ the ENEL address. We can tell if we
@@ -91,18 +89,18 @@ def try_enel(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     # In 2018, the address was before the customer number instead, try again.
     if account_holder_name == "Periodo":
-        customer_id_box = [box for box in text_boxes if box.startswith("N° CLIENTE\n")]
-        assert len(customer_id_box) == 1
-        customer_id_box_index = text_boxes.index(customer_id_box[0])
+        customer_id_box = find_box_starting_with(text_boxes, "N° CLIENTE\n")
+        assert customer_id_box
+        customer_id_box_index = text_boxes.index(customer_id_box)
 
         address_box = text_boxes[customer_id_box_index - 1]
         account_holder_name = extract_account_holder_from_address(address_box)
 
     # The date follows the invoice number, look for the invoce number, then take the next.
-    invoice_number_box = [box for box in text_boxes if box.startswith("N. Fattura ")]
-    assert len(invoice_number_box) == 1
+    invoice_number_box = find_box_starting_with(text_boxes, "N. Fattura ")
+    assert invoice_number_box
 
-    date_box_index = text_boxes.index(invoice_number_box[0]) + 1
+    date_box_index = text_boxes.index(invoice_number_box) + 1
     date_box = text_boxes[date_box_index]
 
     bill_date = datetime.datetime.strptime(date_box, "Del %d/%m/%Y\n")
@@ -121,13 +119,13 @@ def try_ms_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
     if "M&S Bank" not in text_boxes[-1]:
         return None
 
-    account_name_box = [box for box in text_boxes if box.startswith("Account Name\n")]
-    assert len(account_name_box) == 1
+    account_name_box = find_box_starting_with(text_boxes, "Account Name\n")
+    assert account_name_box
 
-    account_holder_name = account_name_box[0].split("\n")[1].strip()
+    account_holder_name = account_name_box.split("\n")[1].strip()
 
     # The statement period is just before the account name box.
-    period_box_index = text_boxes.index(account_name_box[0]) - 1
+    period_box_index = text_boxes.index(account_name_box) - 1
     period_line = text_boxes[period_box_index]
 
     logger.debug("found period specification %r", period_line)
