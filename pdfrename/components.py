@@ -7,18 +7,7 @@ import datetime
 
 from typing import Optional, Sequence
 
-_honorifics = {"mr", "mrs", "ms", "miss"}
-
-
-def _drop_honorific(holder_name):
-    try:
-        split_honorific = holder_name.split(" ", 1)
-        if split_honorific[0].lower() in _honorifics:
-            return split_honorific[1]
-    except Exception:
-        pass
-
-    return holder_name
+import utils
 
 
 @dataclasses.dataclass
@@ -40,7 +29,7 @@ class NameComponents:
 
         if include_account_holder and self.account_holder:
             if drop_honorific:
-                filename_components.append(_drop_honorific(self.account_holder))
+                filename_components.append(utils.drop_honorific(self.account_holder))
             else:
                 filename_components.append(self.account_holder)
 

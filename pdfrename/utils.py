@@ -4,6 +4,19 @@
 
 from typing import Mapping, Optional, Sequence
 
+_honorifics = {"mr", "mrs", "ms", "miss"}
+
+
+def drop_honorific(holder_name):
+    try:
+        split_honorific = holder_name.split(" ", 1)
+        if split_honorific[0].lower() in _honorifics:
+            return split_honorific[1]
+    except Exception:
+        pass
+
+    return holder_name
+
 
 def build_dict_from_fake_table(fields_box: str, values_box: str) -> Mapping[str, str]:
     """Build a dictionary out of two boxes of a fake table.
