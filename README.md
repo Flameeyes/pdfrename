@@ -27,6 +27,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
    - Statements of Fees
    - Credit Card Statements
    - Credit Card Annual Statements
+ * [Scaleway](https://www.scaleway.com/)
+   - Tested with English invoices only.
  * [So Energy](https://www.so.energy/)
  * [Thames Water](https://www.thameswater.co.uk/)
  * [Tesco Bank](https://www.tescobank.com/)
