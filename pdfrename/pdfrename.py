@@ -37,12 +37,14 @@ def try_americanexpress(text_boxes, parent_logger) -> Optional[NameComponents]:
         document_type = "Statement"
 
     account_holder_box = find_box_starting_with(text_boxes, "Prepared for\n")
+    assert account_holder_box
     account_holder_index = text_boxes.index(account_holder_box)
     account_holder_name = account_holder_box.split("\n")[1].strip().title()
 
     # The date is the box after the Membership Number. We can't look for the one starting
     # with "Date" because there's more than one.
     membership_box = find_box_starting_with(text_boxes, "Membership Number\n")
+    assert membership_box
     membership_index = text_boxes.index(membership_box)
 
     date_box = text_boxes[membership_index + 1]

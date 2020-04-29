@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Mapping, Sequence
+from typing import Mapping, Optional, Sequence
 
 
 def build_dict_from_fake_table(fields_box: str, values_box: str) -> Mapping[str, str]:
@@ -24,7 +24,9 @@ def extract_account_holder_from_address(address: str) -> str:
     return address.split("\n", 1)[0].strip().title()
 
 
-def find_box_starting_with(text_boxes: Sequence[str], startswith: str) -> str:
+def find_box_starting_with(text_boxes: Sequence[str], startswith: str) -> Optional[str]:
     box = [box for box in text_boxes if box.startswith(startswith)]
+    if not box:
+        return None
     assert len(box) == 1
     return box[0]
