@@ -71,8 +71,11 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
         )
 
     is_santander_select = any(box == "Select Current Account\n" for box in text_boxes)
+    is_santander_123 = any(
+        box == "1l2l3 Current Account earnings\n" for box in text_boxes
+    )
 
-    if is_santander_select:
+    if is_santander_select or is_santander_123:
         # Always include the account holder name, which is found in the third text box.
         account_holder_name = extract_account_holder_from_address(text_boxes[2])
 
