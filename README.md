@@ -32,3 +32,29 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [So Energy](https://www.so.energy/)
  * [Thames Water](https://www.thameswater.co.uk/)
  * [Tesco Bank](https://www.tescobank.com/)
+
+## Usage
+
+Set up the virtual environment as follows. Select the script for bash (Linux, OSX, etc.)
+or Windows PowerShell (especially for Visual Studio Code).
+
+```
+$ python -m venv venv
+$ . venv/bin/activate  # bash
+$ venv\Scripts\activate.ps1  # Windows PowerShell
+(venv) $ pip install -r requirements.txt
+```
+
+Once the venv is activated and the dependencies installed, you can run the script from the
+directory and point it to one or more PDFs:
+
+```
+# Only prints suggested renames
+(venv) $ python pdfrename/pdfrename.py unsortedbill.pdf
+
+# Actually rename files
+(venv) $ python pdfrename/pdfrename.py --rename unsortedbill.pdf
+
+# Verifies names
+(venv) $ python pdfrename/pdfrename.py --list_all "2155-10-28 - AWS - Neo - Bill.pdf"
+```
