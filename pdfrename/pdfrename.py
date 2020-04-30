@@ -288,7 +288,7 @@ ALL_FUNCTIONS = (
 
 def find_filename(original_filename: str) -> Optional[str]:
     try:
-        pages = list(pdfminer.high_level.extract_pages(original_filename))
+        pages = list(pdfminer.high_level.extract_pages(original_filename, maxpages=1))
     except pdfminer.pdfdocument.PDFTextExtractionNotAllowed:
         logging.warning("Unable to extract text from %s", original_filename)
         return None
