@@ -356,6 +356,7 @@ def main():
     logging.basicConfig()
 
     for original_filename in args.input_files:
+        tool_logger.debug("Analysing %s", original_filename)
         new_basename = find_filename(original_filename)
 
         if new_basename is None:
