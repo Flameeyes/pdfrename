@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2020 Diego Elio Pettenò
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Unlicense
 
 # Auto detect text files and perform LF normalization
 * text=auto

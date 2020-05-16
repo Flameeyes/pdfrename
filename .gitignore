@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2020 Diego Elio Pettenò
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Unlicense
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -130,3 +130,6 @@ dmypy.json
 
 # VSCode
 .vscode/
+
+# Backups
+*~
