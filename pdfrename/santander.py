@@ -10,7 +10,11 @@ from typing import Optional
 import dateparser
 
 from components import NameComponents
-from utils import extract_account_holder_from_address
+from utils import (
+    extract_account_holder_from_address,
+    find_box_starting_with,
+    drop_honorific,
+)
 
 
 def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
@@ -130,4 +134,40 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
             account_holder_name,
             account_type,
             additional_components=("Statement of Fees",),
+        )
+
+    annual_account_summary_period_line = find_box_starting_with(
+        text_boxes, "Your Account Summary for "
+    )
+
+    if annual_account_summary_period_line:
+
+        account_holder_name = extract_account_holder_from_address(text_boxes[3])
+
+        _, initials, surname = account_holder_name.split(" ", 2)
+        initials = " ".join(list(initials)).upper()
+        account_holder_name = " ".join([initials, surname])
+
+        account_type = text_boxes[30].split(":", 1)[0].strip().title()
+
+        logger.debug(
+            "found period specification: %r", annual_account_summary_period_line
+        )
+        logger.debug(f"possible account: {text_boxes[30]}")
+
+        period_match = re.match(
+            r"^Your Account Summary for [0-9]{1,2} [A-Z][a-z]+ [0-9]{4} to ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n$",
+            annual_account_summary_period_line,
+        )
+
+        assert period_match
+
+        statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+
+        return NameComponents(
+            statement_date,
+            "Santander",
+            account_holder_name,
+            account_type,
+            additional_components=("Annual Account Summary",),
         )
