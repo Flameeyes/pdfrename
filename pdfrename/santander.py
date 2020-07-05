@@ -41,7 +41,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
             ]
             assert len(period_line) == 1
 
-            logger.debug("found period specification: %r", period_line[0])
+            logger.debug(f"found period specification: {period_line[0]!r}")
 
             period_match = re.match(
                 r"^Annual Statement: [0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4} to ([0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4})\n",
@@ -57,7 +57,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
             ]
             assert len(period_line) == 1
 
-            logger.debug("found period specification: %r", period_line[0])
+            logger.debug(f"found period specification: {period_line[0]!r}")
 
             period_match = re.match(
                 r"^Account summary as at: ([0-9]{1,2}[a-z]{2} [A-Z][a-z]+ [0-9]{4}) for card number ending [0-9]{4}\n$",
@@ -88,7 +88,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
         ]
         assert len(period_line) == 1
 
-        logger.debug("found period specification: %r", period_line[0])
+        logger.debug(f"found period specification: {period_line[0]!r}")
 
         period_match = re.match(
             r"^Your account summary for  \n[0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4} to ([0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4})\n$",
@@ -151,7 +151,7 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
         account_type = text_boxes[30].split(":", 1)[0].strip().title()
 
         logger.debug(
-            "found period specification: %r", annual_account_summary_period_line
+            f"found period specification: {annual_account_summary_period_line!r}"
         )
         logger.debug(f"possible account: {text_boxes[30]}")
 

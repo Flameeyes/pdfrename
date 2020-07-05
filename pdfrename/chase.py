@@ -34,7 +34,7 @@ def try_chase(text_boxes, parent_logger) -> Optional[NameComponents]:
         return None
 
     assert period_match
-    logger.debug("found period specification: %r", period_match.group(0))
+    logger.debug(f"found period specification: {period_match.group(0)!r}")
 
     statement_date = dateparser.parse(period_match.group(1), languages=["en"])
 
