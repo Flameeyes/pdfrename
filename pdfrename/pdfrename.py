@@ -157,18 +157,17 @@ def try_tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("tesco_bank")
 
     # Before checking for statements, check other communications.
-    if text_boxes[0].startswith("Tesco Bank\n") and any(
-        box.startswith("Annual Summary of Interest\n") for box in text_boxes
+    if text_boxes[0].startswith("Tesco Bank\n") and find_box_starting_with(
+        text_boxes, "Annual Summary of Interest\n"
     ):
         assert "Minicom:" in text_boxes[2]
 
         account_holder_name = text_boxes[4].strip()
-        tax_year_line = [box for box in text_boxes if box.startswith("Tax Year:")]
-        assert len(tax_year_line) == 1
+        tax_year_line = find_box_starting_with(text_boxes, "Tax Year:")
 
         tax_year_match = re.search(
             r"^Tax Year: [0-9]{1,2} [A-Z][a-z]+ [0-9]{4} to ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n$",
-            tax_year_line[0],
+            tax_year_line,
         )
         assert tax_year_match
 

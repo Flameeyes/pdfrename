@@ -29,39 +29,35 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
         account_holder_name = extract_account_holder_from_address(text_boxes[1])
 
         # Could be an annual statement, look for it.
-        is_annual_statement = any(
-            box.startswith("Annual Statement:") for box in text_boxes
+        annual_statement_period_line = find_box_starting_with(
+            text_boxes, "Annual Statement:"
         )
 
-        if is_annual_statement:
+        if annual_statement_period_line:
             document_type = "Annual Statement"
 
-            period_line = [
-                box for box in text_boxes if box.startswith("Annual Statement:")
-            ]
-            assert len(period_line) == 1
-
-            logger.debug(f"found period specification: {period_line[0]!r}")
+            logger.debug(
+                f"found period specification: {annual_statement_period_line!r}"
+            )
 
             period_match = re.match(
                 r"^Annual Statement: [0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4} to ([0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4})\n",
-                period_line[0],
+                annual_statement_period_line,
             )
             assert period_match
             statement_date = dateparser.parse(period_match.group(1), languages=["en"])
         else:
             document_type = "Statement"
 
-            period_line = [
-                box for box in text_boxes if box.startswith("Account summary as at:")
-            ]
-            assert len(period_line) == 1
+            statement_period_line = find_box_starting_with(
+                text_boxes, "Account summary as at:"
+            )
 
-            logger.debug(f"found period specification: {period_line[0]!r}")
+            logger.debug(f"found period specification: {statement_period_line!r}")
 
             period_match = re.match(
                 r"^Account summary as at: ([0-9]{1,2}[a-z]{2} [A-Z][a-z]+ [0-9]{4}) for card number ending [0-9]{4}\n$",
-                period_line[0],
+                statement_period_line,
             )
             assert period_match
             statement_date = dateparser.parse(period_match.group(1), languages=["en"])
@@ -83,16 +79,13 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
         # Always include the account holder name, which is found in the third text box.
         account_holder_name = extract_account_holder_from_address(text_boxes[2])
 
-        period_line = [
-            box for box in text_boxes if box.startswith("Your account summary for  \n")
-        ]
-        assert len(period_line) == 1
+        period_line = find_box_starting_with(text_boxes, "Your account summary for  \n")
 
-        logger.debug(f"found period specification: {period_line[0]!r}")
+        logger.debug(f"found period specification: {period_line!r}")
 
         period_match = re.match(
             r"^Your account summary for  \n[0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4} to ([0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4})\n$",
-            period_line[0],
+            period_line,
         )
         assert period_match
         statement_date = dateparser.parse(period_match.group(1), languages=["en"])
