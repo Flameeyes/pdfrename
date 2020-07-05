@@ -21,7 +21,7 @@ def _try_old_hyperoptic(text_boxes, logger) -> Optional[NameComponents]:
     else:
         return None
 
-    logger.debug("looking for customer name in %r", account_holder_box)
+    logger.debug(f"looking for customer name in {account_holder_box!r}")
     account_holder_match = re.search(r"Customer Name: ([^\n]+)\n", account_holder_box)
     assert account_holder_match
     account_holder_name = account_holder_match.group(1)

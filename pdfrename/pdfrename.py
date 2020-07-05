@@ -120,7 +120,7 @@ def try_ms_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
     period_box_index = text_boxes.index(account_name_box) - 1
     period_line = text_boxes[period_box_index]
 
-    logger.debug("found period specification %r", period_line)
+    logger.debug(f"found period specification {period_line!r}")
 
     period_match = re.search(
         r"^[0-9]{2} [A-Z][a-z]+(?: [0-9]{4})? to ([0-9]{2} [A-Z][a-z]+ [0-9]{4})\n$",
@@ -256,7 +256,7 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
     account_holder_name = extract_account_holder_from_address(address_box)
 
     period_line = text_boxes[2]
-    logger.debug("found period specification: %r", period_line)
+    logger.debug(f"found period specification: {period_line!r}")
     period_match = re.match(
         r"^For the period of [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4} - ([0-9]{1,2} [A-Z][a-z]{2} [0-9]{4})\n$",
         period_line,
@@ -291,7 +291,7 @@ def find_filename(original_filename: str) -> Optional[str]:
     try:
         pages = list(pdfminer.high_level.extract_pages(original_filename, maxpages=1))
     except pdfminer.pdfdocument.PDFTextExtractionNotAllowed:
-        logging.warning("Unable to extract text from %s", original_filename)
+        logging.warning(f"Unable to extract text from {original_filename}")
         return None
 
     text_boxes = [
@@ -302,11 +302,11 @@ def find_filename(original_filename: str) -> Optional[str]:
 
     if not text_boxes:
         tool_logger.warning(
-            "No text boxes found on first page: %r", [list(page) for page in pages]
+            f"No text boxes found on first page: {[list(page) for page in pages]!r}"
         )
         return None
 
-    tool_logger.debug("textboxes: %r", text_boxes)
+    tool_logger.debug(f"textboxes: {text_boxes!r}")
 
     for function in ALL_FUNCTIONS:
         try:
@@ -314,9 +314,7 @@ def find_filename(original_filename: str) -> Optional[str]:
             if name:
                 return name.render_filename(True, True)
         except Exception:
-            logging.exception(
-                "Function %s failed on file %s", function, original_filename
-            )
+            logging.exception(f"Function {function} failed on file {original_filename}")
 
     return None
 
@@ -361,7 +359,7 @@ def main():
         new_basename = find_filename(original_filename)
 
         if new_basename is None:
-            tool_logger.debug("No match for %s", original_filename)
+            tool_logger.debug(f"No match for {original_filename}")
             if args.list_all:
                 print(f"# ? {original_filename}")
             continue
@@ -373,11 +371,9 @@ def main():
                 print(f"# ✓ {original_filename}")
             continue
         if args.rename:
-            tool_logger.info("Renaming %s to %s", original_filename, new_filename)
+            tool_logger.info(f"Renaming {original_filename} to {new_filename}")
             if os.path.exists(new_filename):
-                logging.warning(
-                    "File %s already exists, not overwriting.", new_filename
-                )
+                logging.warning(f"File {new_filename} already exists, not overwriting.")
                 continue
             shutil.move(original_filename, new_filename)
         else:
