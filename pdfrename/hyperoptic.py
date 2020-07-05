@@ -33,12 +33,12 @@ def _try_old_hyperoptic(text_boxes, logger) -> Optional[NameComponents]:
     #
     # They thankfully sit next to each other, so once one is found, it's possible to find
     # the invoice date with relative ease.
-    titles_str = [box for box in text_boxes if box.startswith("DD Ref:\n")]
-    assert len(titles_str) == 1
+    titles_str = find_box_starting_with(text_boxes, "DD Ref:\n")
+
     titles_idx = text_boxes.index(titles_str[0])
     values_str = text_boxes[titles_idx + 1]
 
-    document_info = build_dict_from_fake_table(titles_str[0], values_str)
+    document_info = build_dict_from_fake_table(titles_str, values_str)
     bill_date_str = document_info["Invoice date:"]
     bill_date = datetime.datetime.strptime(bill_date_str, "%d %b %Y")
 
