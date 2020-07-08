@@ -35,6 +35,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [So Energy](https://www.so.energy/)
  * [Thames Water](https://www.thameswater.co.uk/)
  * [Tesco Bank](https://www.tescobank.com/)
+ * [Vodafone UK](https://www.vodafone.co.uk/)
+   - Bills
 
 ## Usage
 
