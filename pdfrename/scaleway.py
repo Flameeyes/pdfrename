@@ -32,7 +32,7 @@ def try_scaleway(text_boxes, parent_logger) -> Optional[NameComponents]:
         # Latest template
         date_str = date_box.split("\n")[1].strip()
     else:
-        # We need to find teh Issued line that is mixed together with other items, so just
+        # We need to find the Issued line that is mixed together with other items, so just
         # use regex to find it.
         for box in text_boxes:
             # We don't really use a strict regex here, but we do only extract the _date_
