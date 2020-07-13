@@ -21,6 +21,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
    - Council Tax Bills
  * [Hyperoptic](https://www.hyperoptic.com/)
    - Bills (templates from 2017 to 2020)
+ * [KBC Ireland](https://wwww.kbc.ie/)
+   - Statements ca. 2015
  * [Lloyds](https://www.lloydsbank.com/)
  * [M & S Bank](https://bank.marksandspencer.com/)
  * [O2 UK](https://www.o2.co.uk/)
