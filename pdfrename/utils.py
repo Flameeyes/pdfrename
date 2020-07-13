@@ -4,7 +4,7 @@
 
 from typing import Mapping, Optional, Sequence
 
-_honorifics = {"mr", "mrs", "ms", "miss"}
+_honorifics = {"mr", "mr.", "mrs", "ms", "miss"}
 
 
 def drop_honorific(holder_name):
