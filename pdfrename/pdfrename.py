@@ -15,7 +15,7 @@ import dateparser
 import pdfminer.high_level
 import pdfminer.layout
 
-import aws, chase, hounslow, hyperoptic, kbc, lloyds, santander, scaleway, schwab, soenergy, vodafone
+import aws, azure, chase, hounslow, hyperoptic, kbc, lloyds, santander, scaleway, schwab, soenergy, vodafone
 from components import NameComponents
 from utils import (
     extract_account_holder_from_address,
@@ -244,6 +244,7 @@ def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
 ALL_FUNCTIONS = (
     try_americanexpress,
     aws.try_aws,
+    azure.try_azure,
     chase.try_chase,
     try_enel,
     hounslow.try_hounslow,
