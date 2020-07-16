@@ -15,6 +15,8 @@ As this is aimed at my (@Flameeyes) own use, the list of supported PDFs pretty m
 focuses on bills and statements from UK, Italian, or Irish services and banks.
 
  * [American Express UK](https://www.americanexpress.com/uk/)
+ * [Microsoft Azure](https://azure.microsoft.com/)
+   - Invoices
  * [Chase](https://www.chase.com/)
  * [ENEL Energia](https://www.enel.it/)
  * [London Borough of Hounslow](https://www.hounslow.gov.uk/)
