@@ -21,6 +21,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [EDF Energy](https://www.edfenergy.com/)
    - Bills
  * [ENEL Energia](https://www.enel.it/)
+ * [Google Cloud](https://cloud.google.com)
+   - Invoices (European)
  * [London Borough of Hounslow](https://www.hounslow.gov.uk/)
    - Council Tax Bills
  * [Hyperoptic](https://www.hyperoptic.com/)
