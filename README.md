@@ -18,6 +18,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [Microsoft Azure](https://azure.microsoft.com/)
    - Invoices
  * [Chase](https://www.chase.com/)
+ * [EDF Energy](https://www.edfenergy.com/)
+   - Bills
  * [ENEL Energia](https://www.enel.it/)
  * [London Borough of Hounslow](https://www.hounslow.gov.uk/)
    - Council Tax Bills
