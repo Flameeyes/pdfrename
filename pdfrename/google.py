@@ -22,9 +22,14 @@ def try_google(text_boxes, parent_logger) -> Optional[NameComponents]:
 
         invoice_date_title_box = find_box_starting_with(text_boxes, "Invoice date\n")
         assert invoice_date_title_box
-        invoice_date_idx = text_boxes.index(invoice_date_title_box) + 1
 
-        invoice_date_str = text_boxes[invoice_date_idx]
+        invoice_date_box = invoice_date_title_box.split("\n")
+        if len(invoice_date_box) == 3:
+            invoice_date_idx = text_boxes.index(invoice_date_title_box) + 1
+            invoice_date_str = text_boxes[invoice_date_idx]
+        elif len(invoice_date_box) == 4:
+            invoice_date_str = invoice_date_box[2]
+
         invoice_date = dateparser.parse(invoice_date_str, languages=["en"])
         assert invoice_date is not None
 
