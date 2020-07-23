@@ -20,8 +20,14 @@ def try_azure(text_boxes, parent_logger) -> Optional[NameComponents]:
         address_str = text_boxes[address_idx + 1].strip()
         account_holder_name = address_str.split("\n")[-1].split(":", 1)[1]
 
-        invoice_date_str = text_boxes[address_idx + 2]
-        invoice_date = datetime.datetime.strptime(invoice_date_str, "%m/%d/%Y\n")
-        assert invoice_date is not None
+        for box in text_boxes:
+            try:
+                invoice_date = datetime.datetime.strptime(box, "%m/%d/%Y\n")
+                logger.debug(f"Found an invoice date line {invoice_date!r}")
+                break
+            except ValueError:
+                continue
+        else:
+            raise Exception("No invoice date found")
 
         return NameComponents(invoice_date, "Azure", account_holder_name, "Invoice")
