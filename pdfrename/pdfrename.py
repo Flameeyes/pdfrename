@@ -8,7 +8,6 @@ import logging
 import os
 import re
 import shutil
-import sys
 from typing import Optional
 
 import click
