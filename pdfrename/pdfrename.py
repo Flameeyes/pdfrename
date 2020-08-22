@@ -11,6 +11,7 @@ import shutil
 import sys
 from typing import Optional
 
+import click
 import dateparser
 import pdfminer.high_level
 import pdfminer.layout
@@ -297,58 +298,47 @@ def find_filename(original_filename: str) -> Optional[str]:
     return None
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--vlog",
-        action="store",
-        required=False,
-        type=int,
-        help=(
-            "Python logging level. See the levels at "
-            "https://docs.python.org/3/library/logging.html#logging-levels"
-        ),
-    )
-    parser.add_argument(
-        "--rename",
-        action="store_true",
-        help="Whether to actually rename the files, or just output the rename commands.",
-    )
-    parser.add_argument(
-        "--list_all",
-        action="store_true",
-        help="Whether to print checkmarks/question marks as comment next to files that are note being renamed.",
-    )
-    parser.add_argument(
-        "input_files",
-        action="store",
-        type=str,
-        nargs="+",
-        help="One or more input filenames to try renaming.",
-    )
-
-    args = parser.parse_args()
-    if args.vlog is not None:
-        tool_logger.setLevel(args.vlog)
+@click.command()
+@click.option(
+    "--vlog",
+    type=int,
+    help="Python logging level. See the levels at https://docs.python.org/3/library/logging.html#logging-levels",
+)
+@click.option(
+    "--rename/--no-rename",
+    default=False,
+    help="Whether to actually rename the files, or just output the rename commands.",
+)
+@click.option(
+    "--list-all/--no-list-all",
+    default=False,
+    help="Whether to print checkmarks/question marks as comment next to files that are note being renamed.",
+)
+@click.argument(
+    "input-files", nargs=-1, type=click.Path(exists=True, dir_okay=False, readable=True)
+)
+def main(*, vlog, rename, list_all, input_files):
+    if vlog is not None:
+        tool_logger.setLevel(vlog)
     logging.basicConfig()
 
-    for original_filename in args.input_files:
-        tool_logger.debug("Analysing %s", original_filename)
+    for original_filename in input_files:
+        tool_logger.debug(f"Analysing {original_filename}")
         new_basename = find_filename(original_filename)
 
         if new_basename is None:
             tool_logger.debug(f"No match for {original_filename}")
-            if args.list_all:
+            if list_all:
                 print(f"# ? {original_filename}")
             continue
 
         dirname = os.path.dirname(original_filename)
         new_filename = os.path.join(dirname, new_basename)
         if new_filename == original_filename:
-            if args.list_all:
+            if list_all:
                 print(f"# ✓ {original_filename}")
             continue
-        if args.rename:
+        if rename:
             tool_logger.info(f"Renaming {original_filename} to {new_filename}")
             if os.path.exists(new_filename):
                 logging.warning(f"File {new_filename} already exists, not overwriting.")
