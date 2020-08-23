@@ -15,7 +15,7 @@ import dateparser
 import pdfminer.high_level
 import pdfminer.layout
 
-import aws, azure, chase, edf, google, hounslow, hyperoptic, kbc, lloyds, santander, scaleway, schwab, soenergy, vodafone
+import aws, azure, chase, digikey, edf, google, hounslow, hyperoptic, kbc, lloyds, mouser, santander, scaleway, schwab, soenergy, vodafone
 from components import NameComponents
 from utils import (
     extract_account_holder_from_address,
@@ -246,6 +246,7 @@ ALL_FUNCTIONS = (
     aws.try_aws,
     azure.try_azure,
     chase.try_chase,
+    digikey.try_digikey,
     edf.try_edf,
     try_enel,
     google.try_google,
@@ -253,6 +254,7 @@ ALL_FUNCTIONS = (
     hyperoptic.try_hyperoptic,
     kbc.try_kbc,
     lloyds.try_lloyds,
+    mouser.try_mouser,
     try_ms_bank,
     try_o2,
     santander.try_santander,
