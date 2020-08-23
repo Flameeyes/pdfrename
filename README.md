@@ -18,6 +18,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [Microsoft Azure](https://azure.microsoft.com/)
    - Invoices
  * [Chase](https://www.chase.com/)
+ * [Digikey](https://www.digikey.com/)
+   - Invoices
  * [EDF Energy](https://www.edfenergy.com/)
    - Bills
  * [ENEL Energia](https://www.enel.it/)
@@ -31,6 +33,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
    - Statements ca. 2015
  * [Lloyds](https://www.lloydsbank.com/)
  * [M & S Bank](https://bank.marksandspencer.com/)
+ * [Mouser](https://www.mouser.com/)
+   - Invoices (Only with FedEx International delivery)
  * [O2 UK](https://www.o2.co.uk/)
     - Bills
  * [Santander UK](https://www.santander.co.uk)
