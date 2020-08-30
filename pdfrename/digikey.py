@@ -17,7 +17,7 @@ from utils import (
 def try_digikey(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("digikey")
 
-    is_digikey = any("www.digikey." in box for box in text_boxes)
+    is_digikey = "www.digikey." in text_boxes[1]
 
     if is_digikey:
         # Looking for a stray 'i' from the 'Ship To' label.
