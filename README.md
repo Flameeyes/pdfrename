@@ -34,7 +34,7 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [Lloyds](https://www.lloydsbank.com/)
  * [M & S Bank](https://bank.marksandspencer.com/)
  * [Mouser](https://www.mouser.com/)
-   - Invoices (Only with FedEx International delivery)
+   - Invoices
  * [O2 UK](https://www.o2.co.uk/)
     - Bills
  * [Santander UK](https://www.santander.co.uk)
