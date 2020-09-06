@@ -14,7 +14,12 @@ from utils import find_box_starting_with
 def try_scaleway(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("scaleway")
 
-    if not find_box_starting_with(text_boxes, "Online SAS,"):
+    is_scaleway = bool(
+        find_box_starting_with(text_boxes, "Online SAS,")
+        or find_box_starting_with(text_boxes, "Scaleway SAS, ")
+    )
+
+    if not is_scaleway:
         return None
 
     customer_box = find_box_starting_with(text_boxes, "Customer \n")
