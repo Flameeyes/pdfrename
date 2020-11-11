@@ -54,7 +54,10 @@ def try_americanexpress(text_boxes, parent_logger) -> Optional[NameComponents]:
     statement_date = datetime.datetime.strptime(date_fields[1], "%d/%m/%y")
 
     return NameComponents(
-        statement_date, "American Express", account_holder_name, "Statement",
+        statement_date,
+        "American Express",
+        account_holder_name,
+        "Statement",
     )
 
 
@@ -102,7 +105,12 @@ def try_enel(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     bill_date = datetime.datetime.strptime(date_box, "Del %d/%m/%Y\n")
 
-    return NameComponents(bill_date, "ENEL Energia", account_holder_name, "Bolletta",)
+    return NameComponents(
+        bill_date,
+        "ENEL Energia",
+        account_holder_name,
+        "Bolletta",
+    )
 
 
 def try_ms_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
@@ -130,7 +138,12 @@ def try_ms_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     statement_date = dateparser.parse(period_match.group(1), languages=["en"])
 
-    return NameComponents(statement_date, "M&S Bank", account_holder_name, "Statement",)
+    return NameComponents(
+        statement_date,
+        "M&S Bank",
+        account_holder_name,
+        "Statement",
+    )
 
 
 def try_o2(text_boxes, parent_logger) -> Optional[NameComponents]:
@@ -150,7 +163,12 @@ def try_o2(text_boxes, parent_logger) -> Optional[NameComponents]:
     address_box = text_boxes[3]
     account_holder_name = extract_account_holder_from_address(address_box)
 
-    return NameComponents(bill_date, "O2 UK", account_holder_name, "Bill",)
+    return NameComponents(
+        bill_date,
+        "O2 UK",
+        account_holder_name,
+        "Bill",
+    )
 
 
 def try_tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
@@ -202,7 +220,10 @@ def try_tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
     )
 
     return NameComponents(
-        statement_date, "Tesco Bank", account_holder_name, document_type,
+        statement_date,
+        "Tesco Bank",
+        account_holder_name,
+        document_type,
     )
 
 
@@ -237,7 +258,10 @@ def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
         document_type = "Other"
 
     return NameComponents(
-        document_date, "Thames Water", account_holder_name, document_type,
+        document_date,
+        "Thames Water",
+        account_holder_name,
+        document_type,
     )
 
 
