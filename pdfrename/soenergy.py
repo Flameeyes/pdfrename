@@ -34,7 +34,10 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
         statement_date = dateparser.parse(period_match.group(1), languages=["en"])
 
         return NameComponents(
-            statement_date, "So Energy", account_holder_name, "Statement",
+            statement_date,
+            "So Energy",
+            account_holder_name,
+            "Statement",
         )
 
     annual_electricity_summary_period_line = find_box_starting_with(

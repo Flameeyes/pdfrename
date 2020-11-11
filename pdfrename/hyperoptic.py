@@ -42,7 +42,12 @@ def _try_old_hyperoptic(text_boxes, logger) -> Optional[NameComponents]:
     bill_date_str = document_info["Invoice date:"]
     bill_date = datetime.datetime.strptime(bill_date_str, "%d %b %Y")
 
-    return NameComponents(bill_date, "Hyperoptic", account_holder_name, "Bill",)
+    return NameComponents(
+        bill_date,
+        "Hyperoptic",
+        account_holder_name,
+        "Bill",
+    )
 
 
 def try_hyperoptic(text_boxes, parent_logger) -> Optional[NameComponents]:
@@ -75,4 +80,9 @@ def try_hyperoptic(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     bill_date = datetime.datetime.strptime(date_str, "%d %b %Y\n")
 
-    return NameComponents(bill_date, "Hyperoptic", account_holder_name, "Bill",)
+    return NameComponents(
+        bill_date,
+        "Hyperoptic",
+        account_holder_name,
+        "Bill",
+    )

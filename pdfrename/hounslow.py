@@ -43,4 +43,9 @@ def try_hounslow(text_boxes: Sequence[str], parent_logger) -> Optional[NameCompo
 
         account_holder = ", ".join(account_holders)
 
-    return NameComponents(bill_date, "LB Hounslow", account_holder, "Council Tax Bill",)
+    return NameComponents(
+        bill_date,
+        "LB Hounslow",
+        account_holder,
+        "Council Tax Bill",
+    )
