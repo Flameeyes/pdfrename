@@ -11,14 +11,22 @@ from typing import Optional
 from components import NameComponents
 from utils import extract_account_holder_from_address, find_box_starting_with
 
+_DOCUMENT_TYPES = {
+    "Hello, here is your final bill.\n": "Final Bill",
+    "Hello, here is your statement.\n": "Statement",
+}
+
 
 def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("soenergy")
 
-    is_soenergy = any(box == "www.so.energy\n" for box in text_boxes)
-    if is_soenergy:
+    if "www.so.energy\n" in text_boxes:
 
-        assert text_boxes[1] == "Hello, here is your statement.\n"
+        if text_boxes[1] not in _DOCUMENT_TYPES:
+            logger.debug(f"Unknown document type. Subject: {text_boxes!r}")
+            return None
+
+        document_type = _DOCUMENT_TYPES[text_boxes[1]]
 
         # Find the account holder name at the start of the PDF.
         address_box = text_boxes[0]
@@ -37,7 +45,7 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
             statement_date,
             "So Energy",
             account_holder_name,
-            "Statement",
+            document_type,
         )
 
     annual_electricity_summary_period_line = find_box_starting_with(

@@ -46,7 +46,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [Scaleway](https://www.scaleway.com/)
    - Tested with English invoices only.
  * [So Energy](https://www.so.energy/)
-    - Bills
+    - Statement
+    - Final Bill
     - Annual Summary
  * [Thames Water](https://www.thameswater.co.uk/)
  * [Tesco Bank](https://www.tescobank.com/)
