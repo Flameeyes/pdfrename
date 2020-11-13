@@ -103,7 +103,10 @@ def try_santander(text_boxes, parent_logger) -> Optional[NameComponents]:
             additional_components=("Statement",),
         )
 
-    is_statement_of_fees = any(box == "Statement of Fees\n" for box in text_boxes)
+    is_statement_of_fees = (
+        "Statement of Fees\n" in text_boxes
+        and find_box_starting_with(text_boxes, "Santander UK plc\n")
+    )
 
     if is_statement_of_fees:
         # Always include the account holder name, which is found in the fourth text box.
