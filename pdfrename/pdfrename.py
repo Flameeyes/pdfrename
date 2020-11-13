@@ -369,6 +369,8 @@ def main(*, vlog, rename, list_all, input_files):
             if os.path.exists(new_filename):
                 logging.warning(f"File {new_filename} already exists, not overwriting.")
                 continue
+            if list_all:
+                print(f"# {original_filename!r} → {new_filename!r}")
             shutil.move(original_filename, new_filename)
         else:
             print(f'ren "{original_filename}" "{new_filename}"')
