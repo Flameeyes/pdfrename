@@ -15,7 +15,7 @@ import dateparser
 import pdfminer.high_level
 import pdfminer.layout
 
-import aws, azure, chase, digikey, edf, google, hounslow, hyperoptic, kbc, lloyds, mouser, payslips_facebook_uk, santander, scaleway, schwab, soenergy, vodafone
+import aws, azure, chase, digikey, edf, google, hounslow, hyperoptic, kbc, lloyds, mouser, payslips_facebook_uk, santander, scaleway, schwab, soenergy, thameswater, vodafone
 from components import NameComponents
 from utils import (
     extract_account_holder_from_address,
@@ -227,44 +227,6 @@ def try_tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
     )
 
 
-def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("thameswater")
-
-    # There are at least two different possible boxes as the bottom of page 1 since 2017,
-    # but they all include a link to TW's website.
-    if "thameswater.co.uk/" not in text_boxes[-1]:
-        return None
-
-    assert text_boxes[0].startswith("Page 1 of ")
-
-    date_line = text_boxes[1]
-    date_match = re.search("^Date\n([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n", date_line)
-    assert date_match
-
-    document_date = dateparser.parse(date_match.group(1), languages=["en"])
-
-    address_box = text_boxes[5]
-    account_holder_name = extract_account_holder_from_address(address_box)
-
-    document_subject = text_boxes[7]
-    if (
-        document_subject == "Your payment plan.\n"
-        or document_subject == "Your new payment plan.\n"
-    ):
-        document_type = "Payment Plan"
-    elif document_subject == "Your water and wastewater bill.\n":
-        document_type = "Bill"
-    else:
-        document_type = "Other"
-
-    return NameComponents(
-        document_date,
-        "Thames Water",
-        account_holder_name,
-        document_type,
-    )
-
-
 ALL_FUNCTIONS = (
     try_americanexpress,
     aws.try_aws,
@@ -287,7 +249,7 @@ ALL_FUNCTIONS = (
     schwab.try_schwab,
     soenergy.try_soenergy,
     try_tesco_bank,
-    try_thameswater,
+    thameswater.try_thameswater,
     vodafone.try_vodafone,
 )
 
