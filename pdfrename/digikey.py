@@ -17,6 +17,9 @@ from utils import (
 def try_digikey(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("digikey")
 
+    if len(text_boxes) < 2:
+        return None
+
     is_digikey = "www.digikey." in text_boxes[1]
 
     if is_digikey:

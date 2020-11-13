@@ -13,6 +13,9 @@ from utils import extract_account_holder_from_address, find_box_starting_with
 def try_payslip_facebook_uk(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("facebook")
 
+    if len(text_boxes) < 5:
+        return None
+
     is_payslip_facebook_uk = "Facebook UK Ltd\n" == text_boxes[2]
     if is_payslip_facebook_uk:
         logger.debug("Found Facebook Payslip")

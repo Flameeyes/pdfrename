@@ -13,6 +13,9 @@ from utils import extract_account_holder_from_address
 def try_mouser(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("mouser")
 
+    if len(text_boxes) < 28:
+        return None
+
     is_mouser = "Mouser Part Number\n" in text_boxes[27]
 
     if is_mouser:
