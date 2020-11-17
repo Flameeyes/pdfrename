@@ -22,17 +22,20 @@ def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     if "www.so.energy\n" in text_boxes:
 
-        if text_boxes[1] not in _DOCUMENT_TYPES:
+        for subject, document_type in _DOCUMENT_TYPES.items():
+            if subject in text_boxes:
+                break
+        else:
             logger.debug(f"Unknown document type. Subject: {text_boxes!r}")
             return None
 
-        document_type = _DOCUMENT_TYPES[text_boxes[1]]
+        subject_index = text_boxes.index(subject)
 
         # Find the account holder name at the start of the PDF.
         address_box = text_boxes[0]
         account_holder_name = extract_account_holder_from_address(address_box)
 
-        period_line = text_boxes[2]
+        period_line = text_boxes[subject_index + 1]
         logger.debug(f"found period specification: {period_line!r}")
         period_match = re.match(
             r"^For the period of [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4} - ([0-9]{1,2} [A-Z][a-z]{2} [0-9]{4})\n$",
