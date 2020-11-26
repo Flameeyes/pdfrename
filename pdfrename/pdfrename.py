@@ -261,6 +261,8 @@ def find_filename(original_filename: str) -> Optional[str]:
         pages = list(pdfminer.high_level.extract_pages(original_filename, maxpages=1))
     except pdfminer.pdfdocument.PDFTextExtractionNotAllowed:
         logging.warning(f"Unable to extract text from {original_filename}")
+    except pdfminer.pdfparser.PDFSyntaxError as error:
+        tool_logger.warning(f"Invalid PDF file {original_filename}: {error}")
         return None
 
     text_boxes = [
