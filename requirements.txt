@@ -4,4 +4,4 @@
 
 click
 dateparser
-pdfminer.six
+pdfminer.six >= 20200720

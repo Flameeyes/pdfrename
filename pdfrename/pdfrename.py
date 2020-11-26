@@ -8,6 +8,7 @@ import logging
 import os
 import re
 import shutil
+import warnings
 from typing import Optional
 
 import click
@@ -259,8 +260,6 @@ ALL_FUNCTIONS = (
 def find_filename(original_filename: str) -> Optional[str]:
     try:
         pages = list(pdfminer.high_level.extract_pages(original_filename, maxpages=1))
-    except pdfminer.pdfdocument.PDFTextExtractionNotAllowed:
-        logging.warning(f"Unable to extract text from {original_filename}")
     except pdfminer.pdfparser.PDFSyntaxError as error:
         tool_logger.warning(f"Invalid PDF file {original_filename}: {error}")
         return None
@@ -313,6 +312,9 @@ def main(*, vlog, rename, list_all, input_files):
     if vlog is not None:
         tool_logger.setLevel(vlog)
     logging.basicConfig()
+
+    # Disable warnings on PDF extractions not allowed.
+    warnings.filterwarnings("ignore", category=pdfminer.pdfdocument.PDFTextExtractionNotAllowedWarning)
 
     for original_filename in input_files:
         tool_logger.debug(f"Analysing {original_filename}")
