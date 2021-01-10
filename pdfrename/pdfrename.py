@@ -271,7 +271,6 @@ ALL_FUNCTIONS = (
     try_ms_bank,
     try_o2,
     payslips_facebook_uk.try_payslip_facebook_uk,
-    santander.try_santander,
     scaleway.try_scaleway,
     schwab.try_schwab,
     soenergy.try_soenergy,
