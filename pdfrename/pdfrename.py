@@ -266,7 +266,6 @@ ALL_FUNCTIONS = (
     hyperoptic.try_hyperoptic,
     kbc.try_kbc,
     lloyds.try_lloyds,
-    natwest.try_ulster_bank,
     nutmeg.try_nutmeg,
     try_ms_bank,
     try_o2,

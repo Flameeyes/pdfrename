@@ -36,6 +36,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [Mouser](https://www.mouser.com/)
    - Invoices
  * NatWest Group
+    - [NatWest](https://nwolb.com/)
+      - Statements
     - [Ulster Bank NI](https://digital.ulsterbank.co.uk/)
       - Statements
  * [Nutmeg](https://www.nutmeg.com/)
