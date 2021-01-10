@@ -7,8 +7,8 @@ import dateparser
 
 from typing import Optional
 
-from components import NameComponents
-from utils import (
+from .components import NameComponents
+from .utils import (
     extract_account_holder_from_address,
     find_box_starting_with,
 )

@@ -7,7 +7,7 @@ import datetime
 
 from typing import Optional, Sequence
 
-import utils
+from . import utils
 
 
 @dataclasses.dataclass

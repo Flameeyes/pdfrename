@@ -7,8 +7,8 @@ import re
 
 from typing import Optional
 
-from components import NameComponents
-from utils import find_box_starting_with, extract_account_holder_from_address
+from .components import NameComponents
+from .utils import find_box_starting_with, extract_account_holder_from_address
 
 
 def try_edf(text_boxes, parent_logger) -> Optional[NameComponents]:

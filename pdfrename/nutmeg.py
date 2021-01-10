@@ -6,8 +6,8 @@ import dateparser
 
 from typing import Optional
 
-from components import NameComponents
-from utils import build_dict_from_fake_table
+from .components import NameComponents
+from .utils import build_dict_from_fake_table
 
 
 def try_nutmeg(text_boxes, parent_logger) -> Optional[NameComponents]:

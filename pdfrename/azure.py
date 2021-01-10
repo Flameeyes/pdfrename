@@ -6,7 +6,7 @@ import datetime
 
 from typing import Optional
 
-from components import NameComponents
+from .components import NameComponents
 
 
 def try_azure(text_boxes, parent_logger) -> Optional[NameComponents]:

@@ -6,8 +6,8 @@ import dateparser
 
 from typing import Optional
 
-from components import NameComponents
-from utils import find_box_starting_with
+from .components import NameComponents
+from .utils import find_box_starting_with
 
 
 def try_google(text_boxes, parent_logger) -> Optional[NameComponents]:

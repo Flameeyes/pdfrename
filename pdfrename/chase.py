@@ -8,8 +8,8 @@ import re
 
 from typing import Optional, Sequence
 
-from components import NameComponents
-from utils import extract_account_holder_from_address, find_box_starting_with
+from .components import NameComponents
+from .utils import extract_account_holder_from_address, find_box_starting_with
 
 
 def try_chase(text_boxes, parent_logger) -> Optional[NameComponents]:

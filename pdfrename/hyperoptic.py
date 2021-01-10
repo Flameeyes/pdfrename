@@ -6,8 +6,8 @@ import datetime
 import re
 from typing import Optional, Sequence
 
-from components import NameComponents
-from utils import build_dict_from_fake_table
+from .components import NameComponents
+from .utils import build_dict_from_fake_table
 
 
 def _try_old_hyperoptic(text_boxes, logger) -> Optional[NameComponents]:

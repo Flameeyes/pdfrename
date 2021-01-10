@@ -8,8 +8,8 @@ import re
 
 from typing import Optional
 
-from components import NameComponents
-from utils import extract_account_holder_from_address, find_box_starting_with
+from .components import NameComponents
+from .utils import extract_account_holder_from_address, find_box_starting_with
 
 _DOCUMENT_TYPES = {
     "Hello, here is your final bill.\n": "Final Bill",

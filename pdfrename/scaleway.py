@@ -7,8 +7,8 @@ from typing import Optional
 
 import dateparser
 
-from components import NameComponents
-from utils import find_box_starting_with
+from .components import NameComponents
+from .utils import find_box_starting_with
 
 
 def try_scaleway(text_boxes, parent_logger) -> Optional[NameComponents]:

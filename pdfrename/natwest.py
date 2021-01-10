@@ -7,8 +7,8 @@ import re
 
 from typing import Optional
 
-from components import NameComponents
-from utils import extract_account_holder_from_address, find_box_starting_with
+from .components import NameComponents
+from .utils import extract_account_holder_from_address, find_box_starting_with
 
 
 def try_ulster_bank(text_boxes, parent_logger) -> Optional[NameComponents]:

@@ -6,8 +6,8 @@ import dateparser
 
 from typing import Optional
 
-from components import NameComponents
-from utils import extract_account_holder_from_address
+from .components import NameComponents
+from .utils import extract_account_holder_from_address
 
 
 def try_kbc(text_boxes, parent_logger) -> Optional[NameComponents]:
