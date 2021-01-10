@@ -278,15 +278,23 @@ def find_filename(original_filename: str) -> Optional[str]:
 
     tool_logger.debug(f"textboxes: {text_boxes!r}")
 
+    possible_names = []
+
     for function in ALL_FUNCTIONS:
         try:
-            name = function(text_boxes, tool_logger)
-            if name:
-                return name.render_filename(True, True)
+            if name := function(text_boxes, tool_logger):
+                possible_names.append(name)
         except Exception:
             logging.exception(f"Function {function} failed on file {original_filename}")
 
-    return None
+    if len(possible_names) > 1:
+        logging.error(
+            f"Unable to rename {original_filename}: multiple renamers matched."
+        )
+    elif possible_names:
+        return possible_names[0].render_filename(True, True)
+    else:
+        return None
 
 
 @click.command()
