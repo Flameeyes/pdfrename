@@ -4,6 +4,7 @@
 
 import argparse
 import datetime
+import itertools
 import logging
 import os
 import re
@@ -45,6 +46,7 @@ from .utils import (
     find_box_starting_with,
     build_dict_from_fake_table,
 )
+from .lib.renamer import ALL_RENAMERS
 
 tool_logger = logging.getLogger("pdfrename")
 click_log.basic_config(tool_logger)
@@ -303,7 +305,7 @@ def find_filename(original_filename: str) -> Optional[str]:
 
     possible_names = []
 
-    for function in ALL_FUNCTIONS:
+    for function in itertools.chain(ALL_RENAMERS, ALL_FUNCTIONS):
         try:
             if name := function(text_boxes, tool_logger):
                 possible_names.append(name)
