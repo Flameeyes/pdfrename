@@ -7,11 +7,13 @@ import dateparser
 from typing import Optional
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import extract_account_holder_from_address
 
 
-def try_mouser(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("mouser")
+@pdfrenamer
+def mouser_invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("mouser_invoice")
 
     if len(text_boxes) < 28:
         return None
