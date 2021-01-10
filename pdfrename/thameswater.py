@@ -8,6 +8,7 @@ from typing import Optional
 import dateparser
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import find_box_starting_with, extract_account_holder_from_address
 
 
@@ -21,8 +22,9 @@ _DOCUMENT_TYPES = {
 }
 
 
-def _try_thameswater_bill(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("thameswater_bill")
+@pdfrenamer
+def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("thameswater.bill")
 
     # There are at least two different possible boxes as the bottom of page 1 since 2017,
     # but they all include a link to TW's website.
@@ -72,8 +74,9 @@ def _try_thameswater_bill(text_boxes, parent_logger) -> Optional[NameComponents]
     )
 
 
-def _try_thameswater_letter(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("thameswater_bill")
+@pdfrenamer
+def letter(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("thameswater.letter")
 
     if "Thames Water Utilities Limited," not in text_boxes[-1]:
         return None
@@ -91,11 +94,3 @@ def _try_thameswater_letter(text_boxes, parent_logger) -> Optional[NameComponent
     account_holder_name = extract_account_holder_from_address(text_boxes[0])
 
     return NameComponents(document_date, "Thames Water", account_holder_name, "Letter")
-
-
-def try_thameswater(text_boxes, parent_logger) -> Optional[NameComponents]:
-    result = _try_thameswater_bill(text_boxes, parent_logger)
-    if result:
-        return result
-
-    return _try_thameswater_letter(text_boxes, parent_logger)

@@ -274,7 +274,6 @@ ALL_FUNCTIONS = (
     schwab.try_schwab,
     soenergy.try_soenergy,
     try_tesco_bank,
-    thameswater.try_thameswater,
     vodafone.try_vodafone,
 )
 
