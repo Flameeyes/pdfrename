@@ -12,6 +12,7 @@ import warnings
 from typing import Optional
 
 import click
+import click_log
 import dateparser
 import pdfminer.high_level
 import pdfminer.layout
@@ -46,6 +47,7 @@ from .utils import (
 )
 
 tool_logger = logging.getLogger("pdfrename")
+click_log.basic_config(tool_logger)
 
 
 def try_americanexpress(text_boxes, parent_logger) -> Optional[NameComponents]:
@@ -319,11 +321,7 @@ def find_filename(original_filename: str) -> Optional[str]:
 
 
 @click.command()
-@click.option(
-    "--vlog",
-    type=int,
-    help="Python logging level. See the levels at https://docs.python.org/3/library/logging.html#logging-levels",
-)
+@click_log.simple_verbosity_option()
 @click.option(
     "--rename/--no-rename",
     default=False,
@@ -337,11 +335,7 @@ def find_filename(original_filename: str) -> Optional[str]:
 @click.argument(
     "input-files", nargs=-1, type=click.Path(exists=True, dir_okay=False, readable=True)
 )
-def main(*, vlog, rename, list_all, input_files):
-    if vlog is not None:
-        tool_logger.setLevel(vlog)
-    logging.basicConfig()
-
+def main(*, rename, list_all, input_files):
     # Disable warnings on PDF extractions not allowed.
     warnings.filterwarnings("ignore", category=pdfminer.pdfdocument.PDFTextExtractionNotAllowedWarning)
 
