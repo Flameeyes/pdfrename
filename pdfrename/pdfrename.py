@@ -338,7 +338,9 @@ def find_filename(original_filename: str) -> Optional[str]:
 )
 def main(*, rename, list_all, input_files):
     # Disable warnings on PDF extractions not allowed.
-    warnings.filterwarnings("ignore", category=pdfminer.pdfdocument.PDFTextExtractionNotAllowedWarning)
+    warnings.filterwarnings(
+        "ignore", category=pdfminer.pdfdocument.PDFTextExtractionNotAllowedWarning
+    )
 
     for original_filename in input_files:
         tool_logger.debug(f"Analysing {original_filename}")
