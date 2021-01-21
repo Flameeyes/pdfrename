@@ -101,7 +101,7 @@ def try_schwab(text_boxes: Sequence[str], parent_logger) -> Optional[NameCompone
         else:
             logger.debug("Schwab One brokerage account statement.")
             document_date = _find_statement_date(text_boxes, logger)
-            documen_type = "Brokerage Statement"
+            document_type = "Brokerage Statement"
 
         return NameComponents(document_date, "Schwab", account_holder, document_type)
 
