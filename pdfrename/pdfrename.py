@@ -57,9 +57,6 @@ tool_logger = logging.getLogger("pdfrename")
 click_log.basic_config(tool_logger)
 
 
-ALL_FUNCTIONS = ()
-
-
 def find_filename(original_filename: str) -> Optional[str]:
     try:
         pages = list(pdfminer.high_level.extract_pages(original_filename, maxpages=1))
@@ -83,7 +80,7 @@ def find_filename(original_filename: str) -> Optional[str]:
 
     possible_names = []
 
-    for function in itertools.chain(ALL_RENAMERS, ALL_FUNCTIONS):
+    for function in ALL_RENAMERS:
         try:
             if name := function(text_boxes, tool_logger):
                 possible_names.append(name)
