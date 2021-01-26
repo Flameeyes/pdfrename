@@ -8,6 +8,7 @@ from typing import Optional, Sequence
 import dateparser
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import (
     drop_honorific,
     extract_account_holder_from_address,
@@ -15,8 +16,9 @@ from .utils import (
 )
 
 
-def try_hounslow(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("hounslow")
+@pdfrenamer
+def tax_bill(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("hounslow.tax_bill")
 
     if not find_box_starting_with(text_boxes, "London Borough of Hounslow\n"):
         return None

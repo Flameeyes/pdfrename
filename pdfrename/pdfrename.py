@@ -255,25 +255,10 @@ def try_tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 ALL_FUNCTIONS = (
     try_americanexpress,
-    aws.try_aws,
-    azure.try_azure,
-    chase.try_chase,
-    digikey.try_digikey,
-    edf.try_edf,
     try_enel,
-    google.try_google,
-    hounslow.try_hounslow,
-    kbc.try_kbc,
-    lloyds.try_lloyds,
-    nutmeg.try_nutmeg,
     try_ms_bank,
     try_o2,
-    payslips_facebook_uk.try_payslip_facebook_uk,
-    scaleway.try_scaleway,
-    schwab.try_schwab,
-    soenergy.try_soenergy,
     try_tesco_bank,
-    vodafone.try_vodafone,
 )
 
 

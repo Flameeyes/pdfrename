@@ -7,11 +7,13 @@ import dateparser
 from typing import Optional
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import extract_account_holder_from_address
 
 
-def try_kbc(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("kbc")
+@pdfrenamer
+def statement(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("kbc.statement")
 
     is_kbc = any("ICONIE2D\n" in box for box in text_boxes)
     if is_kbc:

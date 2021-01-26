@@ -7,10 +7,12 @@ import datetime
 from typing import Optional
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 
 
-def try_azure(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("azure")
+@pdfrenamer
+def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("azure.invoice")
 
     is_azure = any("Microsoft Ireland Operations Ltd" in box for box in text_boxes)
     if is_azure:

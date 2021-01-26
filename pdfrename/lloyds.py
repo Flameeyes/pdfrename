@@ -8,11 +8,13 @@ import dateparser
 from typing import Optional
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import find_box_starting_with
 
 
-def try_lloyds(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("lloyds")
+@pdfrenamer
+def statement(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("lloyds.statement")
 
     is_lloyds = any("logo, Lloyds Bank.\n" in box for box in text_boxes)
 
