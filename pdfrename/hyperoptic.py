@@ -7,10 +7,14 @@ import re
 from typing import Optional, Sequence
 
 from .components import NameComponents
-from .utils import build_dict_from_fake_table
+from .lib.renamer import pdfrenamer
+from .utils import build_dict_from_fake_table, find_box_starting_with
 
 
-def _try_old_hyperoptic(text_boxes, logger) -> Optional[NameComponents]:
+@pdfrenamer
+def bill_2018(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("hyperoptic.bill_2018")
+
     if (
         text_boxes[0] == "www.hyperoptic.com\n"
         or text_boxes[0] == "www.hyperoptic.com \n"
@@ -50,13 +54,9 @@ def _try_old_hyperoptic(text_boxes, logger) -> Optional[NameComponents]:
     )
 
 
-def try_hyperoptic(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("hyperoptic")
-
-    # Check for very old templates, used in 2017 to 2018.
-    old_bill = _try_old_hyperoptic(text_boxes, logger)
-    if old_bill:
-        return old_bill
+@pdfrenamer
+def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("hyperoptic.bill")
 
     # All Hyperoptic objects on the page are logos, not text. But Hypernews is fairly
     # specific, too.
