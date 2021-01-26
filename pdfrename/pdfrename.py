@@ -263,7 +263,6 @@ ALL_FUNCTIONS = (
     try_enel,
     google.try_google,
     hounslow.try_hounslow,
-    hyperoptic.try_hyperoptic,
     kbc.try_kbc,
     lloyds.try_lloyds,
     nutmeg.try_nutmeg,
