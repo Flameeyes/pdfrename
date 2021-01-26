@@ -7,11 +7,13 @@ import dateparser
 from typing import Optional
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import find_box_starting_with
 
 
-def try_google(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("google")
+@pdfrenamer
+def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("google.invoice")
 
     is_google = any("Google Commerce Limited\n" in box for box in text_boxes)
     if is_google:

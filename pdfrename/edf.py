@@ -8,11 +8,13 @@ import re
 from typing import Optional
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import find_box_starting_with, extract_account_holder_from_address
 
 
-def try_edf(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("edf")
+@pdfrenamer
+def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("edf.bill")
 
     is_edf = any("edfenergy.com\n" in box for box in text_boxes)
     if is_edf:

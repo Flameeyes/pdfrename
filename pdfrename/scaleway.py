@@ -8,11 +8,13 @@ from typing import Optional
 import dateparser
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import find_box_starting_with
 
 
-def try_scaleway(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("scaleway")
+@pdfrenamer
+def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("scaleway.invoice")
 
     is_scaleway = bool(
         find_box_starting_with(text_boxes, "Online SAS,")

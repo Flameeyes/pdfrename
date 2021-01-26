@@ -9,6 +9,7 @@ import re
 from typing import Optional, Sequence
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import extract_account_holder_from_address, find_box_starting_with
 
 
@@ -41,8 +42,9 @@ def _find_statement_date(text_boxes: Sequence[str], logger) -> datetime.datetime
     return dateparser.parse(period_end_str, languages=["en"])
 
 
-def try_schwab(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("schwab")
+@pdfrenamer
+def letter(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("schwab.letter")
 
     # Older brokerage accounts (2016)
     if text_boxes[0].startswith("Schwab One® International Account\n"):

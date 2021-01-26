@@ -9,11 +9,13 @@ import re
 from typing import Optional, Sequence
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import extract_account_holder_from_address, find_box_starting_with
 
 
-def try_chase(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("chase")
+@pdfrenamer
+def statement(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("chase.statement")
 
     if not find_box_starting_with(text_boxes, "JPMorgan Chase Bank, N.A.\n"):
         return None

@@ -7,11 +7,13 @@ import dateparser
 from typing import Optional
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import build_dict_from_fake_table
 
 
-def try_nutmeg(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("nutmeg")
+@pdfrenamer
+def suitability_report(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("nutmeg.suitability_report")
 
     if len(text_boxes) < 3:
         return None

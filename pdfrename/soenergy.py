@@ -9,6 +9,7 @@ import re
 from typing import Optional
 
 from .components import NameComponents
+from .lib.renamer import pdfrenamer
 from .utils import extract_account_holder_from_address, find_box_starting_with
 
 _DOCUMENT_TYPES = {
@@ -17,8 +18,9 @@ _DOCUMENT_TYPES = {
 }
 
 
-def try_soenergy(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("soenergy")
+@pdfrenamer
+def bills_2019(text_boxes, parent_logger) -> Optional[NameComponents]:
+    logger = parent_logger.getChild("soenergy.bills_2019")
 
     if "www.so.energy\n" in text_boxes:
 
