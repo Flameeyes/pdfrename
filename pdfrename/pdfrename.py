@@ -34,6 +34,7 @@ from . import (
     mouser,
     ms_bank,
     natwest,
+    newday,
     nutmeg,
     o2,
     payslips_facebook_uk,
