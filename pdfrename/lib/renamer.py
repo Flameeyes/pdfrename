@@ -30,16 +30,15 @@ def pdfrenamer(func: Renamer) -> Renamer:
 def try_all_renamers(
     document: pdf_document.Document, tool_logger: logging.Logger
 ) -> Iterator[components.NameComponents]:
-    text_boxes = document[1]
+    first_page_text_boxes = list(document[1])  # Only used for v1 renamers.
 
-    if not text_boxes:
-        tool_logger.warning(f"No text boxes found on first page.")
-        return None
+    if not first_page_text_boxes:
+        tool_logger.warning(f"No text boxes found on first page, v1 renamers won't be run.")
 
     for renamer, version in _ALL_RENAMERS:
         try:
-            if version == 1:
-                name = renamer(text_boxes, tool_logger)
+            if version == 1 and first_page_text_boxes:
+                name = renamer(first_page_text_boxes, tool_logger)
             else:
                 name = renamer(document)
 
