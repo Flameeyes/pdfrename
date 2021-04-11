@@ -51,6 +51,7 @@ from .utils import (
     find_box_starting_with,
     build_dict_from_fake_table,
 )
+from .lib.pdf_document import Document
 from .lib.renamer import ALL_RENAMERS
 
 tool_logger = logging.getLogger("pdfrename")
@@ -59,24 +60,16 @@ click_log.basic_config(tool_logger)
 
 def find_filename(original_filename: str) -> Optional[str]:
     try:
-        pages = list(pdfminer.high_level.extract_pages(original_filename, maxpages=1))
-    except pdfminer.pdfparser.PDFSyntaxError as error:
-        tool_logger.warning(f"Invalid PDF file {original_filename}: {error}")
+        document = Document(original_filename)
+    except ValueError as e:
+        tool_logger.warning(str(e))
         return None
 
-    text_boxes = [
-        obj.get_text()
-        for obj in pages[0]
-        if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal)
-    ]
+    text_boxes = document[1]
 
     if not text_boxes:
-        tool_logger.warning(
-            f"No text boxes found on first page: {[list(page) for page in pages]!r}"
-        )
+        tool_logger.warning(f"No text boxes found on first page.")
         return None
-
-    tool_logger.debug(f"textboxes: {text_boxes!r}")
 
     possible_names = []
 
