@@ -52,7 +52,7 @@ from .utils import (
     build_dict_from_fake_table,
 )
 from .lib.pdf_document import Document
-from .lib.renamer import ALL_RENAMERS
+from .lib.renamer import try_all_renamers, try_all_renamers
 
 tool_logger = logging.getLogger("pdfrename")
 click_log.basic_config(tool_logger)
@@ -65,20 +65,7 @@ def find_filename(original_filename: str) -> Optional[str]:
         tool_logger.warning(str(e))
         return None
 
-    text_boxes = document[1]
-
-    if not text_boxes:
-        tool_logger.warning(f"No text boxes found on first page.")
-        return None
-
-    possible_names = []
-
-    for function in ALL_RENAMERS:
-        try:
-            if name := function(text_boxes, tool_logger):
-                possible_names.append(name)
-        except Exception:
-            logging.exception(f"Function {function} failed on file {original_filename}")
+    possible_names = list(try_all_renamers(document, tool_logger))
 
     if len(possible_names) > 1:
         logging.error(
