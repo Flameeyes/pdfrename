@@ -7,10 +7,8 @@ import datetime
 from typing import Optional
 
 from .components import NameComponents
-from .lib.pdf_document import Document
 from .lib.renamer import pdfrenamer
-from .utils import find_box_starting_with
-from pdfrename.lib import pdf_document
+from .lib import pdf_document
 
 
 @pdfrenamer
