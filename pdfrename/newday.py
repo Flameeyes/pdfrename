@@ -30,6 +30,9 @@ def amazon_platinum_statement(
             logger.debug(f"{document.original_filename}: possible NewDay statement, looking at the second page.")
             text_boxes = document[2]
 
+    if not text_boxes:
+        return None
+
     if (
         "newday.co.uk/myamazon\n" not in text_boxes[0]
         or "Your Monthly Statement\n" not in text_boxes

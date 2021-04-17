@@ -15,7 +15,7 @@ from .lib import pdf_document
 def statement(document: pdf_document.Document) -> Optional[NameComponents]:
     text_boxes = document[1]  # Only need the first page.
 
-    if text_boxes[0] != "www.americanexpress.co.uk\n":
+    if not text_boxes or text_boxes[0] != "www.americanexpress.co.uk\n":
         return None
 
     document_type = text_boxes[4].strip()
