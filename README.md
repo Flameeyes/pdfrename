@@ -75,7 +75,7 @@ or Windows PowerShell (especially for Visual Studio Code).
 $ python -m venv venv
 $ . venv/bin/activate  # bash
 $ venv\Scripts\activate.ps1  # Windows PowerShell
-(venv) $ pip install -r requirements.txt
+(venv) $ pip install -e .
 ```
 
 Once the venv is activated and the dependencies installed, you can run the script from the
@@ -83,11 +83,11 @@ directory and point it to one or more PDFs:
 
 ```
 # Only prints suggested renames
-(venv) $ python pdfrename/pdfrename.py unsortedbill.pdf
+(venv) $ pdfrename unsortedbill.pdf
 
 # Actually rename files
-(venv) $ python pdfrename/pdfrename.py --rename unsortedbill.pdf
+(venv) $ pdfrename --rename unsortedbill.pdf
 
 # Verifies names
-(venv) $ python pdfrename/pdfrename.py --list_all "2155-10-28 - AWS - Neo - Bill.pdf"
+(venv) $ pdfrename --list-all "2155-10-28 - AWS - Neo - Bill.pdf"
 ```
