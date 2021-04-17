@@ -83,7 +83,7 @@ class Document:
                     ]
                     if not text_boxes:
                         _LOGGER.debug(
-                            f"{self.original_filename} p{new_page_idx}: no text boxes found: {page_content!r}"
+                            f"{self.original_filename} p{new_page_idx}: no text boxes found: {list(page_content)!r}"
                         )
                     else:
                         _LOGGER.debug(
