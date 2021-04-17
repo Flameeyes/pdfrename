@@ -23,6 +23,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
  * [EDF Energy](https://www.edfenergy.com/)
    - Bills
  * [ENEL Energia](https://www.enel.it/)
+ * [FinecoBank](https://finecobank.co.uk/)
+   - UK Bank Statements
  * [Google Cloud](https://cloud.google.com)
    - Invoices (European)
  * [London Borough of Hounslow](https://www.hounslow.gov.uk/)

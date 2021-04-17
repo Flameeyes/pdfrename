@@ -26,6 +26,7 @@ from . import (
     digikey,
     edf,
     enel,
+    fineco,
     google,
     hounslow,
     hyperoptic,
