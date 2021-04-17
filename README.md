@@ -42,6 +42,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
       - Statements
     - [Ulster Bank NI](https://digital.ulsterbank.co.uk/)
       - Statements
+ * NewDay Cards
+   - Amazon Platinum MasterCard Statements
  * [Nutmeg](https://www.nutmeg.com/)
    - Suitability Reports
  * [O2 UK](https://www.o2.co.uk/)
