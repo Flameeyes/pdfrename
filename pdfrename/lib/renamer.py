@@ -37,7 +37,9 @@ def try_all_renamers(
 
     for renamer, version in _ALL_RENAMERS:
         try:
-            if version == 1 and first_page_text_boxes:
+            if version == 1:
+                if not first_page_text_boxes:
+                    continue
                 name = renamer(first_page_text_boxes, tool_logger)
             else:
                 name = renamer(document)
