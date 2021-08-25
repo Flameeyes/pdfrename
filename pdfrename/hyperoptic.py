@@ -3,12 +3,18 @@
 # SPDX-License-Identifier: MIT
 
 import datetime
+import logging
 import re
-from typing import Optional, Sequence
+from typing import Optional
+
+import dateparser
 
 from .components import NameComponents
 from .lib.renamer import pdfrenamer
+from .lib import pdf_document
 from .utils import build_dict_from_fake_table, find_box_starting_with
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
@@ -55,7 +61,7 @@ def bill_2018(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 
 @pdfrenamer
-def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
+def bill_2020(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("hyperoptic.bill")
 
     # All Hyperoptic objects on the page are logos, not text. But Hypernews is fairly
@@ -86,3 +92,25 @@ def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
         account_holder_name,
         "Bill",
     )
+
+
+@pdfrenamer
+def bill_2021(document: pdf_document.Document) -> Optional[NameComponents]:
+    logger = _LOGGER.getChild("bill_2021")
+
+    text_boxes = document[1]
+
+    if not "Here's your latest bill from Hyperoptic.\n" in text_boxes:
+        return None
+
+    account_holder_name = text_boxes[0].strip()
+
+    # The details column includes the following:
+    # ['Your dates\n', 'Bill date:\n', 'Payment date:\n', 'Your account details\n',
+    #  'Account number:\n', 'Bill number:\n', 'Our details\n']
+    # And this is not _quite_ a fake table, because of the three headers in there.
+    # So, instead, just look for the following value, the bill date!
+    bill_date_idx = text_boxes.index("Bill date:\n") + 6
+    bill_date = dateparser.parse(text_boxes[bill_date_idx], languages=["en"])
+
+    return NameComponents(bill_date, "Hyperoptic", account_holder_name, "Bill")
