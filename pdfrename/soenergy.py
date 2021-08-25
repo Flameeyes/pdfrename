@@ -3,14 +3,18 @@
 #
 # SPDX-License-Identifier: MIT
 
-import dateparser
+import logging
 import re
-
 from typing import Optional
+
+import dateparser
 
 from .components import NameComponents
 from .lib.renamer import pdfrenamer
+from .lib import pdf_document
 from .utils import extract_account_holder_from_address, find_box_starting_with
+
+_LOGGER = logging.getLogger(__name__)
 
 _DOCUMENT_TYPES = {
     "Hello, here is your final bill.\n": "Final Bill",
@@ -76,3 +80,33 @@ def bills_2019(text_boxes, parent_logger) -> Optional[NameComponents]:
         return NameComponents(
             statement_date, "So Energy", account_holder_name, "Annual Summary"
         )
+
+
+@pdfrenamer
+def statement_2021(document: pdf_document.Document) -> Optional[NameComponents]:
+    logger = _LOGGER.getChild("statement_2021")
+
+    try:
+        last_page = document[3]
+    except IndexError:
+        return None
+
+    if "SoEnergyUK\n" not in last_page:
+        return None
+
+    first_page = document[1]
+    logger.debug(f"Found likely SoEnergy Document ({first_page[0]!r})")
+
+    if not re.search("HERE IS\sYOUR\sSTATEMENT", first_page[0]):
+        return None
+
+    date_box = find_box_starting_with(first_page, "Created On\n")
+    logger.debug(f"Statement date box: {date_box!r}")
+    date_idx = first_page.index(date_box)
+    statement_date = dateparser.parse(date_box.split("\n")[1], languages=["en"])
+
+    address_box = first_page[date_idx - 1]
+    logger.debug(f"Address box: {address_box!r}")
+    account_holder_name = extract_account_holder_from_address(address_box)
+
+    return NameComponents(statement_date, "So Energy", account_holder_name, "Statement")
