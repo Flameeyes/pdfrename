@@ -14,59 +14,59 @@ what they are, and propose (or applies) a new name to them based on their conten
 As this is aimed at my (@Flameeyes) own use, the list of supported PDFs pretty much
 focuses on bills and statements from UK, Italian, or Irish services and banks.
 
- * [American Express UK](https://www.americanexpress.com/uk/)
- * [Microsoft Azure](https://azure.microsoft.com/)
-   - Invoices
- * [Chase](https://www.chase.com/)
- * [Digikey](https://www.digikey.com/)
-   - Invoices
- * [EDF Energy](https://www.edfenergy.com/)
-   - Bills
- * [ENEL Energia](https://www.enel.it/)
- * [FinecoBank](https://finecobank.co.uk/)
-   - UK Bank Statements
- * [Google Cloud](https://cloud.google.com)
-   - Invoices (European)
- * [London Borough of Hounslow](https://www.hounslow.gov.uk/)
-   - Council Tax Bills
- * [Hyperoptic](https://www.hyperoptic.com/)
-   - Bills (templates from 2017 to 2020)
- * [KBC Ireland](https://wwww.kbc.ie/)
-   - Statements ca. 2015
- * [Lloyds](https://www.lloydsbank.com/)
- * [M & S Bank](https://bank.marksandspencer.com/)
- * [Mouser](https://www.mouser.com/)
-   - Invoices
- * NatWest Group
-    - [NatWest](https://nwolb.com/)
-      - Statements
-    - [Ulster Bank NI](https://digital.ulsterbank.co.uk/)
-      - Statements
- * NewDay Cards
-   - Amazon Platinum MasterCard Statements
- * [Nutmeg](https://www.nutmeg.com/)
-   - Suitability Reports
- * [O2 UK](https://www.o2.co.uk/)
-    - Bills
- * [Santander UK](https://www.santander.co.uk)
-   - Select Current Account Statements
-   - 1|2|3 Current Account Statements
-   - Statements of Fees
-   - Credit Card Statements
-   - Credit Card Annual Statements
- * [Scaleway](https://www.scaleway.com/)
-   - Tested with English invoices only.
- * [So Energy](https://www.so.energy/)
-    - Statement
-    - Final Bill
-    - Annual Summary
- * [Thames Water](https://www.thameswater.co.uk/)
- *  - Bills
- *  - Payment Plans
- *  - Letters
- * [Tesco Bank](https://www.tescobank.com/)
- * [Vodafone UK](https://www.vodafone.co.uk/)
-   - Bills
+- [American Express UK](https://www.americanexpress.com/uk/)
+- [Microsoft Azure](https://azure.microsoft.com/)
+  - Invoices
+- [Chase](https://www.chase.com/)
+- [Digikey](https://www.digikey.com/)
+  - Invoices
+- [EDF Energy](https://www.edfenergy.com/)
+  - Bills
+- [ENEL Energia](https://www.enel.it/)
+- [FinecoBank](https://finecobank.co.uk/)
+  - UK Bank Statements
+- [Google Cloud](https://cloud.google.com)
+  - Invoices (European)
+- [London Borough of Hounslow](https://www.hounslow.gov.uk/)
+  - Council Tax Bills
+- [Hyperoptic](https://www.hyperoptic.com/)
+  - Bills (templates from 2017 to 2020)
+- [KBC Ireland](https://wwww.kbc.ie/)
+  - Statements ca. 2015
+- [Lloyds](https://www.lloydsbank.com/)
+- [M & S Bank](https://bank.marksandspencer.com/)
+- [Mouser](https://www.mouser.com/)
+  - Invoices
+- NatWest Group
+  - [NatWest](https://nwolb.com/)
+    - Statements
+  - [Ulster Bank NI](https://digital.ulsterbank.co.uk/)
+    - Statements
+- NewDay Cards
+  - Amazon Platinum MasterCard Statements
+- [Nutmeg](https://www.nutmeg.com/)
+  - Suitability Reports
+- [O2 UK](https://www.o2.co.uk/)
+  - Bills
+- [Santander UK](https://www.santander.co.uk)
+  - Select Current Account Statements
+  - 1|2|3 Current Account Statements
+  - Statements of Fees
+  - Credit Card Statements
+  - Credit Card Annual Statements
+- [Scaleway](https://www.scaleway.com/)
+  - Tested with English invoices only.
+- [So Energy](https://www.so.energy/)
+  - Statement
+  - Final Bill
+  - Annual Summary
+- [Thames Water](https://www.thameswater.co.uk/)
+  - Bills
+  - Payment Plans
+  - Letters
+- [Tesco Bank](https://www.tescobank.com/)
+- [Vodafone UK](https://www.vodafone.co.uk/)
+  - Bills
 
 ## Usage
 
