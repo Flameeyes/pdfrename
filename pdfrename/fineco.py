@@ -17,7 +17,7 @@ def quarterly_statement(
 ) -> Optional[NameComponents]:
     # We know the Fineco statements use LTFigure so they show up as a single,
     # long text string.
-    if len(document[1]) > 1:
+    if len(document[1]) != 1:
         return None
 
     (text,) = document[1]
