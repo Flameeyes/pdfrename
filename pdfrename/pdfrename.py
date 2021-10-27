@@ -2,19 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
-import argparse
-import datetime
-import itertools
 import logging
 import os
-import re
 import shutil
 import warnings
 from typing import Optional
 
 import click
 import click_log
-import dateparser
 import pdfminer.high_level
 import pdfminer.layout
 
@@ -46,12 +41,6 @@ from . import (
     tesco_bank,
     thameswater,
     vodafone,
-)
-from .components import NameComponents
-from .utils import (
-    extract_account_holder_from_address,
-    find_box_starting_with,
-    build_dict_from_fake_table,
 )
 from .lib.pdf_document import Document
 from .lib.renamer import try_all_renamers, try_all_renamers
