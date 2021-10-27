@@ -5,6 +5,7 @@
 import logging
 import os
 import shutil
+import sys
 import warnings
 from typing import Optional
 
@@ -90,31 +91,35 @@ def main(*, rename, list_all, input_files):
     )
 
     for original_filename in input_files:
-        tool_logger.debug(f"Analysing {original_filename}")
-        new_basename = find_filename(original_filename)
+        try:
+            tool_logger.debug(f"Analysing {original_filename}")
+            new_basename = find_filename(original_filename)
 
-        if new_basename is None:
-            tool_logger.debug(f"No match for {original_filename}")
-            if list_all:
-                print(f"# ? {original_filename}")
-            continue
-
-        dirname = os.path.dirname(original_filename)
-        new_filename = os.path.join(dirname, new_basename)
-        if new_filename == original_filename:
-            if list_all:
-                print(f"# ✓ {original_filename}")
-            continue
-        if rename:
-            tool_logger.info(f"Renaming {original_filename} to {new_filename}")
-            if os.path.exists(new_filename):
-                logging.warning(f"File {new_filename} already exists, not overwriting.")
+            if new_basename is None:
+                tool_logger.debug(f"No match for {original_filename}")
+                if list_all:
+                    print(f"# ? {original_filename}")
                 continue
-            if list_all:
-                print(f"# {original_filename!r} → {new_filename!r}")
-            shutil.move(original_filename, new_filename)
-        else:
-            print(f'ren "{original_filename}" "{new_filename}"')
+
+            dirname = os.path.dirname(original_filename)
+            new_filename = os.path.join(dirname, new_basename)
+            if new_filename == original_filename:
+                if list_all:
+                    print(f"# ✓ {original_filename}")
+                continue
+            if rename:
+                tool_logger.info(f"Renaming {original_filename} to {new_filename}")
+                if os.path.exists(new_filename):
+                    logging.warning(f"File {new_filename} already exists, not overwriting.")
+                    continue
+                if list_all:
+                    print(f"# {original_filename!r} → {new_filename!r}")
+                shutil.move(original_filename, new_filename)
+            else:
+                print(f'ren "{original_filename}" "{new_filename}"')
+        except:
+            tool_logger.exception(f"While processing {original_filename}: ")
+            sys.exit(-1)
 
 
 if __name__ == "__main__":
