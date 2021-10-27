@@ -82,9 +82,15 @@ def bills_2019(text_boxes, parent_logger) -> Optional[NameComponents]:
         )
 
 
+_DOCUMENT_TYPES_2021 = {
+    "Statement": re.compile(r"HERE IS\sYOUR\sSTATEMENT"),
+    "Final Bill": re.compile(r"HERE IS\sYOUR FINAL BILL\s"),
+}
+
+
 @pdfrenamer
-def statement_2021(document: pdf_document.Document) -> Optional[NameComponents]:
-    logger = _LOGGER.getChild("statement_2021")
+def bills_2021(document: pdf_document.Document) -> Optional[NameComponents]:
+    logger = _LOGGER.getChild("bills_2021")
 
     try:
         last_page = document[3]
@@ -95,10 +101,17 @@ def statement_2021(document: pdf_document.Document) -> Optional[NameComponents]:
         return None
 
     first_page = document[1]
-    logger.debug(f"Found likely SoEnergy Document ({first_page[0]!r})")
+    document_type_box = first_page.find_box_starting_with("HELLO ")
 
-    if not re.search("HERE IS\sYOUR\sSTATEMENT", first_page[0]):
+    logger.debug(f"Found likely SoEnergy Document ({document_type_box!r})")
+
+    for document_type, expression in _DOCUMENT_TYPES_2021.items():
+        if expression.search(document_type_box):
+            break
+    else:
         return None
+
+    logger.debug(f"Found a SoEnergy {document_type}")
 
     date_box = find_box_starting_with(first_page, "Created On\n")
     logger.debug(f"Statement date box: {date_box!r}")
@@ -109,4 +122,6 @@ def statement_2021(document: pdf_document.Document) -> Optional[NameComponents]:
     logger.debug(f"Address box: {address_box!r}")
     account_holder_name = extract_account_holder_from_address(address_box)
 
-    return NameComponents(statement_date, "So Energy", account_holder_name, "Statement")
+    return NameComponents(
+        statement_date, "So Energy", account_holder_name, document_type
+    )
