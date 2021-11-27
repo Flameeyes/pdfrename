@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
 import re
 from typing import Optional
 
@@ -9,7 +10,10 @@ import dateparser
 
 from .components import NameComponents
 from .lib.renamer import pdfrenamer
+from .lib import pdf_document
 from .utils import find_box_starting_with, extract_account_holder_from_address
+
+_LOGGER = logging.getLogger(__name__)
 
 
 _DOCUMENT_TYPES = {
@@ -23,8 +27,12 @@ _DOCUMENT_TYPES = {
 
 
 @pdfrenamer
-def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("thameswater.bill")
+def bill(
+    document: pdf_document.Document,
+) -> Optional[NameComponents]:
+    logger = _LOGGER.getChild("bill")
+
+    text_boxes = document[1]
 
     # There are at least two different possible boxes as the bottom of page 1 since 2017,
     # but they all include a link to TW's website.
@@ -36,6 +44,12 @@ def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
     if not is_thameswater:
         return None
 
+    # This is a marker that the bill is from the new (2021) system that is different from
+    # what was there before.
+    thameswater_2021 = "Moving home?\nthameswater.co.uk/myaccount\n" in text_boxes
+    if thameswater_2021:
+        logger.debug("thameswater: appears to be a 2021 Thames Water document.")
+
     assert text_boxes[0].startswith("Page 1 of ")
 
     date_line = find_box_starting_with(text_boxes, "Date\n")
@@ -46,11 +60,21 @@ def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
     document_date = dateparser.parse(date_match.group(1), languages=["en"])
 
     try:
-        # First try to leverage the more modern (2020) template, looking for
-        # a box with "Account balance" on it.
-        document_subject_index = text_boxes.index("Account balance\n") - 1
+        # First try to leverage the more modern (2020/21) template, looking for
+        # a box with "Account balance" (possibly followed by "(in credit)") on it.
+
+        document_subject_index = (
+            text_boxes.find_index_starting_with("Account balance") - 1
+        )
     except ValueError:
-        # If that doesn't work, try the old method of using the 8th box.
+        if thameswater_2021:
+            logger.debug(
+                "thameswater: failed to find the document subject for 2021 document."
+            )
+            return None
+
+        # If that doesn't work, try the old method of using the 8th box, but that only
+        # works for older bills not newer ones.
         document_subject_index = 7
 
     document_subject = text_boxes[document_subject_index]
