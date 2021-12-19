@@ -1,15 +1,19 @@
 # SPDX-FileCopyrightText: 2020 Svetlana Pantelejeva
+# SPDX-FileCopyrightText: 2021 Diego Elio Pettenò
 #
 # SPDX-License-Identifier: MIT
 
-import dateparser
+import logging
 import re
-
 from typing import Optional
+
+import dateparser
 
 from .components import NameComponents
 from .lib.renamer import pdfrenamer
-from .utils import extract_account_holder_from_address, find_box_starting_with
+from .lib import pdf_document
+
+_LOGGER = logging.getLogger(__name__)
 
 _WEBSITES_TO_BANK = {
     "www.ulsterbank.co.uk": "Ulster Bank (NI)",
@@ -18,21 +22,23 @@ _WEBSITES_TO_BANK = {
 
 
 @pdfrenamer
-def natwest_group_statement(text_boxes, parent_logger) -> Optional[NameComponents]:
-    logger = parent_logger.getChild("natwest.natwest_group_statement")
+def statement(document: pdf_document.Document) -> Optional[NameComponents]:
+    logger = _LOGGER.getChild("statement")
 
-    if text_boxes[0] != "Statement\n" or "Period\n" not in text_boxes:
+    first_page = document[1]
+
+    if not first_page or first_page[0] != "Statement\n" or "Period\n" not in first_page:
         return None
 
     for website, bank_name in _WEBSITES_TO_BANK.items():
-        if any(website in box for box in text_boxes):
+        if any(website in box for box in first_page):
             break
     else:
         return None
 
     logger.debug(f"Possible {bank_name} statement.")
-    period_line_index = text_boxes.index("Period\n") + 1
-    period_line = text_boxes[period_line_index]
+    period_line_index = first_page.index("Period\n") + 1
+    period_line = first_page[period_line_index]
 
     logger.debug(f"Found period line: {period_line!r}")
 
@@ -43,14 +49,22 @@ def natwest_group_statement(text_boxes, parent_logger) -> Optional[NameComponent
     assert date_match
     statement_date = dateparser.parse(date_match.group(1), languages=["en"])
 
-    # The account holder(s) as well as the account type follow the IBAN. Take the first
-    # account holder for now, as we don't have a good format for multiple holders.
-    iban_box = find_box_starting_with(text_boxes, "IBAN: ")
-    assert iban_box
-    account_holders_idx = text_boxes.index(iban_box) + 1
-    account_holders_box = text_boxes[account_holders_idx]
+    # The account holder(s) as well as the account type follow the IBAN, either in the same
+    # or in different boxes.
+    # Take the first account holder for now, as we don't have a good format for multiple
+    # holders.
+    iban_box_index = first_page.find_index_starting_with("IBAN: ")
+    assert iban_box_index != None
 
-    account_holder_name, _ = account_holders_box.split("\n", 1)
+    # If the following box says "Branch Details" then the details are attached to the IBAN
+    # box.
+    account_holders_string = first_page[iban_box_index + 1]
+    if account_holders_string == "Branch Details\n":
+        # Extract the account holder from the IBAN box. There's more lines on it, which
+        # represent multiple holders, and the account time (e.g. Reward). Ignore them.
+        account_holder_name = first_page[iban_box_index].split("\n", 2)[1]
+    else:
+        account_holder_name, _ = account_holders_string.split("\n", 1)
 
     return NameComponents(
         statement_date, bank_name, account_holder_name.title(), "Statement"
