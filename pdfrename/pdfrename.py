@@ -34,6 +34,7 @@ from . import (
     newday,
     nutmeg,
     o2,
+    octopus_energy,
     payslips_facebook_uk,
     santander,
     scaleway,
@@ -110,7 +111,9 @@ def main(*, rename, list_all, input_files):
             if rename:
                 tool_logger.info(f"Renaming {original_filename} to {new_filename}")
                 if os.path.exists(new_filename):
-                    logging.warning(f"File {new_filename} already exists, not overwriting.")
+                    logging.warning(
+                        f"File {new_filename} already exists, not overwriting."
+                    )
                     continue
                 if list_all:
                     print(f"# {original_filename!r} → {new_filename!r}")

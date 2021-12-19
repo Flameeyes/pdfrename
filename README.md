@@ -48,6 +48,7 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
   - Suitability Reports
 - [O2 UK](https://www.o2.co.uk/)
   - Bills
+- [Octopus Energy](https://octopus.energy/)
 - [Santander UK](https://www.santander.co.uk)
   - Select Current Account Statements
   - 1|2|3 Current Account Statements
