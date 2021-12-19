@@ -13,11 +13,9 @@ import dateparser
 
 import pdfrename
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
 from .lib import pdf_document
-
-from .utils import drop_honorific
+from .lib.renamer import NameComponents, pdfrenamer
+from .lib.utils import drop_honorific
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ from typing import Mapping, Optional, Sequence
 _honorifics = {"mr", "mr.", "mrs", "ms", "miss"}
 
 
-def drop_honorific(holder_name):
+def drop_honorific(holder_name: str) -> str:
     try:
         split_honorific = holder_name.split(" ", 1)
         if split_honorific[0].lower() in _honorifics:
@@ -16,6 +16,19 @@ def drop_honorific(holder_name):
         pass
 
     return holder_name
+
+
+def normalize_account_holder_name(name: str, do_drop_honorific: bool) -> str:
+    # If there's trailing or heading spaces, just remove.
+    name = name.strip()
+    if do_drop_honorific:
+        name = drop_honorific(name)
+
+    # Some statements use all-upper-case names, default to title-casing them.
+    if name.isupper():
+        name = name.title()
+
+    return name
 
 
 def build_dict_from_fake_table(fields_box: str, values_box: str) -> Mapping[str, str]:

@@ -7,9 +7,8 @@ from typing import Optional
 
 import dateparser
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
-from .utils import find_box_starting_with
+from .lib.renamer import NameComponents, pdfrenamer
+from .lib.utils import find_box_starting_with
 
 
 @pdfrenamer

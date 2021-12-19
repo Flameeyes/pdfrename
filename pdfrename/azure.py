@@ -3,11 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 import datetime
-
 from typing import Optional
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
+from .lib.renamer import NameComponents, pdfrenamer
 
 
 @pdfrenamer

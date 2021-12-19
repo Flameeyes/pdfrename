@@ -4,17 +4,12 @@
 
 import datetime
 import re
-
 from typing import Optional, Sequence
 
 import dateparser
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
-from .utils import (
-    extract_account_holder_from_address,
-    find_box_starting_with,
-)
+from .lib.renamer import NameComponents, pdfrenamer
+from .lib.utils import extract_account_holder_from_address, find_box_starting_with
 
 
 def _extract_account_holders(address_box: str) -> Sequence[str]:

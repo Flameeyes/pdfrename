@@ -7,9 +7,8 @@ from typing import Optional, Sequence
 
 import dateparser
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
-from .utils import build_dict_from_fake_table, find_box_starting_with
+from .lib.renamer import NameComponents, pdfrenamer
+from .lib.utils import build_dict_from_fake_table, find_box_starting_with
 
 
 @pdfrenamer

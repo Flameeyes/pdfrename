@@ -2,13 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
-import dateparser
-
 from typing import Optional
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
-from .utils import build_dict_from_fake_table
+import dateparser
+
+from .lib.renamer import NameComponents, pdfrenamer
+from .lib.utils import build_dict_from_fake_table
 
 
 @pdfrenamer

@@ -8,10 +8,9 @@ from typing import Optional
 
 import dateparser
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
 from .lib import pdf_document
-from .utils import extract_account_holder_from_address
+from .lib.renamer import NameComponents, pdfrenamer
+from .lib.utils import extract_account_holder_from_address
 
 _LOGGER = logging.getLogger(__name__)
 

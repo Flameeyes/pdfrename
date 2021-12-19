@@ -45,7 +45,7 @@ from . import (
     vodafone,
 )
 from .lib.pdf_document import Document
-from .lib.renamer import try_all_renamers, try_all_renamers
+from .lib.renamer import try_all_renamers
 
 tool_logger = logging.getLogger("pdfrename")
 click_log.basic_config(tool_logger)

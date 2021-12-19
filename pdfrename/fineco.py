@@ -6,9 +6,8 @@ from typing import Optional
 
 import dateparser
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
 from .lib import pdf_document
+from .lib.renamer import NameComponents, pdfrenamer
 
 
 @pdfrenamer

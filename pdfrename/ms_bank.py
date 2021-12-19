@@ -2,16 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-import dateparser
 import re
-
 from typing import Optional
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
-from .utils import (
-    find_box_starting_with,
-)
+import dateparser
+
+from .lib.renamer import NameComponents, pdfrenamer
+from .lib.utils import find_box_starting_with
 
 
 @pdfrenamer

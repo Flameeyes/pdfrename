@@ -2,16 +2,59 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
+import dataclasses
+import datetime
 import inspect
 import logging
-from typing import Callable, Iterator, List, Optional, Sequence, Tuple, TypeVar
+from typing import Callable, Iterator, List, Sequence, Tuple, TypeVar
 
-from . import pdf_document
-from .. import components
+from . import pdf_document, utils
+
+
+@dataclasses.dataclass
+class NameComponents:
+    date: datetime.datetime
+    service_name: str
+    account_holder: str | Sequence[str]
+    document_type: str
+    additional_components: Sequence[str] = ()
+
+    @property
+    def account_holders(self) -> Sequence[str]:
+        if isinstance(self.account_holder, str):
+            return (self.account_holder,)
+        else:
+            return self.account_holder
+
+    def render_filename(
+        self, include_account_holder: bool, drop_honorific: bool
+    ) -> str:
+        filename_components = []
+
+        filename_components.append(self.date.strftime("%Y-%m-%d"))
+
+        filename_components.append(self.service_name)
+
+        if include_account_holder and self.account_holder:
+            account_holder = " & ".join(
+                utils.normalize_account_holder_name(name, drop_honorific)
+                for name in self.account_holders
+            )
+
+            filename_components.append(account_holder)
+
+        filename_components.append(self.document_type)
+
+        filename_components.extend(self.additional_components)
+
+        return " - ".join(filename_components) + ".pdf"
+
 
 Boxes = Sequence[str]
-RenamerV1 = Callable[[Boxes, logging.Logger], Optional[components.NameComponents]]
-RenamerV2 = Callable[[pdf_document.Document], Optional[components.NameComponents]]
+RenamerV1 = Callable[[Boxes, logging.Logger], NameComponents | None]
+RenamerV2 = Callable[[pdf_document.Document], NameComponents | None]
 
 Renamer = TypeVar("Renamer", RenamerV1, RenamerV2)
 

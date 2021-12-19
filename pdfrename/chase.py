@@ -3,14 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 import datetime
-import dateparser
 import re
-
 from typing import Optional, Sequence
 
-from .components import NameComponents
-from .lib.renamer import pdfrenamer
-from .utils import extract_account_holder_from_address, find_box_starting_with
+import dateparser
+
+from .lib.renamer import NameComponents, pdfrenamer
+from .lib.utils import extract_account_holder_from_address, find_box_starting_with
 
 
 @pdfrenamer
