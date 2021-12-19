@@ -16,9 +16,10 @@ from .utils import (
     find_box_starting_with,
 )
 
+
 def _extract_account_holders(address_box: str) -> Sequence[str]:
     extracted_name = extract_account_holder_from_address(address_box)
-    
+
     # In case of joint accounts!
     if "&" in extracted_name:
         return extracted_name.split("&")
