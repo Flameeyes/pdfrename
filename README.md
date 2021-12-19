@@ -41,9 +41,11 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
   - [NatWest](https://nwolb.com/)
     - Statements
     - Statements of Fees
+    - Certificate of Interest
   - [Ulster Bank NI](https://digital.ulsterbank.co.uk/)
     - Statements
     - Statements of Fees
+    - Certificate of Interest (Untested)
 - NewDay Cards
   - Amazon Platinum MasterCard Statements
 - [Nutmeg](https://www.nutmeg.com/)

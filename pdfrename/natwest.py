@@ -11,6 +11,8 @@ from typing import Optional, Text
 
 import dateparser
 
+import pdfrename
+
 from .components import NameComponents
 from .lib.renamer import pdfrenamer
 from .lib import pdf_document
@@ -138,4 +140,50 @@ def statement_of_fees(document: pdf_document.Document) -> Optional[NameComponent
 
     return NameComponents(
         statement_date, bank_name, account_holders, "Statement of Fees"
+    )
+
+
+@pdfrenamer
+def certificate_of_interest(
+    document: pdf_document.Document,
+) -> Optional[NameComponents]:
+    logger = _LOGGER.getChild("certificate_of_interest")
+
+    first_page = document[1]
+
+    if not first_page or not first_page.find_box_starting_with(
+        "Certificate of Interest\n"
+    ):
+        return None
+
+    for website, bank_name in _WEBSITES_TO_BANK.items():
+        if any(website in box for box in first_page):
+            break
+    else:
+        return None
+
+    logger.debug(f"Possible {bank_name} certificate of interest.")
+
+    # The account holder(s) as well as the account type follow the IBAN, in its own box.
+    iban_box_index = first_page.find_index_starting_with("IBAN: ")
+    assert iban_box_index != None
+
+    account_holders_string = first_page[iban_box_index + 1]
+    # Ignore both the account type and the last empty line.
+    account_holders = account_holders_string.split("\n")[:-2]
+
+    # Date is harder, because there's no explicit date in the document. We need to accept the tax year
+    # end as the date of the document.
+    period_line = first_page.find_box_starting_with(
+        "This is the interest you were paid"
+    )
+    date_match = re.search(
+        r"during the tax year ending ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n", period_line
+    )
+    assert date_match
+
+    document_date = dateparser.parse(date_match.group(1), languages=["en"])
+
+    return NameComponents(
+        document_date, bank_name, account_holders, "Certificate of Interest"
     )
