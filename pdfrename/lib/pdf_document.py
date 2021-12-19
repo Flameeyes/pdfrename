@@ -84,9 +84,15 @@ class Document:
                         f"{self.original_filename} does not have page {new_page_idx}"
                     )
 
-                if len(page_content) == 1 and isinstance(page_content[0], pdfminer.layout.LTFigure):
-                    _LOGGER.debug(f"{self.original_filename} p{new_page_idx}: figure-based PDF, extracting raw text instead.")
-                    page_text = pdfminer.high_level.extract_text(self.original_filename, page_numbers=[new_page_idx - 1])
+                if len(page_content) == 1 and isinstance(
+                    page_content[0], pdfminer.layout.LTFigure
+                ):
+                    _LOGGER.debug(
+                        f"{self.original_filename} p{new_page_idx}: figure-based PDF, extracting raw text instead."
+                    )
+                    page_text = pdfminer.high_level.extract_text(
+                        self.original_filename, page_numbers=[new_page_idx - 1]
+                    )
                     text_boxes = [page_text]
                 else:
                     text_boxes = [
