@@ -105,12 +105,26 @@ def bill_2021(document: pdf_document.Document) -> Optional[NameComponents]:
 
     account_holder_name = text_boxes[0].strip()
 
-    # The details column includes the following:
+    # Depending on when the bill was generated, the details column includes the following:
     # ['Your dates\n', 'Bill date:\n', 'Payment date:\n', 'Your account details\n',
     #  'Account number:\n', 'Bill number:\n', 'Our details\n']
     # And this is not _quite_ a fake table, because of the three headers in there.
-    # So, instead, just look for the following value, the bill date!
-    bill_date_idx = text_boxes.index("Bill date:\n") + 6
-    bill_date = dateparser.parse(text_boxes[bill_date_idx], languages=["en"])
+    # But ont he other hand, there's newer generated bills that have an actual fake table,
+    # so look for the distance between the two possible fields.
+    bill_date_header_idx = text_boxes.index("Bill date:\n")
+    payment_date_header_idx = text_boxes.index("Payment date:\n")
+    account_details_idx = text_boxes.index("Your account details\n")
+    logger.debug(
+        f"Bill date header at index {bill_date_header_idx}, payment date header at index {payment_date_header_idx}"
+    )
+
+    if payment_date_header_idx == bill_date_header_idx + 2:
+        bill_date_string = text_boxes[bill_date_header_idx + 1]
+    elif account_details_idx == payment_date_header_idx + 1:
+        bill_date_string = text_boxes[bill_date_header_idx + 6]
+    else:
+        bill_date_string = text_boxes[payment_date_header_idx + 1]
+    bill_date = dateparser.parse(bill_date_string, languages=["en"])
+    assert bill_date
 
     return NameComponents(bill_date, "Hyperoptic", account_holder_name, "Bill")
