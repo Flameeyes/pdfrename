@@ -5,7 +5,7 @@
 import datetime
 import re
 
-from typing import Optional
+from typing import Optional, Sequence
 
 import dateparser
 
@@ -14,8 +14,16 @@ from .lib.renamer import pdfrenamer
 from .utils import (
     extract_account_holder_from_address,
     find_box_starting_with,
-    drop_honorific,
 )
+
+def _extract_account_holders(address_box: str) -> Sequence[str]:
+    extracted_name = extract_account_holder_from_address(address_box)
+    
+    # In case of joint accounts!
+    if "&" in extracted_name:
+        return extracted_name.split("&")
+    else:
+        return (extracted_name,)
 
 
 @pdfrenamer
@@ -29,7 +37,9 @@ def current_account_statement(text_boxes, parent_logger) -> Optional[NameCompone
         return None
 
     # Always include the account holder name, which is found in the third text box.
-    account_holder_name = extract_account_holder_from_address(text_boxes[2])
+    address_box = text_boxes[2]
+    logger.debug(f"Found address: {address_box!r}")
+    account_holders = _extract_account_holders(address_box)
 
     period_line = find_box_starting_with(text_boxes, "Your account summary for  \n")
 
@@ -50,7 +60,7 @@ def current_account_statement(text_boxes, parent_logger) -> Optional[NameCompone
     return NameComponents(
         statement_date,
         "Santander",
-        account_holder_name,
+        account_holders,
         account_type,
         additional_components=("Statement",),
     )
@@ -118,7 +128,9 @@ def statement_of_fees(text_boxes, parent_logger) -> Optional[NameComponents]:
         return None
 
     # Always include the account holder name, which is found in the fourth text box.
-    account_holder_name = extract_account_holder_from_address(text_boxes[3])
+    address_box = text_boxes[3]
+    logger.debug(f"Found address: {address_box!r}")
+    account_holders = _extract_account_holders(address_box)
 
     # Find the account this refers to. It's the text box after the title column.
     account_idx = text_boxes.index("Account\n")
@@ -135,7 +147,7 @@ def statement_of_fees(text_boxes, parent_logger) -> Optional[NameComponents]:
     return NameComponents(
         statement_date,
         "Santander",
-        account_holder_name,
+        account_holders,
         account_type,
         additional_components=("Statement of Fees",),
     )

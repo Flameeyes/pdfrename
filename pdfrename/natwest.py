@@ -51,8 +51,6 @@ def statement(document: pdf_document.Document) -> Optional[NameComponents]:
 
     # The account holder(s) as well as the account type follow the IBAN, either in the same
     # or in different boxes.
-    # Take the first account holder for now, as we don't have a good format for multiple
-    # holders.
     iban_box_index = first_page.find_index_starting_with("IBAN: ")
     assert iban_box_index != None
 
@@ -60,12 +58,11 @@ def statement(document: pdf_document.Document) -> Optional[NameComponents]:
     # box.
     account_holders_string = first_page[iban_box_index + 1]
     if account_holders_string == "Branch Details\n":
-        # Extract the account holder from the IBAN box. There's more lines on it, which
-        # represent multiple holders, and the account time (e.g. Reward). Ignore them.
-        account_holder_name = first_page[iban_box_index].split("\n", 2)[1]
+        # Extract the account holder from the IBAN box, ignoring the first line.
+        account_holders = first_page[iban_box_index].split("\n")[1:-2]
     else:
-        account_holder_name, _ = account_holders_string.split("\n", 1)
+        account_holders = account_holders_string.split("\n")[:-2]
 
     return NameComponents(
-        statement_date, bank_name, account_holder_name.title(), "Statement"
+        statement_date, bank_name, account_holders, "Statement"
     )
