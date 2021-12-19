@@ -3,15 +3,19 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 import logging
 import re
-from typing import Optional
+from typing import Optional, Text
 
 import dateparser
 
 from .components import NameComponents
 from .lib.renamer import pdfrenamer
 from .lib import pdf_document
+
+from .utils import drop_honorific
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,6 +67,75 @@ def statement(document: pdf_document.Document) -> Optional[NameComponents]:
     else:
         account_holders = account_holders_string.split("\n")[:-2]
 
+    return NameComponents(statement_date, bank_name, account_holders, "Statement")
+
+
+_STATEMENT_OF_FEES = "Statement of Fees\n"
+_HONORIFICS = {"MR", "MRS"}
+
+
+@pdfrenamer
+def statement_of_fees(document: pdf_document.Document) -> Optional[NameComponents]:
+    logger = _LOGGER.getChild("statement_of_fees")
+
+    first_page = document[1]
+
+    if not first_page or _STATEMENT_OF_FEES not in first_page:
+        return None
+
+    for website, bank_name in _WEBSITES_TO_BANK.items():
+        if any(website in box for box in first_page):
+            break
+    else:
+        return None
+
+    logger.debug(f"Possible {bank_name} statement of fees.")
+
+    # Different documents have the first two boxes inverted, so check which one is the document
+    # type, the other is the address.
+    if first_page[0] == _STATEMENT_OF_FEES:
+        address_box = first_page[1]
+    elif first_page[1] == _STATEMENT_OF_FEES:
+        address_box = first_page[0]
+    else:
+        return None
+
+    # This does not seem to happen on _all_ addresses, so for now only check if there's more than 4
+    # components in the name. It's a bad heuristics but works for now.
+    name_line, _ = address_box.split("\n", 1)
+    name_components = name_line.split(" ")
+    if len(name_components) > 4 and drop_honorific(name_line) != name_line:
+        account_holders: list[str] = []
+        # Okay this is a mess, it means that the names were smashed together.
+        recomposed_account_holder: list[str] = []
+        for index, name_component in enumerate(name_components):
+            if name_component in _HONORIFICS:
+                continue
+            if index == len(name_components) - 1:
+                recomposed_account_holder.append(name_component)
+                account_holders.append(" ".join(recomposed_account_holder))
+                continue
+            for honorific in _HONORIFICS:
+                if name_component.endswith(honorific):
+                    recomposed_account_holder.append(name_component[: -len(honorific)])
+                    account_holders.append(" ".join(recomposed_account_holder))
+                    recomposed_account_holder = []
+                    break
+            else:
+                recomposed_account_holder.append(name_component)
+    else:
+        account_holders = (name_line,)
+
+    # This is again misaligned between documents: sometimes the order of the boxes is:
+    #   ["Period\n", "Date\n", "From ...", DATE]
+    # and sometimes it is
+    #   ["From ...", DATE, "Period\n", "Date\n"]
+    # but there's only one entry of "From" so that's easy.
+    period_line_idx = first_page.find_index_starting_with("From ")
+    date_string = first_page[period_line_idx + 1]
+
+    statement_date = dateparser.parse(date_string, languages=["en"])
+
     return NameComponents(
-        statement_date, bank_name, account_holders, "Statement"
+        statement_date, bank_name, account_holders, "Statement of Fees"
     )

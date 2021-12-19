@@ -40,8 +40,10 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
 - NatWest Group
   - [NatWest](https://nwolb.com/)
     - Statements
+    - Statements of Fees
   - [Ulster Bank NI](https://digital.ulsterbank.co.uk/)
     - Statements
+    - Statements of Fees
 - NewDay Cards
   - Amazon Platinum MasterCard Statements
 - [Nutmeg](https://www.nutmeg.com/)
