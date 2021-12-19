@@ -33,6 +33,8 @@ def bill(
     logger = _LOGGER.getChild("bill")
 
     text_boxes = document[1]
+    if not text_boxes:
+        return None
 
     # There are at least two different possible boxes as the bottom of page 1 since 2017,
     # but they all include a link to TW's website.
