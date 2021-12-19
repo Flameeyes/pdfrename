@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 import logging
-from typing import Any, Iterator, List, Optional, Sequence
+from typing import Any, Callable, Iterator, List, Sequence
 
 import pdfminer.high_level
 import pdfminer.layout
@@ -33,16 +35,22 @@ class PageTextBoxes:
     def index(self, content: str) -> int:
         return self._boxes.index(content)
 
-    def find_box_starting_with(self, prefix: str) -> Optional[str]:
-        found_boxes = [box for box in self._boxes if box.startswith(prefix)]
+    def find_box_with_match(self, match: Callable[[str], bool]) -> str | None:
+        found_boxes = [box for box in self._boxes if match(box)]
         if not found_boxes:
             return None
         assert len(found_boxes) == 1
         return found_boxes[0]
 
-    def find_index_starting_with(self, prefix: str) -> Optional[int]:
-        if box := self.find_box_starting_with(prefix):
+    def find_index_with_match(self, match: Callable[[str], bool]) -> int | None:
+        if box := self.find_box_with_match(match):
             return self.index(box)
+
+    def find_box_starting_with(self, prefix: str) -> str | None:
+        return self.find_box_with_match(lambda box: box.startswith(prefix))
+
+    def find_index_starting_with(self, prefix: str) -> int | None:
+        return self.find_index_with_match(lambda box: box.startswith(prefix))
 
 
 class Document:
