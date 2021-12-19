@@ -7,8 +7,8 @@ from typing import Optional, Sequence
 
 import dateparser
 
-from .lib.renamer import NameComponents, pdfrenamer
-from .lib.utils import (
+from ..lib.renamer import NameComponents, pdfrenamer
+from ..lib.utils import (
     drop_honorific,
     extract_account_holder_from_address,
     find_box_starting_with,

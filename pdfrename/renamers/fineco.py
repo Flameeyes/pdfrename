@@ -6,8 +6,8 @@ from typing import Optional
 
 import dateparser
 
-from .lib import pdf_document
-from .lib.renamer import NameComponents, pdfrenamer
+from ..lib import pdf_document
+from ..lib.renamer import NameComponents, pdfrenamer
 
 
 @pdfrenamer
@@ -31,7 +31,9 @@ def quarterly_statement(
     date_start = date_str.index("Date") + 4
     date = dateparser.parse(date_str[date_start:])
 
-    account_holder_start = account_holder_str.index("Account Holders") + len("Account Holders")
+    account_holder_start = account_holder_str.index("Account Holders") + len(
+        "Account Holders"
+    )
     account_holder = account_holder_str[account_holder_start:].strip()
 
     return NameComponents(date, "FinecoBank", account_holder, "Statement")

@@ -5,8 +5,8 @@
 import datetime
 from typing import Optional
 
-from .lib import pdf_document
-from .lib.renamer import NameComponents, pdfrenamer
+from ..lib import pdf_document
+from ..lib.renamer import NameComponents, pdfrenamer
 
 
 @pdfrenamer

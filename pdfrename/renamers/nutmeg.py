@@ -6,8 +6,8 @@ from typing import Optional
 
 import dateparser
 
-from .lib.renamer import NameComponents, pdfrenamer
-from .lib.utils import build_dict_from_fake_table
+from ..lib.renamer import NameComponents, pdfrenamer
+from ..lib.utils import build_dict_from_fake_table
 
 
 @pdfrenamer

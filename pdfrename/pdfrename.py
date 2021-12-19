@@ -14,7 +14,7 @@ import click_log
 import pdfminer.high_level
 import pdfminer.layout
 
-from . import (
+from .renamers import (
     americanexpress,
     aws,
     azure,
@@ -44,6 +44,7 @@ from . import (
     thameswater,
     vodafone,
 )
+
 from .lib.pdf_document import Document
 from .lib.renamer import try_all_renamers
 

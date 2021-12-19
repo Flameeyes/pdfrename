@@ -9,9 +9,9 @@ from typing import Optional
 
 import dateparser
 
-from .lib import pdf_document
-from .lib.renamer import NameComponents, pdfrenamer
-from .lib.utils import build_dict_from_fake_table, find_box_starting_with
+from ..lib import pdf_document
+from ..lib.renamer import NameComponents, pdfrenamer
+from ..lib.utils import build_dict_from_fake_table, find_box_starting_with
 
 _LOGGER = logging.getLogger(__name__)
 
