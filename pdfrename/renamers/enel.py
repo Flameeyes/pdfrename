@@ -37,7 +37,8 @@ def bill(document: pdf_document.Document) -> NameComponents | None:
     # Late 2019: the ENEL address is at the beginning, the address is two boxes before the
     # payment due date.
     due_date_idx = first_page.find_index_starting_with("Entro il ")
-    assert due_date_idx is not None
+    if due_date_idx is None:
+        return None
 
     address_box = first_page[due_date_idx - 2]
 
