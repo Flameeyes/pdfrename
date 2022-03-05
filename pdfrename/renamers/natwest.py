@@ -103,6 +103,8 @@ def statement_of_fees(document: pdf_document.Document) -> Optional[NameComponent
     # This does not seem to happen on _all_ addresses, so for now only check if there's more than 4
     # components in the name. It's a bad heuristics but works for now.
     name_line, _ = address_box.split("\n", 1)
+    # Some of the older statements use \x03 as separator instead of space.
+    name_line = name_line.replace("\x03", " ")
     name_components = name_line.split(" ")
     if len(name_components) > 4 and drop_honorific(name_line) != name_line:
         account_holders: list[str] = []
