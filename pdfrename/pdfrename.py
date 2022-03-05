@@ -114,7 +114,7 @@ def main(*, rename, list_all, input_files):
             if rename:
                 tool_logger.info(f"Renaming {original_filename} to {new_filename}")
                 if os.path.exists(new_filename):
-                    logging.warning(
+                    tool_logger.warning(
                         f"File {new_filename} already exists, not overwriting."
                     )
                     continue
