@@ -15,6 +15,7 @@ import pdfminer.high_level
 import pdfminer.layout
 
 from .renamers import (
+    acquerisorgive,
     americanexpress,
     aws,
     azure,
