@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 import re
+from tokenize import Name
 from typing import Optional, Sequence
 
 import dateparser
 
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import build_dict_from_fake_table, find_box_starting_with
 
@@ -44,3 +46,20 @@ def invoice(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents
     account_holder = account_holder[6:]  # Drop the ATTN
 
     return NameComponents(invoice_date, "AWS", account_holder, "Invoice")
+
+
+@pdfrenamer
+def uk_vat_invoice(document: pdf_document.Document) -> Optional[NameComponents]:
+    first_page = document[1]
+    if not first_page:
+        return None
+    if not first_page[-1].startswith("AMAZON WEB SERVICES EMEA SARL, UK BRANCH\n"):
+        return None
+
+    details_box = first_page.find_box_starting_with("Account number:")
+    account_holder = details_box.split("\n")[3]
+
+    date_str = first_page[first_page.index("VAT Invoice Date:\n") + 4]
+    date = dateparser.parse(date_str, languages=["en"])
+
+    return NameComponents(date, "AWS", account_holder, "VAT Invoice")
