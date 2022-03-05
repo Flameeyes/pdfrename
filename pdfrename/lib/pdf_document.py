@@ -100,14 +100,15 @@ class Document:
                         for obj in page_content
                         if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal)
                     ]
-                    if not text_boxes:
-                        _LOGGER.debug(
-                            f"{self.original_filename} p{new_page_idx}: no text boxes found: {page_content!r}"
-                        )
-                    else:
-                        _LOGGER.debug(
-                            f"{self.original_filename} p{new_page_idx}: {text_boxes!r}"
-                        )
+
+                if not text_boxes:
+                    _LOGGER.debug(
+                        f"{self.original_filename} p{new_page_idx}: no text boxes found: {page_content!r}"
+                    )
+                else:
+                    _LOGGER.debug(
+                        f"{self.original_filename} p{new_page_idx}: {text_boxes!r}"
+                    )
 
                 self._extracted_pages.append(PageTextBoxes(text_boxes))
 
