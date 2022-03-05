@@ -20,6 +20,8 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
 - [Chase](https://www.chase.com/)
 - [Digikey](https://www.digikey.com/)
   - Invoices
+- [eBay](https://www.ebay.com/)
+  - Seller Statements (Detailed and Summarized)
 - [EDF Energy](https://www.edfenergy.com/)
   - Bills
 - [ENEL Energia](https://www.enel.it/)

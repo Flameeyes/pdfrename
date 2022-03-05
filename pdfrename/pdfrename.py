@@ -20,6 +20,7 @@ from .renamers import (
     azure,
     chase,
     digikey,
+    ebay,
     edf,
     enel,
     fineco,
