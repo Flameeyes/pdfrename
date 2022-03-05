@@ -43,6 +43,7 @@ from .renamers import (
     soenergy,
     tesco_bank,
     thameswater,
+    veritas,
     vodafone,
 )
 
