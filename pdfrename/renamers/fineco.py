@@ -54,12 +54,19 @@ def profit_loss(
     except IndexError:
         return None
 
-    if not (first_page[0].startswith('P&L SUMMARY\n') and first_page[1].startswith('Dossier: ') and first_page[2].startswith("Dear\n")):
+    if not (
+        first_page[0].startswith("P&L SUMMARY\n")
+        and first_page[1].startswith("Dossier: ")
+        and first_page[2].startswith("Dear\n")
+    ):
         return None
-    
-    account_holder = first_page[2].split('\n', 2)[1]
 
-    date_match = re.search(r"realised P&L for transactions settled from \n([0-9]{2}/[0-9]{2}/[0-9]{4})\n", first_page[3])
+    account_holder = first_page[2].split("\n", 2)[1]
+
+    date_match = re.search(
+        r"realised P&L for transactions settled from \n([0-9]{2}/[0-9]{2}/[0-9]{4})\n",
+        first_page[3],
+    )
     if not date_match:
         logger.debug("Failed to match date.")
         return None
