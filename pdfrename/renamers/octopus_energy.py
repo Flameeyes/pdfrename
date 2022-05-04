@@ -34,11 +34,11 @@ def statement(document: pdf_document.Document) -> Optional[NameComponents]:
 
     account_holder_name = extract_account_holder_from_address(first_page[0])
 
-    bill_details = first_page[1]
+    bill_details = first_page.find_box_starting_with("Your Account Number: ")
     logger.debug(f"Found bill details: {bill_details!r}")
 
     date_match = re.search(
-        "\nBill Reference: .+ \(([0-9]+[a-z]{2} [A-Z][a-z]{2}\. [0-9]{4})\)\n$",
+        "\nBill Reference: .+ \(([0-9]+[a-z]{2} [A-Z][a-z.]{2,} [0-9]{4})\)\n$",
         bill_details,
     )
     if not date_match:
