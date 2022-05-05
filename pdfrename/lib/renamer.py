@@ -8,7 +8,8 @@ import dataclasses
 import datetime
 import inspect
 import logging
-from typing import Callable, Iterator, List, Sequence, Tuple, TypeVar
+import typing
+from typing import Callable, Iterator, List, Sequence, Tuple, Union
 
 from . import pdf_document, utils
 
@@ -56,7 +57,7 @@ Boxes = Sequence[str]
 RenamerV1 = Callable[[Boxes, logging.Logger], NameComponents | None]
 RenamerV2 = Callable[[pdf_document.Document], NameComponents | None]
 
-Renamer = TypeVar("Renamer", RenamerV1, RenamerV2)
+Renamer = Union[RenamerV1, RenamerV2]
 
 _ALL_RENAMERS: List[Tuple[Renamer, int]] = []
 
@@ -72,7 +73,7 @@ def pdfrenamer(func: Renamer) -> Renamer:
 
 def try_all_renamers(
     document: pdf_document.Document, tool_logger: logging.Logger
-) -> Iterator[components.NameComponents]:
+) -> Iterator[NameComponents]:
     first_page_text_boxes = list(document[1])  # Only used for v1 renamers.
 
     if not first_page_text_boxes:
@@ -85,9 +86,11 @@ def try_all_renamers(
             if version == 1:
                 if not first_page_text_boxes:
                     continue
-                name = renamer(first_page_text_boxes, tool_logger)
+                name = typing.cast(RenamerV1, renamer)(
+                    first_page_text_boxes, tool_logger
+                )
             else:
-                name = renamer(document)
+                name = typing.cast(RenamerV2, renamer)(document)
 
             if name:
                 yield name

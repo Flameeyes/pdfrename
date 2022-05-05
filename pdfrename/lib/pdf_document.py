@@ -46,6 +46,8 @@ class PageTextBoxes:
         if box := self.find_box_with_match(match):
             return self.index(box)
 
+        return None
+
     def find_box_starting_with(self, prefix: str) -> str | None:
         return self.find_box_with_match(lambda box: box.startswith(prefix))
 
@@ -68,7 +70,7 @@ class Document:
 
         self._extracted_pages = []
 
-    def get_textboxes(self, page: int) -> Sequence[str]:
+    def get_textboxes(self, page: int) -> PageTextBoxes:
         if page < 1:
             raise IndexError("Document pages are 1-indexed.")
 

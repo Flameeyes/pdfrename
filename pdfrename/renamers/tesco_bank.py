@@ -27,6 +27,7 @@ def tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
 
         account_holder_name = text_boxes[4].strip()
         tax_year_line = find_box_starting_with(text_boxes, "Tax Year:")
+        assert tax_year_line is not None
 
         tax_year_match = re.search(
             r"^Tax Year: [0-9]{1,2} [A-Z][a-z]+ [0-9]{4} to ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n$",

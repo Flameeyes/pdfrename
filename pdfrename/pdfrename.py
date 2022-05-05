@@ -70,8 +70,8 @@ def find_filename(original_filename: str) -> Optional[str]:
         )
     elif possible_names:
         return possible_names[0].render_filename(True, True)
-    else:
-        return None
+
+    return None
 
 
 @click.command()

@@ -26,16 +26,18 @@ def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
         "\nRegistered address: Vodafone Limited, " in box for box in text_boxes
     )
 
-    if is_vodafone:
-        account_holder_name = extract_account_holder_from_address(text_boxes[3])
+    if not is_vodafone:
+        return None
 
-        date_match = re.match(r"^([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})", text_boxes[0])
-        assert date_match
+    account_holder_name = extract_account_holder_from_address(text_boxes[3])
 
-        bill_date = dateparser.parse(date_match.group(1), languages=["en"])
-        assert bill_date is not None
+    date_match = re.match(r"^([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})", text_boxes[0])
+    assert date_match
 
-        return NameComponents(bill_date, "Vodafone", account_holder_name, "Bill")
+    bill_date = dateparser.parse(date_match.group(1), languages=["en"])
+    assert bill_date is not None
+
+    return NameComponents(bill_date, "Vodafone", account_holder_name, "Bill")
 
 
 @pdfrenamer
