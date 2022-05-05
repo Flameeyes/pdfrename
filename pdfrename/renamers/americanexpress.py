@@ -13,16 +13,22 @@ from ..lib.renamer import NameComponents, pdfrenamer
 def statement(document: pdf_document.Document) -> Optional[NameComponents]:
     text_boxes = document[1]  # Only need the first page.
 
-    if not text_boxes or text_boxes[0] != "www.americanexpress.co.uk\n":
+    if not text_boxes:
         return None
 
-    document_type = text_boxes[4].strip()
+    if text_boxes[0] == "www.americanexpress.co.uk\n":
+        document_type = text_boxes[4].strip()
+    elif text_boxes[0] == "americanexpress.co.uk\n":
+        document_type = text_boxes[3].strip()
+    else:
+        return None
+
     if document_type == "Statement of Account":
         document_type = "Statement"
 
     account_holder_box = text_boxes.find_box_starting_with("Prepared for\n")
     assert account_holder_box
-    account_holder_name = account_holder_box.split("\n")[1].strip().title()
+    account_holder_name = account_holder_box.split("\n")[1].strip()
 
     # The date is the box after the Membership Number. We can't look for the one starting
     # with "Date" because there's more than one.
