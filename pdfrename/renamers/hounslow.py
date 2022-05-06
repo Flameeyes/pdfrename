@@ -7,6 +7,8 @@ from typing import Optional, Sequence
 
 import dateparser
 
+from pdfrename.renamers.edf import bill
+
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import (
     drop_honorific,
@@ -28,6 +30,7 @@ def tax_bill(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponent
         return None
 
     bill_date = dateparser.parse(text_boxes[0], languages=["en"])
+    assert bill_date
 
     # In older bills, the subject box includes the address.
     if subject.count("\n") > 1:

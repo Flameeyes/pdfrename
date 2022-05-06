@@ -17,26 +17,27 @@ def statement(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     is_lloyds = any("logo, Lloyds Bank.\n" in box for box in text_boxes)
 
-    if is_lloyds:
-        document_requestor = find_box_starting_with(
-            text_boxes, "Document requested by:\n"
+    if not is_lloyds:
+        return None
+
+    document_requestor = find_box_starting_with(text_boxes, "Document requested by:\n")
+    assert document_requestor
+
+    account_holder_name = document_requestor.split("\n")[1]
+
+    for box in text_boxes:
+        date_match = re.search(
+            r"^[0-9]{1,2} [A-Z][a-z]+ [0-9]{4} to ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4}.\n)",
+            box,
         )
+        if date_match:
+            break
+    else:
+        logger.debug("Unable to find the statement date.")
 
-        account_holder_name = document_requestor.split("\n")[1]
+    assert date_match
 
-        for box in text_boxes:
-            date_match = re.search(
-                r"^[0-9]{1,2} [A-Z][a-z]+ [0-9]{4} to ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4}.\n)",
-                box,
-            )
-            if date_match:
-                break
-        else:
-            logger.debug("Unable to find the statement date.")
+    bill_date = dateparser.parse(date_match.group(1), languages=["en"])
+    assert bill_date is not None
 
-        assert date_match
-
-        bill_date = dateparser.parse(date_match.group(1), languages=["en"])
-        assert bill_date is not None
-
-        return NameComponents(bill_date, "Lloyds", account_holder_name, "Statement")
+    return NameComponents(bill_date, "Lloyds", account_holder_name, "Statement")

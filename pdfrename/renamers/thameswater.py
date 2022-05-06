@@ -53,27 +53,26 @@ def bill(
 
     assert text_boxes[0].startswith("Page 1 of ")
 
-    date_line = find_box_starting_with(text_boxes, "Date\n")
+    date_line = text_boxes.find_box_starting_with("Date\n")
+    assert date_line is not None
     logger.debug(f"found date line: {date_line!r}")
     date_match = re.search("^Date\n([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n", date_line)
     assert date_match
 
     document_date = dateparser.parse(date_match.group(1), languages=["en"])
+    assert document_date is not None
 
-    try:
-        # First try to leverage the more modern (2020/21) template, looking for
-        # a box with "Account balance" (possibly followed by "(in credit)") on it.
-
-        document_subject_index = (
-            text_boxes.find_index_starting_with("Account balance") - 1
+    # First try to leverage the more modern (2020/21) template, looking for
+    # a box with "Account balance" (possibly followed by "(in credit)") on it.
+    account_balance_index = text_boxes.find_index_starting_with("Account balance")
+    if account_balance_index is not None:
+        document_subject_index = account_balance_index - 1
+    elif thameswater_2021:
+        logger.debug(
+            "thameswater: failed to find the document subject for 2021 document."
         )
-    except ValueError:
-        if thameswater_2021:
-            logger.debug(
-                "thameswater: failed to find the document subject for 2021 document."
-            )
-            return None
-
+        return None
+    else:
         # If that doesn't work, try the old method of using the 8th box, but that only
         # works for older bills not newer ones.
         document_subject_index = 7
@@ -115,6 +114,7 @@ def letter(text_boxes, parent_logger) -> Optional[NameComponents]:
     assert date_match
 
     document_date = dateparser.parse(date_match.group(1), languages=["en"])
+    assert document_date is not None
 
     account_holder_name = extract_account_holder_from_address(text_boxes[0])
 

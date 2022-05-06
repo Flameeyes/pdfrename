@@ -36,6 +36,7 @@ def statement(text_boxes, parent_logger) -> Optional[NameComponents]:
     assert period_match
 
     statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+    assert statement_date
 
     return NameComponents(
         statement_date,

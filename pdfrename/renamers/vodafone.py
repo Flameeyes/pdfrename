@@ -52,9 +52,11 @@ def bill_italy(document: pdf_document.Document) -> NameComponents | None:
     account_holder_box = first_page.find_box_starting_with(
         "Intestatario del contratto\n"
     )
+    assert account_holder_box
     account_holder = account_holder_box.split("\n")[1]
 
     details_faketable_idx = first_page.find_index_starting_with("Importo totale\n")
+    assert details_faketable_idx is not None
     details = build_dict_from_fake_table(
         first_page[details_faketable_idx], first_page[details_faketable_idx + 1]
     )
@@ -63,5 +65,6 @@ def bill_italy(document: pdf_document.Document) -> NameComponents | None:
     logger.debug(f"Vodafone Italy date box: {date_box!r}")
     _, date_str = date_box.split(" del ")
     date = dateparser.parse(date_str, languages=["it"])
+    assert date
 
     return NameComponents(date, "Vodafone", account_holder, "Fattura")

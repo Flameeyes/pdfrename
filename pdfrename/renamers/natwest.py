@@ -50,11 +50,12 @@ def statement(document: pdf_document.Document) -> Optional[NameComponents]:
     )
     assert date_match
     statement_date = dateparser.parse(date_match.group(1), languages=["en"])
+    assert statement_date is not None
 
     # The account holder(s) as well as the account type follow the IBAN, either in the same
     # or in different boxes.
     iban_box_index = first_page.find_index_starting_with("IBAN: ")
-    assert iban_box_index != None
+    assert iban_box_index is not None
 
     # If the following box says "Branch Details" then the details are attached to the IBAN
     # box.
@@ -124,7 +125,7 @@ def statement_of_fees(document: pdf_document.Document) -> Optional[NameComponent
             else:
                 recomposed_account_holder.append(name_component)
     else:
-        account_holders = (name_line,)
+        account_holders = [name_line]
 
     # This is again misaligned between documents: sometimes the order of the boxes is:
     #   ["Period\n", "Date\n", "From ...", DATE]
@@ -132,9 +133,11 @@ def statement_of_fees(document: pdf_document.Document) -> Optional[NameComponent
     #   ["From ...", DATE, "Period\n", "Date\n"]
     # but there's only one entry of "From" so that's easy.
     period_line_idx = first_page.find_index_starting_with("From ")
+    assert period_line_idx is not None
     date_string = first_page[period_line_idx + 1]
 
     statement_date = dateparser.parse(date_string, languages=["en"])
+    assert statement_date is not None
 
     return NameComponents(
         statement_date, bank_name, account_holders, "Statement of Fees"
@@ -164,7 +167,7 @@ def certificate_of_interest(
 
     # The account holder(s) as well as the account type follow the IBAN, in its own box.
     iban_box_index = first_page.find_index_starting_with("IBAN: ")
-    assert iban_box_index != None
+    assert iban_box_index is not None
 
     account_holders_string = first_page[iban_box_index + 1]
     # Ignore both the account type and the last empty line.
@@ -175,12 +178,14 @@ def certificate_of_interest(
     period_line = first_page.find_box_starting_with(
         "This is the interest you were paid"
     )
+    assert period_line is not None
     date_match = re.search(
         r"during the tax year ending ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n", period_line
     )
     assert date_match
 
     document_date = dateparser.parse(date_match.group(1), languages=["en"])
+    assert document_date is not None
 
     return NameComponents(
         document_date, bank_name, account_holders, "Certificate of Interest"

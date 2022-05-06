@@ -29,6 +29,7 @@ def suitability_report(document: pdf_document.Document) -> NameComponents | None
     logger.debug("Possible Nutmeg Suitability Report found.")
 
     document_type_index = first_page.find_index_starting_with("Suitability Report\n")
+    assert document_type_index is not None
     logger.debug(
         f"Nutmeg Suitability Report document type at index {document_type_index}"
     )
@@ -43,6 +44,7 @@ def suitability_report(document: pdf_document.Document) -> NameComponents | None
     report_date_str = params_table["Generated on:"]
     logger.debug(f"Nutmeg Suitability Report date: {report_date_str}")
     report_date = dateparser.parse(report_date_str, languages=["en"])
+    assert report_date is not None
 
     account_holder_name = params_table["Produced for:"]
 
@@ -50,9 +52,9 @@ def suitability_report(document: pdf_document.Document) -> NameComponents | None
     if second_page and second_page[0] == "About your new pot\n":
         pot_name = second_page[1].strip()
         logger.debug(f"Suitability Report for a new pot: {pot_name}")
-        additional_components = (pot_name,)
+        additional_components = [pot_name]
     else:
-        additional_components = ()
+        additional_components = []
 
     return NameComponents(
         report_date,
@@ -91,6 +93,7 @@ def valuation_report(document: pdf_document.Document) -> NameComponents | None:
         logger.warning(f"Nutmeg Valuation Report with invalid date: {date_str}")
 
     date = dateparser.parse(date_str[6:], languages=["en"])
+    assert date is not None
 
     return NameComponents(
         date,

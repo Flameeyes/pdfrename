@@ -46,6 +46,7 @@ def amazon_platinum_statement(
     statement_date = dateparser.parse(
         date_box[len("Statement date: ") :], languages=["en"]
     )
+    assert statement_date is not None
 
     date_idx = text_boxes.index(date_box)
     address_box = text_boxes[date_idx - 1]

@@ -9,6 +9,8 @@ from typing import Optional
 
 import dateparser
 
+from pdfrename.renamers.chase import statement
+
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address, find_box_starting_with
@@ -48,6 +50,7 @@ def bills_2019(text_boxes, parent_logger) -> Optional[NameComponents]:
         )
         assert period_match
         statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+        assert statement_date is not None
 
         return NameComponents(
             statement_date,
@@ -80,6 +83,8 @@ def bills_2019(text_boxes, parent_logger) -> Optional[NameComponents]:
             statement_date, "So Energy", account_holder_name, "Annual Summary"
         )
 
+    return None
+
 
 _DOCUMENT_TYPES_2021 = {
     "Statement": re.compile(r"HERE IS\sYOUR\sSTATEMENT"),
@@ -101,6 +106,7 @@ def bills_2021(document: pdf_document.Document) -> Optional[NameComponents]:
 
     first_page = document[1]
     document_type_box = first_page.find_box_starting_with("HELLO ")
+    assert document_type_box is not None
 
     logger.debug(f"Found likely SoEnergy Document ({document_type_box!r})")
 
@@ -112,10 +118,12 @@ def bills_2021(document: pdf_document.Document) -> Optional[NameComponents]:
 
     logger.debug(f"Found a SoEnergy {document_type}")
 
-    date_box = find_box_starting_with(first_page, "Created On\n")
+    date_box = first_page.find_box_starting_with("Created On\n")
+    assert date_box is not None
     logger.debug(f"Statement date box: {date_box!r}")
     date_idx = first_page.index(date_box)
     statement_date = dateparser.parse(date_box.split("\n")[1], languages=["en"])
+    assert statement_date is not None
 
     address_box = first_page[date_idx - 1]
     logger.debug(f"Address box: {address_box!r}")

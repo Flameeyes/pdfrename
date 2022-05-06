@@ -35,6 +35,7 @@ def statement(document: pdf_document.Document) -> Optional[NameComponents]:
     account_holder_name = extract_account_holder_from_address(first_page[0])
 
     bill_details = first_page.find_box_starting_with("Your Account Number: ")
+    assert bill_details is not None
     logger.debug(f"Found bill details: {bill_details!r}")
 
     date_match = re.search(
@@ -46,6 +47,7 @@ def statement(document: pdf_document.Document) -> Optional[NameComponents]:
         return None
 
     statement_date = dateparser.parse(date_match.group(1), languages=["en"])
+    assert statement_date is not None
 
     return NameComponents(
         statement_date, "Octopus Energy", account_holder_name, "Statement"

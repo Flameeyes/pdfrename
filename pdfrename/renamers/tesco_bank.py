@@ -36,6 +36,7 @@ def tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
         assert tax_year_match
 
         document_date = dateparser.parse(tax_year_match.group(1))
+        assert document_date is not None
 
         return NameComponents(
             document_date,
@@ -64,6 +65,7 @@ def tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
     statement_date = dateparser.parse(
         statement_info["Statement date:"], languages=["en"]
     )
+    assert statement_date is not None
 
     return NameComponents(
         statement_date,

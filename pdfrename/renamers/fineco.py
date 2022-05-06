@@ -35,6 +35,7 @@ def quarterly_statement(
     # play it relatively safe.
     date_start = date_str.index("Date") + 4
     date = dateparser.parse(date_str[date_start:])
+    assert date
 
     account_holder_start = account_holder_str.index("Account Holders") + len(
         "Account Holders"

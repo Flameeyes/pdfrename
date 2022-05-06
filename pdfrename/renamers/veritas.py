@@ -28,16 +28,20 @@ def bolletta_2022(document: pdf_document.Document) -> NameComponents | None:
     logger.debug("Veritas bill detected")
 
     account_holder_box = first_page.find_box_starting_with("Intestatario contratto \n")
+    assert account_holder_box
     logger.debug(f"Veritas account holder box: {account_holder_box!r}")
     account_holder = account_holder_box.split("\n")[1]
 
     details = first_page.find_box_with_match(lambda box: "\ncodice utente " in box)
+    assert details
     logger.debug(f"Veritas details: {details!r}")
     if not re.search(" n[.] [0-9]+", details):
         return None
 
     bill_type = details.split("\n", 1)[0].strip().title()
-    date_str = re.search(r"del\s([0-9]{2}[.][0-9]{2}[.][0-9]{4})\n", details).group(1)
+    date_match = re.search(r"del\s([0-9]{2}[.][0-9]{2}[.][0-9]{4})\n", details)
+    assert date_match
+    date_str = date_match.group(1)
     logger.debug(f"Veritas date string: {date_str}")
     date = datetime.datetime.strptime(date_str, "%d.%m.%Y")
 
@@ -80,14 +84,16 @@ def bolletta_idrico_2019(document: pdf_document.Document) -> NameComponents | No
     account_holder = account_holder_box.split("\n")[1]
 
     bill_type_box = first_page.find_box_starting_with("Fattura per la fornitura del")
+    assert bill_type_box
     logger.debug(f"Found bill type box: {bill_type_box!r}")
-    bill_type = (
-        re.match("^Fattura per la fornitura del (.+) erogato in", bill_type_box)
-        .group(1)
-        .title()
+    bill_type_match = re.match(
+        "^Fattura per la fornitura del (.+) erogato in", bill_type_box
     )
+    assert bill_type_match
+    bill_type = bill_type_match.group(1).title()
 
     details_faketable_idx = second_page.find_index_starting_with("N. Fattura\n")
+    assert details_faketable_idx is not None
     details = build_dict_from_fake_table(
         second_page[details_faketable_idx], second_page[details_faketable_idx + 1]
     )
@@ -138,17 +144,17 @@ def avviso_pagamento_rifiuti_2019(
     if not bill_type_box:
         logger.debug("Unable to detect bill type")
         return None
-    bill_type = (
-        # Note that the encoding is not UTF-8 compatible, so skip the accent!
-        re.match(
-            "Le inviamo l' avviso di pagamento per il (.+) di cui trover",
-            bill_type_box,
-        )
-        .group(1)
-        .title()
+
+    # Note that the encoding is not UTF-8 compatible, so skip the accent!
+    bill_type_match = re.match(
+        "Le inviamo l' avviso di pagamento per il (.+) di cui trover",
+        bill_type_box,
     )
+    assert bill_type_match is not None
+    bill_type = bill_type_match.group(1).title()
 
     details_faketable_idx = second_page.find_index_starting_with("N. Avviso\n")
+    assert details_faketable_idx is not None
     details = build_dict_from_fake_table(
         second_page[details_faketable_idx], second_page[details_faketable_idx + 1]
     )

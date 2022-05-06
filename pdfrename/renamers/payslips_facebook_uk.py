@@ -17,15 +17,17 @@ def payslip_uk(text_boxes, parent_logger) -> Optional[NameComponents]:
     if len(text_boxes) < 5:
         return None
 
-    is_payslip_facebook_uk = "Facebook UK Ltd\n" == text_boxes[2]
-    if is_payslip_facebook_uk:
-        logger.debug("Found Facebook Payslip")
+    if text_boxes[2] != "Facebook UK Ltd\n":
+        return None
 
-        account_holder_name = extract_account_holder_from_address(text_boxes[1])
+    logger.debug("Found Facebook Payslip")
 
-        date_box = find_box_starting_with(text_boxes, "Date : ")
+    account_holder_name = extract_account_holder_from_address(text_boxes[1])
 
-        payslip_date = dateparser.parse(date_box[7:], languages=["en"])
-        assert payslip_date is not None
+    date_box = find_box_starting_with(text_boxes, "Date : ")
+    assert date_box is not None
 
-        return NameComponents(payslip_date, "Facebook", account_holder_name, "Payslip")
+    payslip_date = dateparser.parse(date_box[7:], languages=["en"])
+    assert payslip_date is not None
+
+    return NameComponents(payslip_date, "Facebook", account_holder_name, "Payslip")

@@ -13,21 +13,23 @@ def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("azure.invoice")
 
     is_azure = any("Microsoft Ireland Operations Ltd" in box for box in text_boxes)
-    if is_azure:
-        logger.debug("Found Azure Invoice")
+    if not is_azure:
+        return None
 
-        address_idx = text_boxes.index("Bill to\n")
-        address_str = text_boxes[address_idx + 1].strip()
-        account_holder_name = address_str.split("\n")[-1].split(":", 1)[1]
+    logger.debug("Found Azure Invoice")
 
-        for box in text_boxes:
-            try:
-                invoice_date = datetime.datetime.strptime(box, "%m/%d/%Y\n")
-                logger.debug(f"Found an invoice date line {invoice_date!r}")
-                break
-            except ValueError:
-                continue
-        else:
-            raise Exception("No invoice date found")
+    address_idx = text_boxes.index("Bill to\n")
+    address_str = text_boxes[address_idx + 1].strip()
+    account_holder_name = address_str.split("\n")[-1].split(":", 1)[1]
 
-        return NameComponents(invoice_date, "Azure", account_holder_name, "Invoice")
+    for box in text_boxes:
+        try:
+            invoice_date = datetime.datetime.strptime(box, "%m/%d/%Y\n")
+            logger.debug(f"Found an invoice date line {invoice_date!r}")
+            break
+        except ValueError:
+            continue
+    else:
+        raise Exception("No invoice date found")
+
+    return NameComponents(invoice_date, "Azure", account_holder_name, "Invoice")

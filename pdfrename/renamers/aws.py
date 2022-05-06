@@ -36,6 +36,7 @@ def invoice(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents
     invoice_info = build_dict_from_fake_table(fields_box, values_box)
 
     invoice_date = dateparser.parse(invoice_info["Invoice Date:"], languages=["en"])
+    assert invoice_date
 
     address_box = find_box_starting_with(text_boxes, "Bill to Address:\n")
     assert address_box
@@ -57,9 +58,11 @@ def uk_vat_invoice(document: pdf_document.Document) -> Optional[NameComponents]:
         return None
 
     details_box = first_page.find_box_starting_with("Account number:")
+    assert details_box
     account_holder = details_box.split("\n")[3]
 
     date_str = first_page[first_page.index("VAT Invoice Date:\n") + 4]
     date = dateparser.parse(date_str, languages=["en"])
+    assert date
 
     return NameComponents(date, "AWS", account_holder, "VAT Invoice")

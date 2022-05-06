@@ -38,6 +38,7 @@ def current_account_statement(text_boxes, parent_logger) -> Optional[NameCompone
     account_holders = _extract_account_holders(address_box)
 
     period_line = find_box_starting_with(text_boxes, "Your account summary for  \n")
+    assert period_line is not None
 
     logger.debug(f"found period specification: {period_line!r}")
 
@@ -47,6 +48,7 @@ def current_account_statement(text_boxes, parent_logger) -> Optional[NameCompone
     )
     assert period_match
     statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+    assert statement_date is not None
 
     if is_santander_select:
         account_type = "Select Current Account"
@@ -94,6 +96,7 @@ def credit_card(text_boxes, parent_logger) -> Optional[NameComponents]:
         statement_period_line = find_box_starting_with(
             text_boxes, "Account summary as at:"
         )
+        assert statement_period_line is not None
 
         logger.debug(f"found period specification: {statement_period_line!r}")
 
@@ -103,6 +106,8 @@ def credit_card(text_boxes, parent_logger) -> Optional[NameComponents]:
         )
         assert period_match
         statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+
+    assert statement_date is not None
 
     return NameComponents(
         statement_date,
@@ -182,6 +187,7 @@ def annual_account_summary(text_boxes, parent_logger) -> Optional[NameComponents
     assert period_match
 
     statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+    assert statement_date is not None
 
     return NameComponents(
         statement_date,

@@ -16,9 +16,11 @@ def financial_statement(document: pdf_document.Document) -> NameComponents | Non
         return None
 
     date_box = first_page.find_box_starting_with("Generated: ")
+    assert date_box
     _, date_str = date_box.split(" ", 1)
 
     date = dateparser.parse(date_str, languages=["en"])
+    assert date
 
     seller_name_label_idx = first_page.index("Seller name\n")
     seller_name = first_page[seller_name_label_idx + 1]

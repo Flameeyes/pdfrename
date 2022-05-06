@@ -38,7 +38,9 @@ def _find_statement_date(text_boxes: Sequence[str], logger) -> datetime.datetime
         assert period_match
         period_end_str = period_match.group(1)
 
-    return dateparser.parse(period_end_str, languages=["en"])
+    date = dateparser.parse(period_end_str, languages=["en"])
+    assert date is not None
+    return date
 
 
 @pdfrenamer
@@ -104,6 +106,7 @@ def letter(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents]
             document_date = _find_statement_date(text_boxes, logger)
             document_type = "Brokerage Statement"
 
+        assert document_date is not None
         return NameComponents(document_date, "Schwab", account_holder, document_type)
 
     # Letters
@@ -130,5 +133,8 @@ def letter(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents]
             letter_date = dateparser.parse(text_boxes[1], languages=["en"])
 
         assert account_holder
+        assert letter_date is not None
 
         return NameComponents(letter_date, "Schwab", account_holder, "Letter")
+
+    return None

@@ -15,13 +15,15 @@ def statement(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger = parent_logger.getChild("kbc.statement")
 
     is_kbc = any("ICONIE2D\n" in box for box in text_boxes)
-    if is_kbc:
-        logger.debug("Found KBC Ireland")
+    if not is_kbc:
+        return None
 
-        account_holder_name = extract_account_holder_from_address(text_boxes[0])
+    logger.debug("Found KBC Ireland")
 
-        statement_date = dateparser.parse(text_boxes[1], languages=["en"])
+    account_holder_name = extract_account_holder_from_address(text_boxes[0])
 
-        assert statement_date is not None
+    statement_date = dateparser.parse(text_boxes[1], languages=["en"])
 
-        return NameComponents(statement_date, "KBC", account_holder_name, "Statement")
+    assert statement_date is not None
+
+    return NameComponents(statement_date, "KBC", account_holder_name, "Statement")

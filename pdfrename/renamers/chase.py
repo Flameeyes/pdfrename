@@ -38,6 +38,7 @@ def statement(text_boxes, parent_logger) -> Optional[NameComponents]:
     logger.debug(f"found period specification: {period_match.group(0)!r}")
 
     statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+    assert statement_date
 
     # We anchor the address on the contact numbers on the side, but that's not working for
     # older statements.

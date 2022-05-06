@@ -24,6 +24,7 @@ def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
 
     bill_info = build_dict_from_fake_table(fields_box, values_box)
     bill_date = dateparser.parse(bill_info["Bill date"], languages=["en"])
+    assert bill_date is not None
 
     address_box = text_boxes[3]
     account_holder_name = extract_account_holder_from_address(address_box)

@@ -43,6 +43,7 @@ def bill_2018(text_boxes, parent_logger) -> Optional[NameComponents]:
     # They thankfully sit next to each other, so once one is found, it's possible to find
     # the invoice date with relative ease.
     titles_str = find_box_starting_with(text_boxes, "DD Ref:\n")
+    assert titles_str
 
     titles_idx = text_boxes.index(titles_str[0])
     values_str = text_boxes[titles_idx + 1]

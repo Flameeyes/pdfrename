@@ -31,6 +31,7 @@ def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
         # Previous templates split this into two separate boxes.
         customer_label_idx = text_boxes.index("Customer\n")
         customer_box = text_boxes[customer_label_idx + 1]
+        assert customer_box is not None
         account_holder = customer_box.strip()
 
     date_box = find_box_starting_with(text_boxes, "Issued: \n")
@@ -56,5 +57,6 @@ def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
         date_str = date_match.group(1)
 
     bill_date = dateparser.parse(date_str)
+    assert bill_date is not None
 
     return NameComponents(bill_date, "Scaleway", account_holder, "Invoice")
