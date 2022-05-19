@@ -21,6 +21,7 @@ def bill(document: pdf_document.Document) -> NameComponents | None:
         return None
 
     fields_box_index = text_boxes.find_index_starting_with("Account number\n")
+    assert fields_box_index is not None
 
     bill_info = build_dict_from_fake_table(
         text_boxes[fields_box_index], text_boxes[fields_box_index + 1]

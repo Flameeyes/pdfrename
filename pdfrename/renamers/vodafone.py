@@ -81,10 +81,12 @@ def bill_italy_2022(document: pdf_document.Document) -> NameComponents | None:
     if len(first_page) < 2 or "voda.it/guidafattura" not in first_page[-2]:
         return None
 
-    account_holder_box_index = first_page.find_index_starting_with(" I tuoi dati\n") + 1
-    account_holder = first_page[account_holder_box_index].strip()
+    account_holder_title_index = first_page.find_index_starting_with(" I tuoi dati\n")
+    assert account_holder_title_index is not None
+    account_holder = first_page[account_holder_title_index + 1].strip()
 
     invoice_box = first_page.find_box_starting_with("Fattura non fiscale ")
+    assert invoice_box is not None
     date = _extract_italian_date(invoice_box)
 
     return NameComponents(date, "Vodafone", account_holder, "Fattura")
