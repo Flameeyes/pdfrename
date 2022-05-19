@@ -12,13 +12,15 @@ from ..lib.renamer import NameComponents, pdfrenamer
 def statement(document: pdf_document.Document) -> NameComponents | None:
     text_boxes = document[1]  # Only need the first page.
 
-    if not text_boxes:
+    if len(text_boxes) < 4:
         return None
 
     if text_boxes[0] == "www.americanexpress.co.uk\n":
         document_type = text_boxes[4].strip()
     elif text_boxes[0] == "americanexpress.co.uk\n":
         document_type = text_boxes[3].strip()
+    elif text_boxes[3] == "americanexpress.co.uk\n":
+        document_type = text_boxes[0].strip()
     else:
         return None
 
