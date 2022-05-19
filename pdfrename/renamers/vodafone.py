@@ -18,8 +18,6 @@ _LOGGER = logging.getLogger(__name__)
 
 @pdfrenamer
 def bill(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("vodafone.bill")
-
     is_vodafone = any(
         "\nRegistered address: Vodafone Limited, " in box for box in text_boxes
     )

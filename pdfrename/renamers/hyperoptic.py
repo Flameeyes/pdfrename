@@ -61,8 +61,6 @@ def bill_2018(text_boxes, parent_logger) -> NameComponents | None:
 
 @pdfrenamer
 def bill_2020(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("hyperoptic.bill")
-
     # All Hyperoptic objects on the page are logos, not text. But Hypernews is fairly
     # specific, too.
     is_hyperoptic = "Hypernews\n" in text_boxes
@@ -99,7 +97,7 @@ def bill_2021(document: pdf_document.Document) -> NameComponents | None:
 
     text_boxes = document[1]
 
-    if not "Here's your latest bill from Hyperoptic.\n" in text_boxes:
+    if "Here's your latest bill from Hyperoptic.\n" not in text_boxes:
         return None
 
     account_holder_name = text_boxes[0].strip()

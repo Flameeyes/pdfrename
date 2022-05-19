@@ -6,8 +6,6 @@ from typing import Sequence
 
 import dateparser
 
-from pdfrename.renamers.edf import bill
-
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import (
     drop_honorific,

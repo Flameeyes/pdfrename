@@ -25,7 +25,7 @@ def quarterly_statement(
 
     (text,) = document[1]
 
-    if not "FinecoBank S.p.A." in text and not "Bank Statement" in text:
+    if "FinecoBank S.p.A." not in text or "Bank Statement" not in text:
         return None
 
     _, date_str, account_holder_str, _ = text.split("?", 3)

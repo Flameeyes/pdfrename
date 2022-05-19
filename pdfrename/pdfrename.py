@@ -14,7 +14,7 @@ import click_log
 import pdfminer.high_level
 import pdfminer.layout
 
-from .renamers import (
+from .renamers import (  # noqa: F401
     acquerisorgive,
     americanexpress,
     aws,
@@ -124,7 +124,7 @@ def main(*, rename, list_all, input_files):
                 shutil.move(original_filename, new_filename)
             else:
                 print(f'ren "{original_filename}" "{new_filename}"')
-        except:
+        except:  # noqa: E722
             tool_logger.exception(f"While processing {original_filename}: ")
             sys.exit(-1)
 

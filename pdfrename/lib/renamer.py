@@ -76,7 +76,7 @@ def try_all_renamers(
 
     if not first_page_text_boxes:
         tool_logger.warning(
-            f"No text boxes found on first page, v1 renamers won't be run."
+            "No text boxes found on first page, v1 renamers won't be run."
         )
 
     for renamer, version in _ALL_RENAMERS:

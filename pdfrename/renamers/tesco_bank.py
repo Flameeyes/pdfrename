@@ -16,8 +16,6 @@ from ..lib.utils import (
 
 @pdfrenamer
 def tesco_bank(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("tesco_bank")
-
     # Before checking for statements, check other communications.
     if text_boxes[0].startswith("Tesco Bank\n") and find_box_starting_with(
         text_boxes, "Annual Summary of Interest\n"

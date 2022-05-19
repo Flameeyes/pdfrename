@@ -118,5 +118,5 @@ class Document:
 
     def __getitem__(self, key: Any) -> PageTextBoxes:
         if not isinstance(key, int):
-            raise TypeError(f"Only integer page indexes are supported.")
+            raise TypeError("Only integer page indexes are supported.")
         return self.get_textboxes(key)
