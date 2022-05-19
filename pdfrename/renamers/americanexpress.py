@@ -3,14 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 import datetime
-from typing import Optional
 
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 
 
 @pdfrenamer
-def statement(document: pdf_document.Document) -> Optional[NameComponents]:
+def statement(document: pdf_document.Document) -> NameComponents | None:
     text_boxes = document[1]  # Only need the first page.
 
     if not text_boxes:

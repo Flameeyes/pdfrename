@@ -4,7 +4,7 @@
 
 import datetime
 import re
-from typing import Optional, Sequence
+from typing import Sequence
 
 import dateparser
 
@@ -44,7 +44,7 @@ def _find_statement_date(text_boxes: Sequence[str], logger) -> datetime.datetime
 
 
 @pdfrenamer
-def letter(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents]:
+def letter(text_boxes: Sequence[str], parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("schwab.letter")
 
     # Older brokerage accounts (2016)

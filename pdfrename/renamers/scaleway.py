@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 import re
-from typing import Optional
 
 import dateparser
 
@@ -12,7 +11,7 @@ from ..lib.utils import find_box_starting_with
 
 
 @pdfrenamer
-def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
+def invoice(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("scaleway.invoice")
 
     is_scaleway = bool(

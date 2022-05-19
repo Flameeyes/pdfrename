@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-import re
-from tokenize import Name
-from typing import Optional, Sequence
+from typing import Sequence
 
 import dateparser
 
@@ -14,7 +12,7 @@ from ..lib.utils import build_dict_from_fake_table, find_box_starting_with
 
 
 @pdfrenamer
-def invoice(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents]:
+def invoice(text_boxes: Sequence[str], parent_logger) -> NameComponents | None:
 
     is_aws = find_box_starting_with(text_boxes, "Amazon Web Services, Inc. Invoice\n")
     if not is_aws:
@@ -50,7 +48,7 @@ def invoice(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents
 
 
 @pdfrenamer
-def uk_vat_invoice(document: pdf_document.Document) -> Optional[NameComponents]:
+def uk_vat_invoice(document: pdf_document.Document) -> NameComponents | None:
     first_page = document[1]
     if not first_page:
         return None

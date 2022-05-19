@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-import re
-from typing import Optional, Sequence
+from typing import Sequence
 
 import dateparser
 
@@ -18,7 +17,7 @@ from ..lib.utils import (
 
 
 @pdfrenamer
-def tax_bill(text_boxes: Sequence[str], parent_logger) -> Optional[NameComponents]:
+def tax_bill(text_boxes: Sequence[str], parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("hounslow.tax_bill")
 
     if not find_box_starting_with(text_boxes, "London Borough of Hounslow\n"):

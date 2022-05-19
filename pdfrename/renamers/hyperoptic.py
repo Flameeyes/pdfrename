@@ -5,7 +5,6 @@
 import datetime
 import logging
 import re
-from typing import Optional
 
 import dateparser
 
@@ -17,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
-def bill_2018(text_boxes, parent_logger) -> Optional[NameComponents]:
+def bill_2018(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("hyperoptic.bill_2018")
 
     if (
@@ -61,7 +60,7 @@ def bill_2018(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 
 @pdfrenamer
-def bill_2020(text_boxes, parent_logger) -> Optional[NameComponents]:
+def bill_2020(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("hyperoptic.bill")
 
     # All Hyperoptic objects on the page are logos, not text. But Hypernews is fairly
@@ -95,7 +94,7 @@ def bill_2020(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 
 @pdfrenamer
-def bill_2021(document: pdf_document.Document) -> Optional[NameComponents]:
+def bill_2021(document: pdf_document.Document) -> NameComponents | None:
     logger = _LOGGER.getChild("bill_2021")
 
     text_boxes = document[1]

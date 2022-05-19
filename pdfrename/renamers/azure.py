@@ -3,13 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 import datetime
-from typing import Optional
 
 from ..lib.renamer import NameComponents, pdfrenamer
 
 
 @pdfrenamer
-def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
+def invoice(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("azure.invoice")
 
     is_azure = any("Microsoft Ireland Operations Ltd" in box for box in text_boxes)

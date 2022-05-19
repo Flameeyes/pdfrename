@@ -6,7 +6,6 @@
 import datetime
 import logging
 import re
-from typing import Optional
 
 import dateparser
 
@@ -18,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
-def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
+def bill(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("vodafone.bill")
 
     is_vodafone = any(

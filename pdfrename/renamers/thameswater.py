@@ -4,7 +4,6 @@
 
 import logging
 import re
-from typing import Optional
 
 import dateparser
 
@@ -28,7 +27,7 @@ _DOCUMENT_TYPES = {
 @pdfrenamer
 def bill(
     document: pdf_document.Document,
-) -> Optional[NameComponents]:
+) -> NameComponents | None:
     logger = _LOGGER.getChild("bill")
 
     text_boxes = document[1]
@@ -99,7 +98,7 @@ def bill(
 
 
 @pdfrenamer
-def letter(text_boxes, parent_logger) -> Optional[NameComponents]:
+def letter(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("thameswater.letter")
 
     if "Thames Water Utilities Limited," not in text_boxes[-1]:

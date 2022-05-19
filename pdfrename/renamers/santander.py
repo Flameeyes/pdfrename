@@ -4,7 +4,7 @@
 
 import datetime
 import re
-from typing import Optional, Sequence
+from typing import Sequence
 
 import dateparser
 
@@ -23,7 +23,7 @@ def _extract_account_holders(address_box: str) -> Sequence[str]:
 
 
 @pdfrenamer
-def current_account_statement(text_boxes, parent_logger) -> Optional[NameComponents]:
+def current_account_statement(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("santander.current_account_statement")
 
     is_santander_select = "Select Current Account\n" in text_boxes
@@ -65,7 +65,7 @@ def current_account_statement(text_boxes, parent_logger) -> Optional[NameCompone
 
 
 @pdfrenamer
-def credit_card(text_boxes, parent_logger) -> Optional[NameComponents]:
+def credit_card(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("santander.credit_card")
 
     if "Santander Credit Card \n" not in text_boxes:
@@ -119,7 +119,7 @@ def credit_card(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 
 @pdfrenamer
-def statement_of_fees(text_boxes, parent_logger) -> Optional[NameComponents]:
+def statement_of_fees(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("santander.statement_of_fees")
 
     if (
@@ -155,7 +155,7 @@ def statement_of_fees(text_boxes, parent_logger) -> Optional[NameComponents]:
 
 
 @pdfrenamer
-def annual_account_summary(text_boxes, parent_logger) -> Optional[NameComponents]:
+def annual_account_summary(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("santander.annual_account_summary")
 
     if len(text_boxes) < 31:

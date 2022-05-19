@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 import re
-from typing import Optional
 
 import dateparser
 
@@ -12,7 +11,7 @@ from ..lib.utils import extract_account_holder_from_address, find_box_starting_w
 
 
 @pdfrenamer
-def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
+def invoice(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("digikey.invoice")
 
     if len(text_boxes) < 2:

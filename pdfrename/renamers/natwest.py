@@ -5,11 +5,8 @@
 
 import logging
 import re
-from typing import Optional, Text
 
 import dateparser
-
-import pdfrename
 
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
@@ -24,7 +21,7 @@ _WEBSITES_TO_BANK = {
 
 
 @pdfrenamer
-def statement(document: pdf_document.Document) -> Optional[NameComponents]:
+def statement(document: pdf_document.Document) -> NameComponents | None:
     logger = _LOGGER.getChild("statement")
 
     first_page = document[1]
@@ -74,7 +71,7 @@ _HONORIFICS = {"MR", "MRS"}
 
 
 @pdfrenamer
-def statement_of_fees(document: pdf_document.Document) -> Optional[NameComponents]:
+def statement_of_fees(document: pdf_document.Document) -> NameComponents | None:
     logger = _LOGGER.getChild("statement_of_fees")
 
     first_page = document[1]
@@ -147,7 +144,7 @@ def statement_of_fees(document: pdf_document.Document) -> Optional[NameComponent
 @pdfrenamer
 def certificate_of_interest(
     document: pdf_document.Document,
-) -> Optional[NameComponents]:
+) -> NameComponents | None:
     logger = _LOGGER.getChild("certificate_of_interest")
 
     first_page = document[1]

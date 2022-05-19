@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 import logging
-from typing import Optional
 
 import dateparser
 
@@ -17,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 @pdfrenamer
 def amazon_platinum_statement(
     document: pdf_document.Document,
-) -> Optional[NameComponents]:
+) -> NameComponents | None:
     logger = _LOGGER.getChild("amazon_platinum_statement")
 
     # Try first the first page, but if you see an account number on a short page, take the second.

@@ -5,11 +5,8 @@
 
 import logging
 import re
-from typing import Optional
 
 import dateparser
-
-from pdfrename.renamers.chase import statement
 
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
@@ -24,7 +21,7 @@ _DOCUMENT_TYPES = {
 
 
 @pdfrenamer
-def bills_2019(text_boxes, parent_logger) -> Optional[NameComponents]:
+def bills_2019(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("soenergy.bills_2019")
 
     if "www.so.energy\n" in text_boxes:
@@ -93,7 +90,7 @@ _DOCUMENT_TYPES_2021 = {
 
 
 @pdfrenamer
-def bills_2021(document: pdf_document.Document) -> Optional[NameComponents]:
+def bills_2021(document: pdf_document.Document) -> NameComponents | None:
     logger = _LOGGER.getChild("bills_2021")
 
     try:

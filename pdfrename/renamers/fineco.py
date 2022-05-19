@@ -5,7 +5,6 @@
 import datetime
 import logging
 import re
-from typing import Optional
 
 import dateparser
 
@@ -18,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 @pdfrenamer
 def quarterly_statement(
     document: pdf_document.Document,
-) -> Optional[NameComponents]:
+) -> NameComponents | None:
     # We know the Fineco statements use LTFigure so they show up as a single,
     # long text string.
     if len(document[1]) != 1:
@@ -48,7 +47,7 @@ def quarterly_statement(
 @pdfrenamer
 def profit_loss(
     document: pdf_document.Document,
-) -> Optional[NameComponents]:
+) -> NameComponents | None:
     logger = _LOGGER.getChild("profit_loss")
     try:
         first_page = document[1]

@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Optional
-
 import dateparser
 
 from ..lib.renamer import NameComponents, pdfrenamer
@@ -11,7 +9,7 @@ from ..lib.utils import extract_account_holder_from_address, find_box_starting_w
 
 
 @pdfrenamer
-def payslip_uk(text_boxes, parent_logger) -> Optional[NameComponents]:
+def payslip_uk(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("facebook.payslip_uk")
 
     if len(text_boxes) < 5:

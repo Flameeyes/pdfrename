@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Optional
-
 import dateparser
 
 from ..lib.renamer import NameComponents, pdfrenamer
@@ -11,7 +9,7 @@ from ..lib.utils import find_box_starting_with
 
 
 @pdfrenamer
-def invoice(text_boxes, parent_logger) -> Optional[NameComponents]:
+def invoice(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("google.invoice")
 
     is_google = any("Google Commerce Limited\n" in box for box in text_boxes)

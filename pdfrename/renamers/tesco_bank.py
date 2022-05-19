@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 import re
-from typing import Optional
 
 import dateparser
 
@@ -16,7 +15,7 @@ from ..lib.utils import (
 
 
 @pdfrenamer
-def tesco_bank(text_boxes, parent_logger) -> Optional[NameComponents]:
+def tesco_bank(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("tesco_bank")
 
     # Before checking for statements, check other communications.

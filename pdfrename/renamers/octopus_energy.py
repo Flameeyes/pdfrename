@@ -4,7 +4,6 @@
 
 import logging
 import re
-from typing import Optional
 
 import dateparser
 
@@ -16,7 +15,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
-def statement(document: pdf_document.Document) -> Optional[NameComponents]:
+def statement(document: pdf_document.Document) -> NameComponents | None:
     logger = _LOGGER.getChild("statement")
 
     try:

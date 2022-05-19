@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-import datetime
 import re
-from typing import Optional, Sequence
 
 import dateparser
 
@@ -13,7 +11,7 @@ from ..lib.utils import extract_account_holder_from_address, find_box_starting_w
 
 
 @pdfrenamer
-def statement(text_boxes, parent_logger) -> Optional[NameComponents]:
+def statement(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("chase.statement")
 
     if not find_box_starting_with(text_boxes, "JPMorgan Chase Bank, N.A.\n"):
