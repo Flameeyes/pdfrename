@@ -56,7 +56,8 @@ def profit_loss(
         return None
 
     if not (
-        first_page[0].startswith("P&L SUMMARY\n")
+        len(first_page) > 4
+        and first_page[0].startswith("P&L SUMMARY\n")
         and first_page[1].startswith("Dossier: ")
         and first_page[2].startswith("Dear\n")
     ):

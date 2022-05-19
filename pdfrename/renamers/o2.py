@@ -13,7 +13,11 @@ from ..lib.utils import build_dict_from_fake_table, extract_account_holder_from_
 def bill(document: pdf_document.Document) -> NameComponents | None:
     text_boxes = document[1]
 
-    if "Telefónica UK Limited" not in text_boxes[-1] or text_boxes[0] != "Copy Bill\n":
+    if (
+        len(text_boxes) < 2
+        or "Telefónica UK Limited" not in text_boxes[-1]
+        or text_boxes[0] != "Copy Bill\n"
+    ):
         return None
 
     fields_box_index = text_boxes.find_index_starting_with("Account number\n")
