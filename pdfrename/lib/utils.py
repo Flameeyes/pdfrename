@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Mapping, Optional, Sequence
+from typing import Mapping, Sequence
 
 _honorifics = {"mr", "mr.", "mrs", "ms", "miss"}
 
@@ -50,7 +50,7 @@ def extract_account_holder_from_address(address: str) -> str:
     return address.split("\n", 1)[0].strip().title()
 
 
-def find_box_starting_with(text_boxes: Sequence[str], startswith: str) -> Optional[str]:
+def find_box_starting_with(text_boxes: Sequence[str], startswith: str) -> str | None:
     box = [box for box in text_boxes if box.startswith(startswith)]
     if not box:
         return None

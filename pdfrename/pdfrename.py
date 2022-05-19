@@ -7,7 +7,6 @@ import os
 import shutil
 import sys
 import warnings
-from typing import Optional
 
 import click
 import click_log
@@ -54,7 +53,7 @@ tool_logger = logging.getLogger("pdfrename")
 click_log.basic_config(tool_logger)
 
 
-def find_filename(original_filename: str) -> Optional[str]:
+def find_filename(original_filename: str) -> str | None:
     try:
         document = Document(original_filename)
     except ValueError as e:
