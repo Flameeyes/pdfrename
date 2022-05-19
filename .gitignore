@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2020 Diego Elio Pettenò
 #
-# SPDX-License-Identifier: Unlicense
+# SPDX-License-Identifier: 0BSD
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
