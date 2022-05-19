@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import datetime
 import logging
 import re
 from typing import Optional
@@ -38,6 +39,14 @@ def bill(text_boxes, parent_logger) -> Optional[NameComponents]:
     return NameComponents(bill_date, "Vodafone", account_holder_name, "Bill")
 
 
+def _extract_italian_date(invoice_box: str) -> datetime.datetime:
+    _, date_str = invoice_box.split(" del ")
+    date = dateparser.parse(date_str, languages=["it"])
+    assert date
+
+    return date
+
+
 @pdfrenamer
 def bill_italy(document: pdf_document.Document) -> NameComponents | None:
     logger = _LOGGER.getChild("bill_italy")
@@ -63,8 +72,22 @@ def bill_italy(document: pdf_document.Document) -> NameComponents | None:
 
     date_box = details["Fattura non fiscale"]
     logger.debug(f"Vodafone Italy date box: {date_box!r}")
-    _, date_str = date_box.split(" del ")
-    date = dateparser.parse(date_str, languages=["it"])
-    assert date
+    date = _extract_italian_date(date_box)
+
+    return NameComponents(date, "Vodafone", account_holder, "Fattura")
+
+
+@pdfrenamer
+def bill_italy_2022(document: pdf_document.Document) -> NameComponents | None:
+    first_page = document[1]
+
+    if len(first_page) < 2 or "voda.it/guidafattura" not in first_page[-2]:
+        return None
+
+    account_holder_box_index = first_page.find_index_starting_with(" I tuoi dati\n") + 1
+    account_holder = first_page[account_holder_box_index].strip()
+
+    invoice_box = first_page.find_box_starting_with("Fattura non fiscale ")
+    date = _extract_italian_date(invoice_box)
 
     return NameComponents(date, "Vodafone", account_holder, "Fattura")
