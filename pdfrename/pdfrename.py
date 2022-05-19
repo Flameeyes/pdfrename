@@ -14,6 +14,8 @@ import click_log
 import pdfminer.high_level
 import pdfminer.layout
 
+from .lib.pdf_document import Document
+from .lib.renamer import try_all_renamers
 from .renamers import (  # noqa: F401
     acquerisorgive,
     americanexpress,
@@ -47,9 +49,6 @@ from .renamers import (  # noqa: F401
     veritas,
     vodafone,
 )
-
-from .lib.pdf_document import Document
-from .lib.renamer import try_all_renamers
 
 tool_logger = logging.getLogger("pdfrename")
 click_log.basic_config(tool_logger)
