@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import datetime
 import logging
 import re
 
@@ -22,6 +23,16 @@ _DOCUMENT_TYPES = {
     "Your final bill.\n": "Bill",
     "Your new bill.\n": "Bill",
 }
+
+
+def _extract_date(date_box: str) -> datetime.datetime:
+    date_match = re.search("\n([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n", date_box)
+    assert date_match
+
+    document_date = dateparser.parse(date_match.group(1), languages=["en"])
+    assert document_date is not None
+
+    return document_date
 
 
 @pdfrenamer
@@ -54,12 +65,7 @@ def bill(
 
     date_line = text_boxes.find_box_starting_with("Date\n")
     assert date_line is not None
-    logger.debug(f"found date line: {date_line!r}")
-    date_match = re.search("^Date\n([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n", date_line)
-    assert date_match
-
-    document_date = dateparser.parse(date_match.group(1), languages=["en"])
-    assert document_date is not None
+    document_date = _extract_date(date_line)
 
     # First try to leverage the more modern (2020/21) template, looking for
     # a box with "Account balance" (possibly followed by "(in credit)") on it.
@@ -98,6 +104,30 @@ def bill(
 
 
 @pdfrenamer
+def bill_2022(document: pdf_document.Document) -> NameComponents | None:
+    text_boxes = document[1]
+    if not text_boxes:
+        return None
+
+    if not any("thameswater.co.uk/myaccount\n" in box for box in text_boxes):
+        return None
+
+    # Old bill (2021 and earlier), ignore it.
+    if text_boxes[0].startswith("Page 1 of "):
+        return None
+
+    assert "Your latest bill\n" in text_boxes
+
+    account_holder_name = extract_account_holder_from_address(text_boxes[0])
+
+    date_line = text_boxes.find_box_starting_with("Bill date\n")
+    assert date_line is not None
+    document_date = _extract_date(date_line)
+
+    return NameComponents(document_date, "Thames Water", account_holder_name, "Bill")
+
+
+@pdfrenamer
 def letter(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("thameswater.letter")
 
@@ -109,11 +139,7 @@ def letter(text_boxes, parent_logger) -> NameComponents | None:
         return None
 
     logger.debug(f"found date line: {date_line!r}")
-    date_match = re.search("^Date\n([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n", date_line)
-    assert date_match
-
-    document_date = dateparser.parse(date_match.group(1), languages=["en"])
-    assert document_date is not None
+    document_date = _extract_date(date_line)
 
     account_holder_name = extract_account_holder_from_address(text_boxes[0])
 
