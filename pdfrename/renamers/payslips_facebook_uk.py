@@ -3,17 +3,22 @@
 # SPDX-License-Identifier: MIT
 
 import datetime
+import logging
 
 import dateparser
 
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import extract_account_holder_from_address, find_box_starting_with
+from ..lib.utils import extract_account_holder_from_address
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
-def payslip_uk(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("facebook.payslip_uk")
+def payslip_uk(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("facebook.payslip_uk")
+
+    text_boxes = document[1]
 
     if len(text_boxes) < 5:
         return None
@@ -25,7 +30,7 @@ def payslip_uk(text_boxes, parent_logger) -> NameComponents | None:
 
     account_holder_name = extract_account_holder_from_address(text_boxes[1])
 
-    date_box = find_box_starting_with(text_boxes, "Date : ")
+    date_box = text_boxes.find_box_starting_with("Date : ")
     assert date_box is not None
 
     payslip_date = dateparser.parse(date_box[7:], languages=["en"])
