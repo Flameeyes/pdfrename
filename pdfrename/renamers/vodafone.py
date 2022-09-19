@@ -81,9 +81,13 @@ def bill_italy_2022(document: pdf_document.Document) -> NameComponents | None:
     if len(first_page) < 2 or "voda.it/guidafattura" not in first_page[-2]:
         return None
 
+    _LOGGER.debug("Possible Vodafone Italy invoice (2022).")
+
     account_holder_title_index = first_page.find_index_starting_with(" I tuoi dati\n")
     assert account_holder_title_index is not None
-    account_holder = first_page[account_holder_title_index + 1].strip()
+    account_holder = extract_account_holder_from_address(
+        first_page[account_holder_title_index - 1]
+    )
 
     invoice_box = first_page.find_box_starting_with("Fattura non fiscale ")
     assert invoice_box is not None
