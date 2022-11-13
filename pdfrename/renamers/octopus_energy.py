@@ -31,7 +31,10 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
 
     logger.debug("Found likely Octopus Energy statement.")
 
-    account_holder_name = extract_account_holder_from_address(first_page[0])
+    account_holder_index = first_page.index("Your energy account\n") - 1
+    account_holder_name = extract_account_holder_from_address(
+        first_page[account_holder_index]
+    )
 
     bill_details = first_page.find_box_starting_with("Your Account Number: ")
     assert bill_details is not None
