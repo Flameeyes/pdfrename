@@ -6,10 +6,19 @@ import dataclasses
 import datetime
 import inspect
 import logging
+import re
 import typing
 from typing import Callable, Iterator, List, Sequence, Tuple, Union
 
 from . import pdf_document, utils
+
+
+class InvalidFilenameError(ValueError):
+    """Raised when the generated filename is invalid.
+
+    Only really used to report that the filename includes characters that are
+    not valid in a filename (mostly, for Windows compatibility.)
+    """
 
 
 @dataclasses.dataclass
@@ -48,7 +57,12 @@ class NameComponents:
 
         filename_components.extend(self.additional_components)
 
-        return " - ".join(filename_components) + ".pdf"
+        filename = " - ".join(filename_components) + ".pdf"
+
+        if re.search("[/:]", filename):
+            raise InvalidFilenameError(f"Invalid filename '{filename}'")
+
+        return filename
 
 
 Boxes = Sequence[str]
