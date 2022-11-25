@@ -45,11 +45,14 @@ def invoice(document: pdf_document.Document) -> NameComponents | None:
     else:
         logger.debug("No source address on third box, looking after VAT Number.")
         vat_box_index = text_boxes.find_index_starting_with("VAT Number\n")
-        possible_source_index = vat_box_index + 1
 
-        if text_boxes[possible_source_index].startswith("Description\n"):
+        if vat_box_index is None or text_boxes[vat_box_index + 1].startswith(
+            "Description\n"
+        ):
             logger.debug("Unable to find the source address, maybe wrong format.")
             return None
+
+        possible_source_index = vat_box_index + 1
 
     source_address = text_boxes[possible_source_index]
 
