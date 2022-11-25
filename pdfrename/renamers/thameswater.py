@@ -116,7 +116,11 @@ def bill_2022(document: pdf_document.Document) -> NameComponents | None:
     if text_boxes[0].startswith("Page 1 of "):
         return None
 
-    assert "Your latest bill\n" in text_boxes
+    if (
+        "Your latest bill\n" not in text_boxes
+        and "Your bill and payment plan\n" not in text_boxes
+    ):
+        return None
 
     account_holder_name = extract_account_holder_from_address(text_boxes[0])
 
