@@ -9,8 +9,13 @@ from typing import Any, Callable, Iterator, List, Sequence
 
 import pdfminer.high_level
 import pdfminer.layout
+import pdfminer.pdfdocument
+import pdfminer.pdfparser
 
 _LOGGER = logging.getLogger(__name__)
+
+_CREATOR_METADATA = "Creator"
+_PRODUCER_METADATA = "Producer"
 
 
 class PageTextBoxes:
@@ -58,6 +63,7 @@ class PageTextBoxes:
 class Document:
 
     original_filename: str
+    doc: pdfminer.pdfdocument.PDFDocument
     _extracted_pages: List[PageTextBoxes]
 
     def __init__(self, filename: str) -> None:
@@ -67,6 +73,10 @@ class Document:
             self._extract_pages_generator = pdfminer.high_level.extract_pages(filename)
         except pdfminer.pdfparser.PDFSyntaxError as error:
             raise ValueError(f"Invalid PDF file {filename}: {error}")
+
+        with open(self.original_filename, "rb") as pdf_file:
+            parser = pdfminer.pdfparser.PDFParser(pdf_file)
+            self.doc = pdfminer.pdfdocument.PDFDocument(parser)
 
         self._extracted_pages = []
 
@@ -120,3 +130,20 @@ class Document:
         if not isinstance(key, int):
             raise TypeError("Only integer page indexes are supported.")
         return self.get_textboxes(key)
+
+    def _document_metadata(self, metadata_name: str) -> str | None:
+        _LOGGER.debug(f"{self.original_filename}: extracted info {self.doc.info!r}")
+
+        for info in self.doc.info:
+            if metadata_name in info:
+                return info[metadata_name]
+
+        return None
+
+    @property
+    def creator(self) -> bytes | None:
+        return self._document_metadata(_CREATOR_METADATA)
+
+    @property
+    def producer(self) -> bytes | None:
+        return self._document_metadata(_PRODUCER_METADATA)

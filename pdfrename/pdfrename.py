@@ -47,6 +47,7 @@ from .renamers import (  # noqa: F401
     thameswater,
     veritas,
     vodafone,
+    xero,
 )
 
 tool_logger = logging.getLogger("pdfrename")
