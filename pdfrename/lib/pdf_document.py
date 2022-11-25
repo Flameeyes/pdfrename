@@ -131,7 +131,7 @@ class Document:
             raise TypeError("Only integer page indexes are supported.")
         return self.get_textboxes(key)
 
-    def _document_metadata(self, metadata_name: str) -> str | None:
+    def _document_metadata(self, metadata_name: str) -> bytes | None:
         _LOGGER.debug(f"{self.original_filename}: extracted info {self.doc.info!r}")
 
         for info in self.doc.info:
