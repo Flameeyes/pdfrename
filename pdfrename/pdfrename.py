@@ -17,6 +17,7 @@ from .lib.pdf_document import Document
 from .lib.renamer import try_all_renamers
 from .renamers import (  # noqa: F401
     acquerisorgive,
+    adp_payslips,
     americanexpress,
     aws,
     azure,

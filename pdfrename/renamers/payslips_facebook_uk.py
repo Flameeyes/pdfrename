@@ -15,8 +15,8 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
-def payslip_uk(document: pdf_document.Document) -> NameComponents | None:
-    logger = _LOGGER.getChild("facebook.payslip_uk")
+def pre_adp_payslip(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("facebook.pre_adp_payslip")
 
     text_boxes = document[1]
 
@@ -40,7 +40,7 @@ def payslip_uk(document: pdf_document.Document) -> NameComponents | None:
 
 
 @pdfrenamer
-def p60(document: pdf_document.Document) -> NameComponents | None:
+def pre_adp_p60(document: pdf_document.Document) -> NameComponents | None:
     first_page = document[1]
     if len(first_page) < 4:
         return None
