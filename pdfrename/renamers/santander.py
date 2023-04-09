@@ -79,6 +79,8 @@ def credit_card(text_boxes, parent_logger) -> NameComponents | None:
         text_boxes, "Annual Statement:"
     )
 
+    additional_components = []
+
     if annual_statement_period_line:
         document_type = "Annual Statement"
 
@@ -101,11 +103,12 @@ def credit_card(text_boxes, parent_logger) -> NameComponents | None:
         logger.debug(f"found period specification: {statement_period_line!r}")
 
         period_match = re.match(
-            r"^Account summary as at: ([0-9]{1,2}[a-z]{2} [A-Z][a-z]+ [0-9]{4}) for card number ending [0-9]{4}\n$",
+            r"^Account summary as at: ([0-9]{1,2}[a-z]{2} [A-Z][a-z]+ [0-9]{4}) for card number ending ([0-9]{4})\n$",
             statement_period_line,
         )
         assert period_match
         statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+        additional_components += [f"xx-{period_match.group(2)}"]
 
     assert statement_date is not None
 
@@ -113,8 +116,8 @@ def credit_card(text_boxes, parent_logger) -> NameComponents | None:
         statement_date,
         "Santander",
         account_holder_name,
-        "Credit Card",
-        additional_components=(document_type,),
+        f"Credit Card {document_type}",
+        additional_components=additional_components,
     )
 
 
