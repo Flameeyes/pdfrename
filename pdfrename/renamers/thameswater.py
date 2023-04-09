@@ -112,7 +112,7 @@ def bill_2022(document: pdf_document.Document) -> NameComponents | None:
     if not any("thameswater.co.uk/myaccount\n" in box for box in text_boxes):
         return None
 
-    # Old bill (2021 and earlier), ignore it.
+    # Old bill (2021 and earlier), or newer bills (2023). Ignore it.
     if text_boxes[0].startswith("Page 1 of "):
         return None
 
@@ -123,6 +123,34 @@ def bill_2022(document: pdf_document.Document) -> NameComponents | None:
         return None
 
     account_holder_name = extract_account_holder_from_address(text_boxes[0])
+
+    date_line = text_boxes.find_box_starting_with("Bill date\n")
+    assert date_line is not None
+    document_date = _extract_date(date_line)
+
+    return NameComponents(document_date, "Thames Water", account_holder_name, "Bill")
+
+
+@pdfrenamer
+def bill_2023(document: pdf_document.Document) -> NameComponents | None:
+    text_boxes = document[1]
+    if not text_boxes:
+        return None
+
+    if not any("thameswater.co.uk/myaccount\n" in box for box in text_boxes):
+        return None
+
+    # 2022 bills have the address as first box.
+    if not text_boxes[0].startswith("Page 1 of "):
+        return None
+
+    latest_bill_idx = text_boxes.index("Your latest bill\n")
+    if latest_bill_idx is None:
+        return None
+
+    account_holder_name = extract_account_holder_from_address(
+        text_boxes[latest_bill_idx - 1]
+    )
 
     date_line = text_boxes.find_box_starting_with("Bill date\n")
     assert date_line is not None
