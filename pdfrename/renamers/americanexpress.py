@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import datetime
+import re
 
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
@@ -44,9 +45,20 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
 
     statement_date = datetime.datetime.strptime(date_fields[1], "%d/%m/%y")
 
+    additional_components = []
+
+    membership_box = text_boxes.find_box_starting_with("Membership Number\n")
+    if membership_box is not None:
+        membership_match = re.match(
+            r"^Membership Number\nxxxx-xxxxxx-([0-9]{5})\n$", membership_box
+        )
+        if membership_match is not None:
+            additional_components.append(f"xx-{membership_match.group(1)}")
+
     return NameComponents(
         statement_date,
         "American Express",
         account_holder_name,
         "Statement",
+        additional_components=additional_components,
     )
