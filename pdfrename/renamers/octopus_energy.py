@@ -41,7 +41,7 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
     logger.debug(f"Found bill details: {bill_details!r}")
 
     date_match = re.search(
-        r"\nBill Reference: .+ \(([0-9]+[a-z]{2} [A-Z][a-z.]{2,} [0-9]{4})\)\n$",
+        r"\nBill Reference: .+ \(([0-9]+[a-z]{2}\s[A-Z][a-z.]{2,}\s[0-9]{4})\)\n$",
         bill_details,
     )
     if not date_match:
