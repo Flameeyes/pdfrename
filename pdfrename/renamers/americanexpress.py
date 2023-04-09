@@ -21,6 +21,8 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
         document_type = text_boxes[3].strip()
     elif text_boxes[3] == "americanexpress.co.uk\n":
         document_type = text_boxes[0].strip()
+    elif "www.americanexpress.co.uk\n" in text_boxes:  # 2020/2021
+        document_type = text_boxes[0].strip()
     else:
         return None
 
