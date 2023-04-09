@@ -27,6 +27,7 @@ from .renamers import (  # noqa: F401
     edf,
     enel,
     fineco,
+    fiserv,
     google,
     hounslow,
     hyperoptic,

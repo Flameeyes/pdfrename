@@ -14,6 +14,7 @@ import pdfminer.pdfparser
 
 _LOGGER = logging.getLogger(__name__)
 
+_AUTHOR_METADATA = "Author"
 _CREATOR_METADATA = "Creator"
 _PRODUCER_METADATA = "Producer"
 
@@ -137,6 +138,10 @@ class Document:
                 return info[metadata_name]
 
         return None
+
+    @property
+    def author(self) -> bytes | None:
+        return self._document_metadata(_AUTHOR_METADATA)
 
     @property
     def creator(self) -> bytes | None:
