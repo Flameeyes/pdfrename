@@ -65,8 +65,48 @@ def current_account_statement(text_boxes, parent_logger) -> NameComponents | Non
 
 
 @pdfrenamer
-def credit_card(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("santander.credit_card")
+def credit_card_statement(text_boxes, parent_logger) -> NameComponents | None:
+    logger = parent_logger.getChild("santander.credit_card_statement")
+
+    if "Santander Credit Card \n" not in text_boxes:
+        return None
+
+    # Could be an annual statement, look for it.
+    annual_statement_period_line = find_box_starting_with(
+        text_boxes, "Annual Statement:"
+    )
+    if annual_statement_period_line is not None:
+        return
+
+    # Always include the account holder name, which is found in the second text box.
+    account_holder_name = extract_account_holder_from_address(text_boxes[1])
+
+    statement_period_line = find_box_starting_with(text_boxes, "Account summary as at:")
+    assert statement_period_line is not None
+
+    logger.debug(f"found period specification: {statement_period_line!r}")
+
+    period_match = re.match(
+        r"^Account summary as at: ([0-9]{1,2}[a-z]{2} [A-Z][a-z]+ [0-9]{4}) for card number ending ([0-9]{4})\n$",
+        statement_period_line,
+    )
+    assert period_match
+    statement_date = dateparser.parse(period_match.group(1), languages=["en"])
+
+    assert statement_date is not None
+
+    return NameComponents(
+        statement_date,
+        "Santander",
+        account_holder_name,
+        "Credit Card Statement",
+        additional_components=(f"xx-{period_match.group(2)}",),
+    )
+
+
+@pdfrenamer
+def credit_card_annual_statement(text_boxes, parent_logger) -> NameComponents | None:
+    logger = parent_logger.getChild("santander.credit_card_annual_statement")
 
     if "Santander Credit Card \n" not in text_boxes:
         return None
@@ -78,37 +118,17 @@ def credit_card(text_boxes, parent_logger) -> NameComponents | None:
     annual_statement_period_line = find_box_starting_with(
         text_boxes, "Annual Statement:"
     )
+    if annual_statement_period_line is None:
+        return None
 
-    additional_components = []
+    logger.debug(f"found period specification: {annual_statement_period_line!r}")
 
-    if annual_statement_period_line:
-        document_type = "Annual Statement"
-
-        logger.debug(f"found period specification: {annual_statement_period_line!r}")
-
-        period_match = re.match(
-            r"^Annual Statement: [0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4} to ([0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4})\n",
-            annual_statement_period_line,
-        )
-        assert period_match
-        statement_date = dateparser.parse(period_match.group(1), languages=["en"])
-    else:
-        document_type = "Statement"
-
-        statement_period_line = find_box_starting_with(
-            text_boxes, "Account summary as at:"
-        )
-        assert statement_period_line is not None
-
-        logger.debug(f"found period specification: {statement_period_line!r}")
-
-        period_match = re.match(
-            r"^Account summary as at: ([0-9]{1,2}[a-z]{2} [A-Z][a-z]+ [0-9]{4}) for card number ending ([0-9]{4})\n$",
-            statement_period_line,
-        )
-        assert period_match
-        statement_date = dateparser.parse(period_match.group(1), languages=["en"])
-        additional_components += [f"xx-{period_match.group(2)}"]
+    period_match = re.match(
+        r"^Annual Statement: [0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4} to ([0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4})\nAccount: .* card number ending ([0-9]{4})\n$",
+        annual_statement_period_line,
+    )
+    assert period_match
+    statement_date = dateparser.parse(period_match.group(1), languages=["en"])
 
     assert statement_date is not None
 
@@ -116,8 +136,8 @@ def credit_card(text_boxes, parent_logger) -> NameComponents | None:
         statement_date,
         "Santander",
         account_holder_name,
-        f"Credit Card {document_type}",
-        additional_components=additional_components,
+        "Credit Card Annual Statement",
+        additional_components=(f"xx-{period_match.group(2)}",),
     )
 
 
