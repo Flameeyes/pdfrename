@@ -13,7 +13,6 @@ from ..lib.utils import build_dict_from_fake_table, find_box_starting_with
 
 @pdfrenamer
 def invoice(text_boxes: Sequence[str], parent_logger) -> NameComponents | None:
-
     is_aws = find_box_starting_with(text_boxes, "Amazon Web Services, Inc. Invoice\n")
     if not is_aws:
         is_aws = find_box_starting_with(text_boxes, "Amazon Web Services Invoice\n")

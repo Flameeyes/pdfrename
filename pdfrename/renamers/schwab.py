@@ -64,7 +64,6 @@ def letter(text_boxes: Sequence[str], parent_logger) -> NameComponents | None:
 
     # Brokerage Accounts, Trade Confirmations and Year-End documents from 2017 onwards.
     if text_boxes[0].startswith("Schwab One® International Account"):
-
         account_holder = text_boxes[0].split("\n")[1].strip().title()
         assert account_holder
 

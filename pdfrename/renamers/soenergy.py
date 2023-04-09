@@ -25,7 +25,6 @@ def bills_2019(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("soenergy.bills_2019")
 
     if "www.so.energy\n" in text_boxes:
-
         for subject, document_type in _DOCUMENT_TYPES.items():
             if subject in text_boxes:
                 break

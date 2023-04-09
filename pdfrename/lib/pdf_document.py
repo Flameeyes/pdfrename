@@ -19,7 +19,6 @@ _PRODUCER_METADATA = "Producer"
 
 
 class PageTextBoxes:
-
     _boxes: Sequence[str]
 
     def __init__(self, text_boxes: Sequence[str]) -> None:
@@ -61,7 +60,6 @@ class PageTextBoxes:
 
 
 class Document:
-
     original_filename: str
     doc: pdfminer.pdfdocument.PDFDocument
     _extracted_pages: List[PageTextBoxes]

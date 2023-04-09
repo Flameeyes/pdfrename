@@ -75,7 +75,6 @@ _ALL_RENAMERS: List[Tuple[Renamer, int]] = []
 
 
 def pdfrenamer(func: Renamer) -> Renamer:
-
     version = 2 if len(inspect.signature(func).parameters) == 1 else 1
 
     _ALL_RENAMERS.append((func, version))
