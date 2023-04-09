@@ -45,18 +45,26 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
         r"^[0-9]{1,2} [A-Z][a-z]+ [0-9]{4} to ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4}\n)",
         period_line,
     )
-    assert date_match
+    if date_match is None:
+        return None
+
     statement_date = dateparser.parse(date_match.group(1), languages=["en"])
-    assert statement_date is not None
+    if statement_date is None:
+        return None
 
     # The account holder(s) as well as the account type follow the IBAN, either in the same
     # or in different boxes.
-    iban_box_index = first_page.find_index_starting_with("IBAN: ")
-    assert iban_box_index is not None
+    iban_box_index = first_page.find_index_with_match(
+        lambda box: box.startswith("IBAN:") or "\nIBAN: " in box
+    )
+    if iban_box_index is None:
+        return None
+    logger.debug("Found IBAN box: %r", first_page[iban_box_index])
 
     # If the following box says "Branch Details" then the details are attached to the IBAN
     # box.
     account_holders_string = first_page[iban_box_index + 1]
+    logger.debug("Found possible account holders: %r", account_holders_string)
     if account_holders_string == "Branch Details\n":
         # Extract the account holder from the IBAN box, ignoring the first line.
         account_holders = first_page[iban_box_index].split("\n")[1:-2]
