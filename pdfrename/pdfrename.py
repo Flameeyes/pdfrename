@@ -74,6 +74,18 @@ def find_filename(original_filename: str) -> str | None:
     return None
 
 
+def apply_pdfminer_log_filters():
+    # Disable warnings on PDF extractions not allowed. This is no longer working with modern pdfminer.
+    # So for now we'll have to live with the warnings.
+    warnings.filterwarnings(
+        "ignore", category=pdfminer.pdfdocument.PDFTextExtractionNotAllowedWarning
+    )
+    # Disable some debug-level logs even when we want debug logging. These make the output unreadable
+    # if there is an exception when parsing a new type of document.
+    logging.getLogger("pdfminer.psparser").setLevel(logging.INFO)
+    logging.getLogger("pdfminer.pdfinterp").setLevel(logging.INFO)
+
+
 @click.command()
 @click_log.simple_verbosity_option()
 @click.option(
@@ -90,10 +102,7 @@ def find_filename(original_filename: str) -> str | None:
     "input-files", nargs=-1, type=click.Path(exists=True, dir_okay=False, readable=True)
 )
 def main(*, rename, list_all, input_files):
-    # Disable warnings on PDF extractions not allowed.
-    warnings.filterwarnings(
-        "ignore", category=pdfminer.pdfdocument.PDFTextExtractionNotAllowedWarning
-    )
+    apply_pdfminer_log_filters()
 
     for original_filename in input_files:
         try:
