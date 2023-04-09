@@ -26,7 +26,11 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
 
     first_page = document[1]
 
-    if not first_page or first_page[0] != "Statement\n" or "Period\n" not in first_page:
+    if (
+        not first_page
+        or "Statement\n" not in first_page
+        or "Period\n" not in first_page
+    ):
         return None
 
     for website, bank_name in _WEBSITES_TO_BANK.items():
