@@ -76,7 +76,7 @@ def credit_card_statement(text_boxes, parent_logger) -> NameComponents | None:
         text_boxes, "Annual Statement:"
     )
     if annual_statement_period_line is not None:
-        return
+        return None
 
     # Always include the account holder name, which is found in the second text box.
     account_holder_name = extract_account_holder_from_address(text_boxes[1])
