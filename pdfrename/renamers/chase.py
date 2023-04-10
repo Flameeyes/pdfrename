@@ -62,7 +62,16 @@ def statement(text_boxes, parent_logger) -> NameComponents | None:
         if re.search(r"^[0-9]+ [A-Z]+ ", address_box):
             address_box = address_box.split("\n", 1)[1]
 
-        account_holder_name = extract_account_holder_from_address(address_box)
+        if "JPMorgan Chase Bank, N.A." in address_box:
+            # This happens with late 2022 statements, as they removed the Deaf and Hard of Hearing line,
+            # but it doesn't follow the old path instead.
+            spanish_box_index = text_boxes.index("Para Espanol:\n")
+            if spanish_box_index is None:
+                return None
+
+            account_holder_name = text_boxes[spanish_box_index + 2]
+        else:
+            account_holder_name = extract_account_holder_from_address(address_box)
 
     return NameComponents(
         statement_date,
