@@ -84,5 +84,6 @@ def uk_original_bill(document: pdf_document.Document) -> NameComponents | None:
         return None
 
     bill_date = dateparser.parse(bill_date_str, languages=["en"])
+    assert bill_date is not None
 
     return NameComponents(bill_date, "O2 UK", account_holder_name, "Bill")
