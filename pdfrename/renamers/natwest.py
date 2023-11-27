@@ -19,6 +19,26 @@ _WEBSITES_TO_BANK = {
     "www.natwest.com": "NatWest",
 }
 
+_PDF_AUTHORS_TO_BANK: dict[bytes | None, str] = {
+    b"National Westminster Bank plc": "NatWest"
+}
+
+
+def _bank_name_from_metadata(document: pdf_document.Document) -> str | None:
+    return _PDF_AUTHORS_TO_BANK.get(document.author)
+
+
+def _bank_name_from_boxes(document: pdf_document.Document) -> str | None:
+    first_page = document[1]
+
+    for website, bank_name in _WEBSITES_TO_BANK.items():
+        if any(website in box for box in first_page):
+            break
+    else:
+        return None
+
+    return bank_name
+
 
 @pdfrenamer
 def statement(document: pdf_document.Document) -> NameComponents | None:
@@ -33,10 +53,8 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
     ):
         return None
 
-    for website, bank_name in _WEBSITES_TO_BANK.items():
-        if any(website in box for box in first_page):
-            break
-    else:
+    bank_name = _bank_name_from_boxes(document)
+    if not bank_name:
         return None
 
     logger.debug(f"Possible {bank_name} statement.")
@@ -91,10 +109,7 @@ def statement_of_fees(document: pdf_document.Document) -> NameComponents | None:
     if not first_page or _STATEMENT_OF_FEES not in first_page:
         return None
 
-    for website, bank_name in _WEBSITES_TO_BANK.items():
-        if any(website in box for box in first_page):
-            break
-    else:
+    if (bank_name := _bank_name_from_boxes(document)) is None:
         return None
 
     logger.debug(f"Possible {bank_name} statement of fees.")
@@ -166,10 +181,7 @@ def certificate_of_interest(
     ):
         return None
 
-    for website, bank_name in _WEBSITES_TO_BANK.items():
-        if any(website in box for box in first_page):
-            break
-    else:
+    if (bank_name := _bank_name_from_boxes(document)) is None:
         return None
 
     logger.debug(f"Possible {bank_name} certificate of interest.")
@@ -198,4 +210,39 @@ def certificate_of_interest(
 
     return NameComponents(
         document_date, bank_name, account_holders, "Certificate of Interest"
+    )
+
+
+@pdfrenamer
+def certificate_of_interest_2023(
+    document: pdf_document.Document,
+) -> NameComponents | None:
+    logger = _LOGGER.getChild("certificate_of_interest_2023")
+
+    if (bank_name := _bank_name_from_metadata(document)) is None:
+        return None
+
+    if document.subject != b"Certificate of Interest":
+        return None
+
+    logger.debug(f"Possible {bank_name} certificate of interest.")
+
+    first_page = document[1]
+
+    tax_year_box = first_page.find_box_starting_with("Tax year ending ")
+    assert tax_year_box is not None
+
+    (date_match,) = first_page.find_all_matching_regex(
+        re.compile("^Tax year ending ([0-9]{1,2}[a-z]{2} [A-Z][a-z]+ [0-9]{4})\n$")
+    )
+
+    document_date = dateparser.parse(date_match.group(1), languages=["en"])
+    assert document_date is not None
+
+    (account_name,) = first_page.find_all_matching_regex(
+        re.compile(".* you were paid on your (.+) during the tax year.*")
+    )
+
+    return NameComponents(
+        document_date, bank_name, account_name.group(1), "Certificate of Interest"
     )

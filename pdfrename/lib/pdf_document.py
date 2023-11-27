@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any, Callable, Iterator, List, Sequence
 
 import pdfminer.high_level
@@ -17,6 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 _AUTHOR_METADATA = "Author"
 _CREATOR_METADATA = "Creator"
 _PRODUCER_METADATA = "Producer"
+_SUBJECT_METADATA = "Subject"
 
 
 class PageTextBoxes:
@@ -52,6 +54,13 @@ class PageTextBoxes:
             return self.index(box)
 
         return None
+
+    def find_all_matching_regex(
+        self, pattern: re.Pattern[str]
+    ) -> Iterator[re.Match[str]]:
+        for box in self._boxes:
+            if match := pattern.match(box):
+                yield match
 
     def find_box_starting_with(self, prefix: str) -> str | None:
         return self.find_box_with_match(lambda box: box.startswith(prefix))
@@ -150,3 +159,7 @@ class Document:
     @property
     def producer(self) -> bytes | None:
         return self._document_metadata(_PRODUCER_METADATA)
+
+    @property
+    def subject(self) -> bytes | None:
+        return self._document_metadata(_SUBJECT_METADATA)
