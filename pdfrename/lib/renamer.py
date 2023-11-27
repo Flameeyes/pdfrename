@@ -8,7 +8,7 @@ import inspect
 import logging
 import re
 import typing
-from typing import Callable, Iterator, List, Sequence, Tuple, Union
+from collections.abc import Callable, Iterator, Sequence
 
 from . import pdf_document, utils
 
@@ -69,9 +69,9 @@ Boxes = Sequence[str]
 RenamerV1 = Callable[[Boxes, logging.Logger], NameComponents | None]
 RenamerV2 = Callable[[pdf_document.Document], NameComponents | None]
 
-Renamer = Union[RenamerV1, RenamerV2]
+Renamer = RenamerV1 | RenamerV2
 
-_ALL_RENAMERS: List[Tuple[Renamer, int]] = []
+_ALL_RENAMERS: list[tuple[Renamer, int]] = []
 
 
 def pdfrenamer(func: Renamer) -> Renamer:

@@ -6,7 +6,8 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, Callable, Iterator, List, Sequence
+from collections.abc import Callable, Iterator, Sequence
+from typing import Any
 
 import pdfminer.high_level
 import pdfminer.layout
@@ -73,7 +74,7 @@ class PageTextBoxes:
 class Document:
     original_filename: str
     doc: pdfminer.pdfdocument.PDFDocument
-    _extracted_pages: List[PageTextBoxes]
+    _extracted_pages: list[PageTextBoxes]
 
     def __init__(self, filename: str) -> None:
         self.original_filename = filename

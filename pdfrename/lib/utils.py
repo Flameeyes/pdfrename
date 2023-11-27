@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 
 _honorifics = {"mr", "mr.", "mrs", "ms", "miss"}
 
