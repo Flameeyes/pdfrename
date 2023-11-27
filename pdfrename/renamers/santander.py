@@ -108,7 +108,10 @@ def credit_card_statement(text_boxes, parent_logger) -> NameComponents | None:
 def credit_card_annual_statement(text_boxes, parent_logger) -> NameComponents | None:
     logger = parent_logger.getChild("santander.credit_card_annual_statement")
 
-    if "Santander Credit Card \n" not in text_boxes:
+    if (
+        "Santander Credit Card \n" not in text_boxes
+        and "Santander Credit Card\n" not in text_boxes
+    ):
         return None
 
     # Always include the account holder name, which is found in the second text box.
@@ -148,11 +151,16 @@ def credit_card_statement_2023(text_boxes, parent_logger) -> NameComponents | No
     if "Santander Credit Card\n" not in text_boxes:
         return None
 
+    if (
+        statement_period_line := find_box_starting_with(
+            text_boxes, "Account summary as at:"
+        )
+    ) is None:
+        logger.debug("statement period not found, ignoring.")
+        return None
+
     # Always include the account holder name, which is found in the first text box.
     account_holder_name = extract_account_holder_from_address(text_boxes[0])
-
-    statement_period_line = find_box_starting_with(text_boxes, "Account summary as at:")
-    assert statement_period_line is not None
 
     logger.debug(f"found period specification: {statement_period_line!r}")
 
