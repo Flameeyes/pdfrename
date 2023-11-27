@@ -19,6 +19,7 @@ _AUTHOR_METADATA = "Author"
 _CREATOR_METADATA = "Creator"
 _PRODUCER_METADATA = "Producer"
 _SUBJECT_METADATA = "Subject"
+_TITLE_METADATA = "Title"
 
 
 class PageTextBoxes:
@@ -163,3 +164,7 @@ class Document:
     @property
     def subject(self) -> bytes | None:
         return self._document_metadata(_SUBJECT_METADATA)
+
+    @property
+    def title(self) -> bytes | None:
+        return self._document_metadata(_TITLE_METADATA)

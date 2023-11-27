@@ -96,6 +96,47 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
     return NameComponents(statement_date, bank_name, account_holders, "Statement")
 
 
+@pdfrenamer
+def statement_2023(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("statement_2023")
+
+    if document.title != b"Retail_Statements_V2":
+        return None
+
+    bank_name = _bank_name_from_boxes(document)
+    if not bank_name:
+        return None
+
+    logger.debug(f"Possible {bank_name} 2023 statement.")
+
+    first_page = document[1]
+
+    if not (account_name_box := first_page.find_box_starting_with("Account Name\n")):
+        return None
+
+    # The box starts with "Account Name" on one line, and ends with the account type (e.g. "REWARD")
+    # on the last line alone.
+    account_holders = account_name_box.split("\n")[1:-2]
+
+    # Details are now in a complex summary table box, but we can build it relatively easily.
+    summary_index = first_page.index("Summary\n")
+    iban_index = first_page.index("IBAN\n")
+
+    summary = {
+        first_page[summary_index + i]: first_page[iban_index + i]
+        for i in range(2, 16 + 1, 2)
+    }
+
+    if not (statement_date_str := summary.get("Statement Date\n")):
+        logger.debug("Unable to find statement date in summary: %r", summary)
+        return None
+
+    statement_date = dateparser.parse(statement_date_str, languages=["en"])
+    assert statement_date is not None
+
+    return NameComponents(statement_date, bank_name, account_holders, "Statement")
+
+
 _STATEMENT_OF_FEES = "Statement of Fees\n"
 _HONORIFICS = {"MR", "MRS"}
 
