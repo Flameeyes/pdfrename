@@ -72,6 +72,7 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
   - Payment Plans
   - Letters
 - [Tesco Bank](https://www.tescobank.com/)
+- [TSB](https://www.tsb.co.uk/) Statements
 - [Veritas](https://gruppoveritas.it/)
   - Bills
 - [Vodafone UK](https://www.vodafone.co.uk/)

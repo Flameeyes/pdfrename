@@ -47,6 +47,7 @@ from .renamers import (  # noqa: F401
     soenergy,
     tesco_bank,
     thameswater,
+    tsb,
     veritas,
     vodafone,
     xero,
