@@ -12,11 +12,6 @@ from ..lib.utils import extract_account_holder_from_address
 
 _LOGGER = logging.getLogger(__name__)
 
-_DATE_EXTRACTION_RE = re.compile(
-    r".*\nN. Fattura .*\n(Del [0-9]{2}/[0-9]{2}/[0-9]{4}\n).*",
-    flags=re.MULTILINE | re.DOTALL,
-)
-
 
 @pdfrenamer
 def bill(document: pdf_document.Document) -> NameComponents | None:
@@ -69,10 +64,31 @@ def bill(document: pdf_document.Document) -> NameComponents | None:
 
     return NameComponents(
         bill_date,
-        "ENEL Energia",
+        "Enel Energia",
         account_holder_name,
         "Bolletta",
     )
+
+
+def _find_and_extract_date(
+    page: pdf_document.PageTextBoxes, expression: re.Pattern[str]
+) -> datetime.datetime | None:
+    if not (
+        date_box := page.find_box_with_match(lambda box: bool(expression.search(box)))
+    ):
+        return None
+
+    date_match = expression.search(date_box)
+    assert date_match is not None  # It's safe, or we wouldn't have matched earlier!
+
+    date_string = date_match.group(1)
+    return datetime.datetime.strptime(date_string, "%d/%m/%Y")
+
+
+_DATE_EXTRACTION_2021_RE = re.compile(
+    r".*\nN. Fattura .*\nDel ([0-9]{2}/[0-9]{2}/[0-9]{4})\n.*",
+    flags=re.MULTILINE | re.DOTALL,
+)
 
 
 @pdfrenamer
@@ -97,18 +113,63 @@ def bill_2021(document: pdf_document.Document) -> NameComponents | None:
 
     # There's a lot of text running together in the same box as the date, we can't easily
     # search for a prefix, so we actually re-use the regex.
-    date_box = first_page.find_box_with_match(
-        lambda box: bool(_DATE_EXTRACTION_RE.search(box))
-    )
-    assert date_box is not None
-    date_match = _DATE_EXTRACTION_RE.search(date_box)
-    assert date_match
-    date_string = date_match.group(1)
-    bill_date = datetime.datetime.strptime(date_string, "Del %d/%m/%Y\n")
+    bill_date = _find_and_extract_date(first_page, _DATE_EXTRACTION_2021_RE)
+    assert bill_date
 
     return NameComponents(
         bill_date,
-        "ENEL Energia",
+        "Enel Energia",
+        account_holder_name,
+        "Bolletta",
+    )
+
+
+_DATE_EXTRACTION_2023_RE = re.compile(
+    r"[Ff]attura elettronica n. \d+ del ([0-9]{2}/[0-9]{2}/[0-9]{4}) ",
+    flags=re.MULTILINE | re.DOTALL,
+)
+
+
+@pdfrenamer
+def bill_2023(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("bill_2023")
+
+    first_page = document[1]
+    if not first_page:
+        return None
+
+    if first_page.find_box_starting_with(
+        "Enel Energia - Mercato libero dell'energia \n"
+    ):
+        service = "Enel Energia"
+    elif (
+        first_page.find_box_starting_with("Enel Energia\n") and "FIBRA\n" in first_page
+    ):
+        service = "Enel Fibra"
+    else:
+        return None
+
+    logger.debug("Possible %s 2023 bill.", service)
+
+    try:
+        account_holder_idx = first_page.find_index_starting_with("Periodo ") - 1
+    except TypeError:
+        return None
+
+    account_holder_name = extract_account_holder_from_address(
+        first_page[account_holder_idx]
+    )
+
+    logger.debug(f"Possible account holder found: {account_holder_name!r}")
+
+    # There's a lot of text running together in the same box as the date, we can't easily
+    # search for a prefix, so we actually re-use the regex.
+    bill_date = _find_and_extract_date(first_page, _DATE_EXTRACTION_2023_RE)
+    assert bill_date
+
+    return NameComponents(
+        bill_date,
+        service,
         account_holder_name,
         "Bolletta",
     )
