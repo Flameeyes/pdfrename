@@ -151,10 +151,10 @@ def bill_2023(document: pdf_document.Document) -> NameComponents | None:
 
     logger.debug("Possible %s 2023 bill.", service)
 
-    try:
-        account_holder_idx = first_page.find_index_starting_with("Periodo ") - 1
-    except TypeError:
+    if (bill_timeframe_idx := first_page.find_index_starting_with("Periodo ")) is None:
         return None
+
+    account_holder_idx = bill_timeframe_idx - 1
 
     account_holder_name = extract_account_holder_from_address(
         first_page[account_holder_idx]

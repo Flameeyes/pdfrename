@@ -67,9 +67,12 @@ def uk_original_bill(document: pdf_document.Document) -> NameComponents | None:
     if not text_boxes[1].startswith("O2.co.uk/help | "):
         return None
 
-    bill_info_keys_box = text_boxes.find_index_starting_with(
-        "Account name\nAccount number\n"
-    )
+    if (
+        bill_info_keys_box := text_boxes.find_index_starting_with(
+            "Account name\nAccount number\n"
+        )
+    ) is None:
+        return None
 
     bill_info_keys = text_boxes[bill_info_keys_box]
     bill_info_values = text_boxes[bill_info_keys_box + 1]
