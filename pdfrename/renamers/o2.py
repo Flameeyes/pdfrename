@@ -83,7 +83,22 @@ def uk_original_bill(document: pdf_document.Document) -> NameComponents | None:
         logging.warning("Unable to find bill date.")
         return None
 
+    # O2 started issuing per-line bills, rather than one cumulative bill.
+    # So append the line number if found.
+
+    additional_components = []
+    if billed_line_info := text_boxes.find_box_starting_with("Bill Summary for "):
+        additional_components.append(
+            billed_line_info[len("Bill Summary for ") :].strip()
+        )
+
     bill_date = dateparser.parse(bill_date_str, languages=["en"])
     assert bill_date is not None
 
-    return NameComponents(bill_date, "O2 UK", account_holder_name, "Bill")
+    return NameComponents(
+        bill_date,
+        "O2 UK",
+        account_holder_name,
+        "Bill",
+        additional_components=additional_components,
+    )
