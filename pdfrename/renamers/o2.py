@@ -67,13 +67,25 @@ def uk_original_bill(document: pdf_document.Document) -> NameComponents | None:
     if not text_boxes[1].startswith("O2.co.uk/help | "):
         return None
 
-    logger.debug(
-        "Found likely O2 bill.\n  Bill info keys: %r\n  Bill info values: %r",
-        text_boxes[3],
-        text_boxes[4],
+    bill_info_keys_box = text_boxes.find_index_starting_with(
+        "Account name\nAccount number\n"
     )
 
-    bill_info = build_dict_from_fake_table(text_boxes[3], text_boxes[4])
+    bill_info_keys = text_boxes[bill_info_keys_box]
+    bill_info_values = text_boxes[bill_info_keys_box + 1]
+
+    # Okay this is silly: sometimes the bill info values are split in two boxes.
+    # so if there's not enough newlines, join it with the following box.
+    if bill_info_values.count("\n") == 1:
+        bill_info_values += text_boxes[bill_info_keys_box + 2]
+
+    logger.debug(
+        "Found likely O2 bill.\n  Bill info keys: %r\n  Bill info values: %r",
+        bill_info_keys,
+        bill_info_values,
+    )
+
+    bill_info = build_dict_from_fake_table(bill_info_keys, bill_info_values)
 
     if (account_holder_name := bill_info.get("Account name")) is None:
         logging.warning("Unable to find account holder name.")
