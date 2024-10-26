@@ -26,7 +26,7 @@ _WEBSITES_TO_BANK = {
     "www.natwest.com": Bank.NATWEST,
 }
 
-_PDF_AUTHORS_TO_BANK: dict[bytes | None, str] = {
+_PDF_AUTHORS_TO_BANK: dict[bytes | None, Bank] = {
     b"National Westminster Bank plc": Bank.NATWEST
 }
 
