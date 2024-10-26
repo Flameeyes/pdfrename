@@ -4,7 +4,7 @@
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py312']
 
 [tool.isort]
 # These settings ensure that black and isort don't disagree on the imports.
