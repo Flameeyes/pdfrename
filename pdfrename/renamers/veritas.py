@@ -6,6 +6,8 @@ import datetime
 import logging
 import re
 
+from more_itertools import one
+
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import build_dict_from_fake_table
@@ -32,16 +34,20 @@ def bolletta_2022(document: pdf_document.Document) -> NameComponents | None:
     logger.debug(f"Veritas account holder box: {account_holder_box!r}")
     account_holder = account_holder_box.split("\n")[1]
 
-    details = first_page.find_box_with_match(lambda box: "\ncodice utente " in box)
-    assert details
-    logger.debug(f"Veritas details: {details!r}")
-    if not re.search(" n[.] [0-9]+", details):
+    try:
+        details_match = one(
+            first_page.find_all_matching_regex(
+                re.compile(
+                    r"(?P<bill_type>.*)\n.+ n\. \d+ del\s(?P<date>[0-9]{2}[.][0-9]{2}[.][0-9]{4})\n"
+                )
+            )
+        )
+    except ValueError:
+        logger.debug("Unable to find matching invoice details.")
         return None
 
-    bill_type = details.split("\n", 1)[0].strip().title()
-    date_match = re.search(r"del\s([0-9]{2}[.][0-9]{2}[.][0-9]{4})\n", details)
-    assert date_match
-    date_str = date_match.group(1)
+    bill_type = details_match.group("bill_type").strip().title()
+    date_str = details_match.group("date")
     logger.debug(f"Veritas date string: {date_str}")
     date = datetime.datetime.strptime(date_str, "%d.%m.%Y")
 
