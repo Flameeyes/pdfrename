@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import enum
 import logging
 import re
 
@@ -12,23 +13,29 @@ from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import drop_honorific
 
+
+class Bank(enum.StrEnum):
+    NATWEST = "NatWest"
+    ULSTER_BANK_NI = "Ulster Bank (NI)"
+
+
 _LOGGER = logging.getLogger(__name__)
 
 _WEBSITES_TO_BANK = {
-    "www.ulsterbank.co.uk": "Ulster Bank (NI)",
-    "www.natwest.com": "NatWest",
+    "www.ulsterbank.co.uk": Bank.ULSTER_BANK_NI,
+    "www.natwest.com": Bank.NATWEST,
 }
 
 _PDF_AUTHORS_TO_BANK: dict[bytes | None, str] = {
-    b"National Westminster Bank plc": "NatWest"
+    b"National Westminster Bank plc": Bank.NATWEST
 }
 
 
-def _bank_name_from_metadata(document: pdf_document.Document) -> str | None:
+def _bank_name_from_metadata(document: pdf_document.Document) -> Bank | None:
     return _PDF_AUTHORS_TO_BANK.get(document.author)
 
 
-def _bank_name_from_boxes(document: pdf_document.Document) -> str | None:
+def _bank_name_from_boxes(document: pdf_document.Document) -> Bank | None:
     first_page = document[1]
 
     for website, bank_name in _WEBSITES_TO_BANK.items():
