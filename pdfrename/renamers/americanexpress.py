@@ -3,62 +3,120 @@
 # SPDX-License-Identifier: MIT
 
 import datetime
+import logging
 import re
+
+from more_itertools import first, one
 
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 
+_LOGGER = logging.getLogger(__name__)
 
-@pdfrenamer
-def statement(document: pdf_document.Document) -> NameComponents | None:
+
+def _statement_generic(
+    document: pdf_document.Document,
+    localised_website: str,
+    localised_account_holder_string: str,
+    localised_page_string: str,
+    localised_membership_string: str,
+    localised_date_string: str,
+) -> NameComponents | None:
+    logger = _LOGGER.getChild("statement_generic")
+
     text_boxes = document[1]  # Only need the first page.
 
     if len(text_boxes) < 4:
         return None
 
-    if text_boxes[0] == "www.americanexpress.co.uk\n":
-        document_type = text_boxes[4].strip()
-    elif text_boxes[0] == "americanexpress.co.uk\n":
-        document_type = text_boxes[3].strip()
-    elif text_boxes[3] == "americanexpress.co.uk\n":
-        document_type = text_boxes[0].strip()
-    elif "www.americanexpress.co.uk\n" in text_boxes:  # 2020/2021
-        document_type = text_boxes[0].strip()
-    else:
+    if not any(
+        text_boxes.find_all_matching_regex(
+            re.compile(rf"^(?:www\.)?{localised_website}\n")
+        )
+    ):
         return None
 
-    if document_type == "Statement of Account":
-        document_type = "Statement"
+    logger.debug("Found possible American Express document")
 
-    account_holder_box = text_boxes.find_box_starting_with("Prepared for\n")
+    account_holder_box = text_boxes.find_box_starting_with(
+        f"{localised_account_holder_string}\n"
+    )
+    logger.debug("Account holder: %r", account_holder_box)
     assert account_holder_box
-    account_holder_name = account_holder_box.split("\n")[1].strip()
+    _, account_holder_name, _ = account_holder_box.split("\n")
 
-    # The date is the box after the Membership Number. We can't look for the one starting
-    # with "Date" because there's more than one.
-    membership_index = text_boxes.find_index_starting_with("Membership Number\n")
-    assert membership_index is not None
+    account_holder_index = text_boxes.index(account_holder_box)
 
-    date_box = text_boxes[membership_index + 1]
-    date_fields = date_box.split("\n")
-    assert date_fields[0] == "Date"
+    membership_match = re.match(
+        rf"^{localised_membership_string}\n[x0-9]{{4}}-[x0-9]{{6}}-([0-9]{{5}})\n$",
+        text_boxes[account_holder_index + 1],
+    )
 
-    statement_date = datetime.datetime.strptime(date_fields[1], "%d/%m/%y")
+    if not membership_match:
+        logger.debug("No membership number information matched.")
+        return None
 
-    additional_components = []
+    date_box = text_boxes[account_holder_index + 2]
+    assert date_box.startswith(f"{localised_date_string}\n")
+    _, date_str, _ = date_box.split("\n")
 
-    membership_box = text_boxes.find_box_starting_with("Membership Number\n")
-    if membership_box is not None:
-        membership_match = re.match(
-            r"^Membership Number\nxxxx-xxxxxx-([0-9]{5})\n$", membership_box
+    statement_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
+
+    # Document type is usually before the "Page" box. Note that this is
+    # not always "Page X of Y", depending on the age of the statement.
+    page_mention_index = first(
+        text_boxes.find_all_indexes_matching_regex(
+            re.compile(f"^{localised_page_string} .+")
         )
-        if membership_match is not None:
-            additional_components.append(f"xx-{membership_match.group(1)}")
+    )
+
+    # If the page mention is further in the page, it's likely an old template instead.
+    # In that case, or if we can't find one, assume it's just before the account holder name.
+    if not page_mention_index or page_mention_index > 5:
+        document_type_box = text_boxes[account_holder_index - 1]
+    else:
+        document_type_box = text_boxes[page_mention_index - 1]
+
+    document_type_lines = document_type_box.strip().split("\n")
+    if len(document_type_lines) == 1:
+        document_type = one(document_type_lines)
+    else:
+        document_type = document_type_lines[1]
 
     return NameComponents(
         statement_date,
         "American Express",
-        account_holder_name,
-        "Statement",
-        additional_components=additional_components,
+        account_holder_name.strip(),
+        document_type,
+        additional_components=(f"xx-{membership_match.group(1)}",),
+    )
+
+
+@pdfrenamer
+def statement_gbr(document: pdf_document.Document) -> NameComponents | None:
+    components = _statement_generic(
+        document,
+        "americanexpress.co.uk",
+        "Prepared for",
+        "Page",
+        "Membership Number",
+        "Date",
+    )
+
+    if components and components.document_type == "Statement of Account":
+        components.document_type = "Statement"
+
+    return components
+
+
+@pdfrenamer
+def statement_ita(document: pdf_document) -> NameComponents:
+    # This was only tested on 2011 statements (!)
+    return _statement_generic(
+        document,
+        "americanexpress.it",
+        "Gentile Titolare",
+        "Pagina",
+        "Numero di Carta",
+        "Data",
     )

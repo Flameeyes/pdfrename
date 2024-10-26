@@ -57,6 +57,13 @@ class PageTextBoxes:
 
         return None
 
+    def find_all_indexes_matching_regex(
+        self, pattern: re.Pattern[str]
+    ) -> Iterator[int]:
+        for idx, box in enumerate(self._boxes):
+            if pattern.match(box):
+                yield idx
+
     def find_all_matching_regex(
         self, pattern: re.Pattern[str]
     ) -> Iterator[re.Match[str]]:
