@@ -13,6 +13,7 @@ import pdfminer.high_level
 import pdfminer.layout
 import pdfminer.pdfdocument
 import pdfminer.pdfparser
+from more_itertools import only
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,11 +46,7 @@ class PageTextBoxes:
         return self._boxes.index(content)
 
     def find_box_with_match(self, match: Callable[[str], bool]) -> str | None:
-        found_boxes = [box for box in self._boxes if match(box)]
-        if not found_boxes:
-            return None
-        assert len(found_boxes) == 1
-        return found_boxes[0]
+        return only(box for box in self._boxes if match(box))
 
     def find_index_with_match(self, match: Callable[[str], bool]) -> int | None:
         if box := self.find_box_with_match(match):
