@@ -148,7 +148,7 @@ def credit_card_annual_statement(
     account_holder_name = annual_statement_match.group("account_holder_name")
     if account_holder_name is None:
         # Always include the account holder name, which is found in the second text box.
-        account_holder_name = extract_account_holder_from_address(first_page)
+        account_holder_name = extract_account_holder_from_address(first_page[1])
 
     statement_date = dateparser.parse(
         annual_statement_match.group("statement_end_date"), languages=["en"]
