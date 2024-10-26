@@ -3,13 +3,22 @@
 # SPDX-License-Identifier: MIT
 
 import datetime
+import logging
 import re
 from collections.abc import Sequence
 
 import dateparser
+from more_itertools import one
 
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address, find_box_starting_with
+
+_LOGGER = logging.getLogger(__name__)
+
+# This matches both 18th Oct 2024 and 3rd December 2023, which are
+# both commonly used date formats within Santander documents!
+_DATE_REGEX_COMPONENT = "[0-9]{1,2}[a-z]{2} [A-Z][a-z]{2,} [0-9]{4}"
 
 
 def _extract_account_holders(address_box: str) -> Sequence[str]:
@@ -43,7 +52,7 @@ def current_account_statement(text_boxes, parent_logger) -> NameComponents | Non
     logger.debug(f"found period specification: {period_line!r}")
 
     period_match = re.match(
-        r"^Your account summary for  \n[0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4} to ([0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4})\n$",
+        rf"^Your account summary for  \n{_DATE_REGEX_COMPONENT} to ({_DATE_REGEX_COMPONENT})\n$",
         period_line,
     )
     assert period_match
@@ -87,7 +96,7 @@ def credit_card_statement(text_boxes, parent_logger) -> NameComponents | None:
     logger.debug(f"found period specification: {statement_period_line!r}")
 
     period_match = re.match(
-        r"^Account summary as at: ([0-9]{1,2}[a-z]{2} [A-Z][a-z]+ [0-9]{4}) for card number ending ([0-9]{4})\n$",
+        rf"^Account summary as at: ({_DATE_REGEX_COMPONENT}) for card number ending ([0-9]{{4}})\n$",
         statement_period_line,
     )
     assert period_match
@@ -105,42 +114,55 @@ def credit_card_statement(text_boxes, parent_logger) -> NameComponents | None:
 
 
 @pdfrenamer
-def credit_card_annual_statement(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("santander.credit_card_annual_statement")
+def credit_card_annual_statement(
+    document: pdf_document.Document,
+) -> NameComponents | None:
+    logger = _LOGGER.getChild("credit_card_annual_statement")
 
-    if (
-        "Santander Credit Card \n" not in text_boxes
-        and "Santander Credit Card\n" not in text_boxes
+    first_page = document[1]
+
+    if not any(
+        first_page.find_all_matching_regex(re.compile("^Santander Credit Card ?\n$"))
     ):
         return None
 
-    # Always include the account holder name, which is found in the second text box.
-    account_holder_name = extract_account_holder_from_address(text_boxes[1])
-
-    # Could be an annual statement, look for it.
-    annual_statement_period_line = find_box_starting_with(
-        text_boxes, "Annual Statement:"
+    annual_statement_match = one(
+        first_page.find_all_matching_regex(
+            re.compile(
+                r"(?:Account Holder Name: (?P<account_holder_name>[\w\s]+)\n)?"
+                rf"Annual Statement: {_DATE_REGEX_COMPONENT} to (?P<statement_end_date>{_DATE_REGEX_COMPONENT})\n"
+                r"Account: .* card number ending (?P<card_number>[0-9]{4})\n$"
+            )
+        )
     )
-    if annual_statement_period_line is None:
-        return None
+    if not annual_statement_match:
+        return
 
-    logger.debug(f"found period specification: {annual_statement_period_line!r}")
-
-    period_match = re.match(
-        r"^Annual Statement: [0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4} to ([0-9]{1,2}[a-z]{2} [A-Z][a-z]{2} [0-9]{4})\nAccount: .* card number ending ([0-9]{4})\n$",
-        annual_statement_period_line,
+    logger.debug(
+        "Possible Santander Credit Card Annual Statement: %r",
+        annual_statement_match.groupdict(),
     )
-    assert period_match
-    statement_date = dateparser.parse(period_match.group(1), languages=["en"])
 
+    # If the account holder name was not part of the statement information, fall back to the
+    # address.
+    account_holder_name = annual_statement_match.group("account_holder_name")
+    if account_holder_name is None:
+        # Always include the account holder name, which is found in the second text box.
+        account_holder_name = extract_account_holder_from_address(first_page)
+
+    statement_date = dateparser.parse(
+        annual_statement_match.group("statement_end_date"), languages=["en"]
+    )
     assert statement_date is not None
+
+    card_number = annual_statement_match.group("card_number")
 
     return NameComponents(
         statement_date,
         "Santander",
         account_holder_name,
         "Credit Card Annual Statement",
-        additional_components=(f"xx-{period_match.group(2)}",),
+        additional_components=(f"xx-{card_number}",),
     )
 
 
@@ -165,7 +187,7 @@ def credit_card_statement_2023(text_boxes, parent_logger) -> NameComponents | No
     logger.debug(f"found period specification: {statement_period_line!r}")
 
     period_match = re.match(
-        r"^Account summary as at: ([0-9]{1,2}[a-z]{2} [A-Z][a-z]+ [0-9]{4}) for card number ending ([0-9]{4})\n$",
+        rf"^Account summary as at: ({_DATE_REGEX_COMPONENT}) for card number ending ([0-9]{{4}})\n$",
         statement_period_line,
     )
     assert period_match
@@ -244,7 +266,7 @@ def annual_account_summary(text_boxes, parent_logger) -> NameComponents | None:
     logger.debug(f"possible account: {text_boxes[30]}")
 
     period_match = re.match(
-        r"^Your Account Summary for [0-9]{1,2} [A-Z][a-z]+ [0-9]{4} to ([0-9]{1,2} [A-Z][a-z]+ [0-9]{4})\n$",
+        rf"^Your Account Summary for {_DATE_REGEX_COMPONENT} to ({_DATE_REGEX_COMPONENT})\n$",
         annual_account_summary_period_line,
     )
 
