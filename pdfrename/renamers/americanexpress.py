@@ -110,7 +110,7 @@ def statement_gbr(document: pdf_document.Document) -> NameComponents | None:
 
 
 @pdfrenamer
-def statement_ita(document: pdf_document) -> NameComponents:
+def statement_ita(document: pdf_document.Document) -> NameComponents | None:
     # This was only tested on 2011 statements (!)
     return _statement_generic(
         document,

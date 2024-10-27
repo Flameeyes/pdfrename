@@ -8,6 +8,7 @@ import functools
 import inspect
 import logging
 import re
+import typing
 from collections.abc import Callable, Iterator, Sequence
 
 from . import pdf_document, utils
@@ -77,7 +78,7 @@ _ALL_RENAMERS: list[RenamerV2] = []
 def _convert_to_renamer_v2(renamer: RenamerV1) -> RenamerV2:
     @functools.wraps(renamer)
     def _wrapper(document: pdf_document.Document) -> NameComponents | None:
-        first_page_text_boxes = document[1]
+        first_page_text_boxes = list(document[1])
         if not first_page_text_boxes:
             return None
 
@@ -92,25 +93,18 @@ def pdfrenamer(func: AnyRenamer) -> RenamerV2:
 
     match version:
         case 2:
-            pass
+            func = typing.cast(RenamerV2, func)
         case 1:
-            func = _convert_to_renamer_v2(func)
+            func = _convert_to_renamer_v2(typing.cast(RenamerV1, func))
+
+    func = typing.cast(RenamerV2, func)
 
     _ALL_RENAMERS.append(func)
 
     return func
 
 
-def try_all_renamers(
-    document: pdf_document.Document, tool_logger: logging.Logger
-) -> Iterator[NameComponents]:
-    first_page_text_boxes = list(document[1])  # Only used for v1 renamers.
-
-    if not first_page_text_boxes:
-        tool_logger.warning(
-            f"{document.original_filename}: no text boxes found on first page, v1 renamers won't be run."
-        )
-
+def try_all_renamers(document: pdf_document.Document) -> Iterator[NameComponents]:
     for renamer in _ALL_RENAMERS:
         try:
             if name := renamer(document):

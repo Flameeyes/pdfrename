@@ -64,7 +64,7 @@ def find_filename(original_filename: str) -> str | None:
         tool_logger.warning(str(e))
         return None
 
-    possible_names = list(try_all_renamers(document, tool_logger))
+    possible_names = list(try_all_renamers(document))
 
     if len(possible_names) > 1:
         logging.error(
