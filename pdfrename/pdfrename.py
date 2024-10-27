@@ -12,6 +12,7 @@ import click
 import click_log
 import pdfminer.high_level
 import pdfminer.layout
+from more_itertools import only
 
 from .lib.pdf_document import Document
 from .lib.renamer import try_all_renamers
@@ -57,6 +58,10 @@ tool_logger = logging.getLogger("pdfrename")
 click_log.basic_config(tool_logger)
 
 
+class MultipleRenamersError(ValueError):
+    pass
+
+
 def find_filename(original_filename: str) -> str | None:
     try:
         document = Document(original_filename)
@@ -64,14 +69,14 @@ def find_filename(original_filename: str) -> str | None:
         tool_logger.warning(str(e))
         return None
 
-    possible_names = list(try_all_renamers(document))
+    try:
+        if name := only(try_all_renamers(document), too_long=MultipleRenamersError):
+            return name.render_filename(True, True)
 
-    if len(possible_names) > 1:
+    except MultipleRenamersError:
         logging.error(
             f"Unable to rename {original_filename}: multiple renamers matched."
         )
-    elif possible_names:
-        return possible_names[0].render_filename(True, True)
 
     return None
 
