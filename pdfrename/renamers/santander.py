@@ -18,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 
 # This matches both 18th Oct 2024 and 3rd December 2023, which are
 # both commonly used date formats within Santander documents!
-_DATE_REGEX_COMPONENT = "[0-9]{1,2}[a-z]{2} [A-Z][a-z]{2,} [0-9]{4}"
+_DATE_REGEX_COMPONENT = "[0-9]{1,2}(?:[a-z]{2})? [A-Z][a-z]{2,} [0-9]{4}"
 
 
 def _extract_account_holders(address_box: str) -> Sequence[str]:
@@ -126,17 +126,18 @@ def credit_card_annual_statement(
     ):
         return None
 
-    annual_statement_match = one(
-        first_page.find_all_matching_regex(
-            re.compile(
-                r"(?:Account Holder Name: (?P<account_holder_name>[\w\s]+)\n)?"
-                rf"Annual Statement: {_DATE_REGEX_COMPONENT} to (?P<statement_end_date>{_DATE_REGEX_COMPONENT})\n"
-                r"Account: .* card number ending (?P<card_number>[0-9]{4})\n$"
+    try:
+        annual_statement_match = one(
+            first_page.find_all_matching_regex(
+                re.compile(
+                    r"(?:Account Holder Name: (?P<account_holder_name>[\w\s]+)\n)?"
+                    rf"Annual Statement: {_DATE_REGEX_COMPONENT} to (?P<statement_end_date>{_DATE_REGEX_COMPONENT})\n"
+                    r"Account: .* card number ending (?P<card_number>[0-9]{4})\n$"
+                )
             )
         )
-    )
-    if not annual_statement_match:
-        return
+    except ValueError:
+        return None
 
     logger.debug(
         "Possible Santander Credit Card Annual Statement: %r",
@@ -269,8 +270,8 @@ def annual_account_summary(text_boxes, parent_logger) -> NameComponents | None:
         rf"^Your Account Summary for {_DATE_REGEX_COMPONENT} to ({_DATE_REGEX_COMPONENT})\n$",
         annual_account_summary_period_line,
     )
-
-    assert period_match
+    if not period_match:
+        return None
 
     statement_date = dateparser.parse(period_match.group(1), languages=["en"])
     assert statement_date is not None
