@@ -4,10 +4,10 @@
 
 import dataclasses
 import datetime
+import functools
 import inspect
 import logging
 import re
-import typing
 from collections.abc import Callable, Iterator, Sequence
 
 from . import pdf_document, utils
@@ -69,15 +69,34 @@ Boxes = Sequence[str]
 RenamerV1 = Callable[[Boxes, logging.Logger], NameComponents | None]
 RenamerV2 = Callable[[pdf_document.Document], NameComponents | None]
 
-Renamer = RenamerV1 | RenamerV2
+AnyRenamer = RenamerV1 | RenamerV2
 
-_ALL_RENAMERS: list[tuple[Renamer, int]] = []
+_ALL_RENAMERS: list[RenamerV2] = []
 
 
-def pdfrenamer(func: Renamer) -> Renamer:
+def _convert_to_renamer_v2(renamer: RenamerV1) -> RenamerV2:
+    @functools.wraps(renamer)
+    def _wrapper(document: pdf_document.Document) -> NameComponents | None:
+        first_page_text_boxes = document[1]
+        if not first_page_text_boxes:
+            return None
+
+        new_logger = logging.getLogger(renamer.__module__)
+        return renamer(first_page_text_boxes, new_logger)
+
+    return _wrapper
+
+
+def pdfrenamer(func: AnyRenamer) -> RenamerV2:
     version = 2 if len(inspect.signature(func).parameters) == 1 else 1
 
-    _ALL_RENAMERS.append((func, version))
+    match version:
+        case 2:
+            pass
+        case 1:
+            func = _convert_to_renamer_v2(func)
+
+    _ALL_RENAMERS.append(func)
 
     return func
 
@@ -92,18 +111,9 @@ def try_all_renamers(
             f"{document.original_filename}: no text boxes found on first page, v1 renamers won't be run."
         )
 
-    for renamer, version in _ALL_RENAMERS:
+    for renamer in _ALL_RENAMERS:
         try:
-            if version == 1:
-                if not first_page_text_boxes:
-                    continue
-                name = typing.cast(RenamerV1, renamer)(
-                    first_page_text_boxes, tool_logger
-                )
-            else:
-                name = typing.cast(RenamerV2, renamer)(document)
-
-            if name:
+            if name := renamer(document):
                 yield name
         except Exception:
             logging.exception(f"{document.original_filename}: renamer {renamer} failed")
