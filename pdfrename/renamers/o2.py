@@ -98,6 +98,13 @@ def uk_original_bill(document: pdf_document.Document) -> NameComponents | None:
         logging.warning("Unable to find bill date.")
         return None
 
+    # We assume by default that the document is a Bill, but O2 issues almost
+    # identical Credit Note documents when paying outside of Direct Debit.
+    document_type = "Bill"
+
+    if "Credit Note\n" in text_boxes:
+        document_type = "Credit Note"
+
     # O2 started issuing per-line bills, rather than one cumulative bill.
     # So append the line number if found.
 
@@ -114,6 +121,6 @@ def uk_original_bill(document: pdf_document.Document) -> NameComponents | None:
         bill_date,
         "O2 UK",
         account_holder_name,
-        "Bill",
+        document_type,
         additional_components=additional_components,
     )
