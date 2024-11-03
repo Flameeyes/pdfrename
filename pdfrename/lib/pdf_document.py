@@ -6,6 +6,7 @@ import logging
 import re
 from collections.abc import Callable, Iterator, Sequence
 from datetime import datetime
+from functools import cached_property
 from typing import Any, Final
 
 import pdfminer.high_level
@@ -173,27 +174,27 @@ class Document:
 
         return datetime.strptime(date_str, date_format)
 
-    @property
+    @cached_property
     def author(self) -> bytes | None:
         return self._document_metadata(_AUTHOR_METADATA)
 
-    @property
+    @cached_property
     def creator(self) -> bytes | None:
         return self._document_metadata(_CREATOR_METADATA)
 
-    @property
+    @cached_property
     def producer(self) -> bytes | None:
         return self._document_metadata(_PRODUCER_METADATA)
 
-    @property
+    @cached_property
     def subject(self) -> bytes | None:
         return self._document_metadata(_SUBJECT_METADATA)
 
-    @property
+    @cached_property
     def title(self) -> bytes | None:
         return self._document_metadata(_TITLE_METADATA)
 
-    @property
+    @cached_property
     def creation_date(self) -> datetime | None:
         if creation_date := self._document_metadata(_CREATION_DATE_METADATA):
             return self._date_property_to_datetime(creation_date)
