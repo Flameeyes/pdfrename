@@ -18,19 +18,26 @@ _ITEXT_CREATION_DATE: Final[str] = "CreationDate"
 
 
 def did_itext_generate(document: Document) -> bool:
-    return document.producer.startswith(b"iText ")
+    producer = document.producer
+    return producer.startswith(b"iText ") or producer.startswith(b"iText\xae 5")
 
 
 def _itext_date_to_datetime(itext_date: str) -> datetime:
     # We cannot _quite_ parse this correctly with strptime because the final offset is
-    # not compatible, so translate it instead.
-    date_match = re.match(r"^D:(\d{14})\+(\d{2})'(\d{2})'$", itext_date)
+    # not compatible. Plus different versions appear to generate a slightly different
+    # mangling of the timezone.
+    date_match = re.match(r"^D:(\d{14})(Z|\+(\d{2})'(\d{2})')$", itext_date)
     if not date_match:
         raise ValueError(f"{itext_date!r} is not a valid iText date.")
 
-    date_str = f"{date_match.group(1)}+{date_match.group(2)}{date_match.group(3)}"
+    date_format = "%Y%m%d%H%M%S"
+    if date_match.group(2) == "Z":
+        date_str = date_match.group(1)
+    else:
+        date_str = f"{date_match.group(1)}+{date_match.group(3)}{date_match.group(4)}"
+        date_format += "%z"
 
-    return datetime.strptime(date_str, "%Y%m%d%H%M%S%z")
+    return datetime.strptime(date_str, date_format)
 
 
 def creation_date(document: Document) -> datetime | None:

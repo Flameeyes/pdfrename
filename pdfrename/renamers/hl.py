@@ -11,6 +11,8 @@ from ..lib.utils import extract_account_holder_from_address
 
 _LOGGER = logging.getLogger(__name__)
 
+_HL_SERVICE = "Hargreaves Lansdown"
+
 
 @pdfrenamer
 def tax_certificate(document: pdf_document.Document) -> NameComponents | None:
@@ -28,7 +30,31 @@ def tax_certificate(document: pdf_document.Document) -> NameComponents | None:
 
     return NameComponents(
         creation_date(document),
-        "Hargreaves Lansdown",
+        _HL_SERVICE,
         (account_holder,),
         "Tax Certificate",
+    )
+
+
+@pdfrenamer
+def savings_statement(document: pdf_document.Document) -> NameComponents | None:
+    first_page = document[1]
+
+    if not first_page.find_box_starting_with("Hargreaves Lansdown Savings Limited"):
+        return None
+
+    if "Account: Active Savings Account\n" not in first_page:
+        return None
+
+    client_number_index = first_page.find_index_starting_with("Client number: ")
+    if not client_number_index:
+        return None
+
+    account_holder = first_page[client_number_index - 1].strip()
+
+    return NameComponents(
+        creation_date(document),
+        _HL_SERVICE,
+        (account_holder,),
+        "Active Savings Statement",
     )
