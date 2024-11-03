@@ -2,12 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
-from __future__ import annotations
-
 import logging
 import re
 from collections.abc import Callable, Iterator, Sequence
-from typing import Any
+from datetime import datetime
+from typing import Any, Final
 
 import pdfminer.high_level
 import pdfminer.layout
@@ -22,6 +21,7 @@ _CREATOR_METADATA = "Creator"
 _PRODUCER_METADATA = "Producer"
 _SUBJECT_METADATA = "Subject"
 _TITLE_METADATA = "Title"
+_CREATION_DATE_METADATA = "CreationDate"
 
 
 class PageTextBoxes:
@@ -154,6 +154,25 @@ class Document:
 
         return None
 
+    _DATE_PROPERTY_RE: Final[re.Pattern[bytes]] = re.compile(
+        rb"^D:(\d{14})(?:Z|\+(\d{2})'(\d{2})')$"
+    )
+
+    @classmethod
+    def _date_property_to_datetime(cls, date_property: bytes) -> datetime | None:
+        if not (date_match := cls._DATE_PROPERTY_RE.fullmatch(date_property)):
+            return None
+
+        date_format = "%Y%m%d%H%M%S"
+        date_str = date_match.group(1).decode("ascii")
+        if date_match.group(2) is not None:
+            # There's timezone information, extract it and concatenate it.
+            tz = date_match.group(2) + date_match.group(3)
+            date_str += "+" + tz.decode("ascii")
+            date_format += "%z"
+
+        return datetime.strptime(date_str, date_format)
+
     @property
     def author(self) -> bytes | None:
         return self._document_metadata(_AUTHOR_METADATA)
@@ -173,3 +192,10 @@ class Document:
     @property
     def title(self) -> bytes | None:
         return self._document_metadata(_TITLE_METADATA)
+
+    @property
+    def creation_date(self) -> datetime | None:
+        if creation_date := self._document_metadata(_CREATION_DATE_METADATA):
+            return self._date_property_to_datetime(creation_date)
+
+        return None

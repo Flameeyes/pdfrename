@@ -5,7 +5,6 @@
 import logging
 
 from ..lib import pdf_document
-from ..lib.itext import creation_date
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address
 
@@ -26,8 +25,7 @@ def tax_certificate(document: pdf_document.Document) -> NameComponents | None:
     if "Your tax certificate\n" not in first_page:
         return None
 
-    date = creation_date(document)
-    if date is None:
+    if not (date := document.creation_date):
         return None
 
     account_holder = extract_account_holder_from_address(first_page[0])
@@ -50,8 +48,7 @@ def savings_statement(document: pdf_document.Document) -> NameComponents | None:
     if "Account: Active Savings Account\n" not in first_page:
         return None
 
-    date = creation_date(document)
-    if date is None:
+    if not (date := document.creation_date):
         return None
 
     client_number_index = first_page.find_index_starting_with("Client number: ")
