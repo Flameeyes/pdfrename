@@ -156,7 +156,7 @@ class Document:
         return None
 
     _DATE_PROPERTY_RE: Final[re.Pattern[bytes]] = re.compile(
-        rb"^D:(\d{14})(?:Z|\+(\d{2})'(\d{2})')$"
+        rb"^D:(\d{14})(?:Z|([+-]\d{2})'(\d{2})')$"
     )
 
     @classmethod
@@ -169,7 +169,7 @@ class Document:
         if date_match.group(2) is not None:
             # There's timezone information, extract it and concatenate it.
             tz = date_match.group(2) + date_match.group(3)
-            date_str += "+" + tz.decode("ascii")
+            date_str += tz.decode("ascii")
             date_format += "%z"
 
         return datetime.strptime(date_str, date_format)
