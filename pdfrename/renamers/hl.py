@@ -26,10 +26,14 @@ def tax_certificate(document: pdf_document.Document) -> NameComponents | None:
     if "Your tax certificate\n" not in first_page:
         return None
 
+    date = creation_date(document)
+    if date is None:
+        return
+
     account_holder = extract_account_holder_from_address(first_page[0])
 
     return NameComponents(
-        creation_date(document),
+        date,
         _HL_SERVICE,
         (account_holder,),
         "Tax Certificate",
@@ -46,6 +50,10 @@ def savings_statement(document: pdf_document.Document) -> NameComponents | None:
     if "Account: Active Savings Account\n" not in first_page:
         return None
 
+    date = creation_date(document)
+    if date is None:
+        return
+
     client_number_index = first_page.find_index_starting_with("Client number: ")
     if not client_number_index:
         return None
@@ -53,7 +61,7 @@ def savings_statement(document: pdf_document.Document) -> NameComponents | None:
     account_holder = first_page[client_number_index - 1].strip()
 
     return NameComponents(
-        creation_date(document),
+        date,
         _HL_SERVICE,
         (account_holder,),
         "Active Savings Statement",
