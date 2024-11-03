@@ -28,7 +28,7 @@ def tax_certificate(document: pdf_document.Document) -> NameComponents | None:
 
     date = creation_date(document)
     if date is None:
-        return
+        return None
 
     account_holder = extract_account_holder_from_address(first_page[0])
 
@@ -52,7 +52,7 @@ def savings_statement(document: pdf_document.Document) -> NameComponents | None:
 
     date = creation_date(document)
     if date is None:
-        return
+        return None
 
     client_number_index = first_page.find_index_starting_with("Client number: ")
     if not client_number_index:

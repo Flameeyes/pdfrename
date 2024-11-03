@@ -18,7 +18,8 @@ _ITEXT_CREATION_DATE: Final[str] = "CreationDate"
 
 
 def did_itext_generate(document: Document) -> bool:
-    producer = document.producer
+    if not (producer := document.producer):
+        return False
     return producer.startswith(b"iText ") or producer.startswith(b"iText\xae 5")
 
 
