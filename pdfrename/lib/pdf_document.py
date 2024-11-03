@@ -26,7 +26,7 @@ _CREATION_DATE_METADATA = "CreationDate"
 
 
 class PageTextBoxes:
-    _boxes: Sequence[str]
+    _boxes: Final[Sequence[str]]
 
     def __init__(self, text_boxes: Sequence[str]) -> None:
         self._boxes = text_boxes
@@ -77,9 +77,9 @@ class PageTextBoxes:
 
 
 class Document:
-    original_filename: str
-    doc: pdfminer.pdfdocument.PDFDocument
-    _extracted_pages: list[PageTextBoxes]
+    original_filename: Final[str]
+    doc: Final[pdfminer.pdfdocument.PDFDocument]
+    _extracted_pages: Final[list[PageTextBoxes]]
 
     def __init__(self, filename: str) -> None:
         self.original_filename = filename
