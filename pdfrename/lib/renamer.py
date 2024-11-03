@@ -10,6 +10,7 @@ import logging
 import re
 import typing
 from collections.abc import Callable, Iterator, Sequence
+from pathlib import Path
 
 from . import pdf_document, utils
 
@@ -39,7 +40,7 @@ class NameComponents:
 
     def render_filename(
         self, include_account_holder: bool, drop_honorific: bool
-    ) -> str:
+    ) -> Path:
         filename_components = []
 
         filename_components.append(self.date.strftime("%Y-%m-%d"))
@@ -63,7 +64,7 @@ class NameComponents:
         if re.search("[/:]", filename):
             raise InvalidFilenameError(f"Invalid filename '{filename}'")
 
-        return filename
+        return Path(filename)
 
 
 Boxes = Sequence[str]

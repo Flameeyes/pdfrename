@@ -7,6 +7,7 @@ import re
 from collections.abc import Callable, Iterator, Sequence
 from datetime import datetime
 from functools import cached_property
+from pathlib import Path
 from typing import Any, Final
 
 import pdfminer.high_level
@@ -77,11 +78,11 @@ class PageTextBoxes:
 
 
 class Document:
-    original_filename: Final[str]
+    original_filename: Final[Path]
     doc: Final[pdfminer.pdfdocument.PDFDocument]
     _extracted_pages: Final[list[PageTextBoxes]]
 
-    def __init__(self, filename: str) -> None:
+    def __init__(self, filename: Path) -> None:
         self.original_filename = filename
 
         try:
@@ -89,7 +90,7 @@ class Document:
         except pdfminer.pdfparser.PDFSyntaxError as error:
             raise ValueError(f"Invalid PDF file {filename}: {error}")
 
-        with open(self.original_filename, "rb") as pdf_file:
+        with self.original_filename.open("rb") as pdf_file:
             parser = pdfminer.pdfparser.PDFParser(pdf_file)
             self.doc = pdfminer.pdfdocument.PDFDocument(parser)
 

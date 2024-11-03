@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 import logging
-import os
-import shutil
 import sys
 import warnings
+from collections.abc import Sequence
+from pathlib import Path
 
 import click
 import click_log
@@ -26,7 +26,7 @@ class MultipleRenamersError(ValueError):
     pass
 
 
-def find_filename(original_filename: str) -> str | None:
+def find_filename(original_filename: Path) -> Path | None:
     try:
         document = Document(original_filename)
     except ValueError as e:
@@ -70,39 +70,39 @@ def apply_pdfminer_log_filters():
     help="Whether to print checkmarks/question marks as comment next to files that are note being renamed.",
 )
 @click.argument(
-    "input-files", nargs=-1, type=click.Path(exists=True, dir_okay=False, readable=True)
+    "input-files",
+    nargs=-1,
+    type=click.Path(exists=True, dir_okay=False, readable=True, path_type=Path),
 )
-def main(*, rename, list_all, input_files):
+def main(*, rename: bool, list_all: bool, input_files: Sequence[Path]):
     apply_pdfminer_log_filters()
     load_all_renamers()
 
     for original_filename in input_files:
         try:
             tool_logger.debug(f"Analysing {original_filename}")
-            new_basename = find_filename(original_filename)
 
-            if new_basename is None:
+            if not (new_basename := find_filename(original_filename)):
                 tool_logger.debug(f"No match for {original_filename}")
                 if list_all:
                     print(f"# ? {original_filename}")
                 continue
 
-            dirname = os.path.dirname(original_filename)
-            new_filename = os.path.join(dirname, new_basename)
+            new_filename = original_filename.parent / new_basename
             if new_filename == original_filename:
                 if list_all:
                     print(f"# ✓ {original_filename}")
                 continue
             if rename:
                 tool_logger.info(f"Renaming {original_filename} to {new_filename}")
-                if os.path.exists(new_filename):
+                if new_filename.exists():
                     tool_logger.warning(
                         f"File {new_filename} already exists, not overwriting."
                     )
                     continue
                 if list_all:
                     print(f"# {original_filename!r} → {new_filename!r}")
-                shutil.move(original_filename, new_filename)
+                original_filename.replace(new_filename)
             else:
                 print(f'ren "{original_filename}" "{new_filename}"')
         except:  # noqa: E722
