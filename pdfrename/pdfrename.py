@@ -30,6 +30,7 @@ from .renamers import (  # noqa: F401
     fineco,
     fiserv,
     google,
+    hetzner,
     hl,
     hounslow,
     hyperoptic,
