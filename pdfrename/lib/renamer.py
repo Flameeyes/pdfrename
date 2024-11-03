@@ -7,12 +7,22 @@ import datetime
 import functools
 import inspect
 import logging
-import re
 import typing
 from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 
 from . import pdf_document, utils
+
+# This is only implemented for Windows, unfortunately.
+# So fall back to something else if not implemented.
+try:
+
+    from os.path import isreserved  # type: ignore[attr-defined]
+except ImportError:
+
+    def isreserved(path: Path) -> bool:
+        path_s = str(path)
+        return any(reserved_character in path_s for reserved_character in ":/\\")
 
 
 class InvalidFilenameError(ValueError):
@@ -59,12 +69,12 @@ class NameComponents:
 
         filename_components.extend(self.additional_components)
 
-        filename = " - ".join(filename_components) + ".pdf"
+        filename = Path(" - ".join(filename_components) + ".pdf")
 
-        if re.search("[/:]", filename):
+        if isreserved(filename) or len(filename.parts) > 1:
             raise InvalidFilenameError(f"Invalid filename '{filename}'")
 
-        return Path(filename)
+        return filename
 
 
 Boxes = Sequence[str]
