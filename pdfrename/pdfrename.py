@@ -16,45 +16,7 @@ from more_itertools import only
 
 from .lib.pdf_document import Document
 from .lib.renamer import try_all_renamers
-from .renamers import (  # noqa: F401
-    acquerisorgive,
-    adp_payslips,
-    americanexpress,
-    aws,
-    azure,
-    chase,
-    digikey,
-    ebay,
-    edf,
-    enel,
-    fineco,
-    fiserv,
-    google,
-    hetzner,
-    hl,
-    hounslow,
-    hyperoptic,
-    kbc,
-    lloyds,
-    mouser,
-    ms_bank,
-    natwest,
-    newday,
-    nutmeg,
-    o2,
-    octopus_energy,
-    payslips_facebook_uk,
-    santander,
-    scaleway,
-    schwab,
-    soenergy,
-    tesco_bank,
-    thameswater,
-    tsb,
-    veritas,
-    vodafone,
-    xero,
-)
+from .renamers import load_all_renamers
 
 tool_logger = logging.getLogger("pdfrename")
 click_log.basic_config(tool_logger)
@@ -112,6 +74,7 @@ def apply_pdfminer_log_filters():
 )
 def main(*, rename, list_all, input_files):
     apply_pdfminer_log_filters()
+    load_all_renamers()
 
     for original_filename in input_files:
         try:
