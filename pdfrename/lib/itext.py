@@ -43,8 +43,9 @@ def _itext_date_to_datetime(itext_date: str) -> datetime:
 
 def creation_date(document: Document) -> datetime | None:
     if not did_itext_generate(document):
-        return
+        return None
 
-    creation_date = document._document_metadata(_ITEXT_CREATION_DATE).decode("ascii")
+    if not (creation_date := document._document_metadata(_ITEXT_CREATION_DATE)):
+        return None
 
-    return _itext_date_to_datetime(creation_date)
+    return _itext_date_to_datetime(creation_date.decode("ascii"))
