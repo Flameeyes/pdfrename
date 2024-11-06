@@ -39,7 +39,7 @@ class NameComponents:
     service_name: str
     account_holder: str | Sequence[str]
     document_type: str
-    additional_components: Sequence[str] = ()
+    account_number: str | None
 
     @property
     def account_holders(self) -> Sequence[str]:
@@ -67,7 +67,8 @@ class NameComponents:
 
         filename_components.append(self.document_type)
 
-        filename_components.extend(self.additional_components)
+        if self.account_number:
+            filename_components.append(self.account_number)
 
         filename = Path(" - ".join(filename_components) + ".pdf")
 

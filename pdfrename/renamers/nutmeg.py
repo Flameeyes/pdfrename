@@ -51,16 +51,16 @@ def suitability_report(document: pdf_document.Document) -> NameComponents | None
     if second_page and second_page[0] == "About your new pot\n":
         pot_name = second_page[1].strip()
         logger.debug(f"Suitability Report for a new pot: {pot_name}")
-        additional_components = [pot_name]
+        account_number = pot_name
     else:
-        additional_components = []
+        account_number = None
 
     return NameComponents(
         report_date,
         "Nutmeg",
         account_holder_name,
         "Suitability Report",
-        additional_components=additional_components,
+        account_number=account_number,
     )
 
 

@@ -94,14 +94,14 @@ def newday_credit_card_statement(
             card_number_box = text_boxes[account_number_box_index + 1]
             card_number_match = re.match("^[0-9]{12}([0-9]{4})\n$", card_number_box)
 
-    additional_components = []
+    account_number = None
     if card_number_match:
-        additional_components.append(f"xx-{card_number_match.group(1)}")
+        account_number = f"xx-{card_number_match.group(1)}"
 
     return NameComponents(
         statement_date,
         issuer,
         account_holder_name,
         "Credit Card Statement",
-        additional_components=additional_components,
+        account_number=account_number,
     )

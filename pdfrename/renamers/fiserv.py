@@ -72,7 +72,7 @@ def estatement(document: pdf_document.Document) -> NameComponents | None:
 
     # To make it easier to detect different cards, go and find the second page, where
     # the card number would be. If it can't be found just ignore it though.
-    additional_components = []
+    account_number = None
 
     second_page = document[2]
     if second_page[0].startswith("2 of ") and second_page[1] == "Cardholder\n":
@@ -81,12 +81,12 @@ def estatement(document: pdf_document.Document) -> NameComponents | None:
         )
 
         if card_match:
-            additional_components += [f"xx-{card_match.group(1)}"]
+            account_number += f"xx-{card_match.group(1)}"
 
     return NameComponents(
         statement_date,
         bank_name,
         account_holder,
         "Credit Card Statement",
-        additional_components=additional_components,
+        account_number=account_number,
     )

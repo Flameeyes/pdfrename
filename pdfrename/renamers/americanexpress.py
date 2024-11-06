@@ -88,7 +88,7 @@ def _statement_generic(
         "American Express",
         account_holder_name.strip(),
         document_type,
-        additional_components=(f"xx-{membership_match.group(1)}",),
+        account_number=f"xx-{membership_match.group(1)}",
     )
 
 

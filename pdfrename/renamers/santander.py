@@ -59,17 +59,11 @@ def current_account_statement(text_boxes, parent_logger) -> NameComponents | Non
     statement_date = dateparser.parse(period_match.group(1), languages=["en"])
     assert statement_date is not None
 
-    if is_santander_select:
-        account_type = "Select Current Account"
-    elif is_santander_123:
-        account_type = "123 Current Account"
-
     return NameComponents(
         statement_date,
         "Santander",
         account_holders,
-        account_type,
-        additional_components=("Statement",),
+        "Statement",
     )
 
 
@@ -109,7 +103,7 @@ def credit_card_statement(text_boxes, parent_logger) -> NameComponents | None:
         "Santander",
         account_holder_name,
         "Credit Card Statement",
-        additional_components=(f"xx-{period_match.group(2)}",),
+        account_number=f"xx-{period_match.group(2)}",
     )
 
 
@@ -163,7 +157,7 @@ def credit_card_annual_statement(
         "Santander",
         account_holder_name,
         "Credit Card Annual Statement",
-        additional_components=(f"xx-{card_number}",),
+        account_number=f"xx-{card_number}",
     )
 
 
@@ -201,7 +195,7 @@ def credit_card_statement_2023(text_boxes, parent_logger) -> NameComponents | No
         "Santander",
         account_holder_name,
         "Credit Card Statement",
-        additional_components=(f"xx-{period_match.group(2)}",),
+        account_number=f"xx-{period_match.group(2)}",
     )
 
 
@@ -221,8 +215,8 @@ def statement_of_fees(text_boxes, parent_logger) -> NameComponents | None:
     account_holders = _extract_account_holders(address_box)
 
     # Find the account this refers to. It's the text box after the title column.
-    account_idx = text_boxes.index("Account\n")
-    account_type = text_boxes[account_idx + 1].strip().title()
+    # account_idx = text_boxes.index("Account\n")
+    # account_type = text_boxes[account_idx + 1].strip().title()
 
     # Find the date this statement was issued. It's the second text box after tht
     # title column (why?)
@@ -236,8 +230,7 @@ def statement_of_fees(text_boxes, parent_logger) -> NameComponents | None:
         statement_date,
         "Santander",
         account_holders,
-        account_type,
-        additional_components=("Statement of Fees",),
+        "Statement of Fees",
     )
 
 
@@ -261,7 +254,7 @@ def annual_account_summary(text_boxes, parent_logger) -> NameComponents | None:
     initials = " ".join(list(initials)).upper()
     account_holder_name = " ".join([initials, surname])
 
-    account_type = text_boxes[30].split(":", 1)[0].strip().title()
+    # account_type = text_boxes[30].split(":", 1)[0].strip().title()
 
     logger.debug(f"found period specification: {annual_account_summary_period_line!r}")
     logger.debug(f"possible account: {text_boxes[30]}")
@@ -280,6 +273,5 @@ def annual_account_summary(text_boxes, parent_logger) -> NameComponents | None:
         statement_date,
         "Santander",
         account_holder_name,
-        account_type,
-        additional_components=("Annual Account Summary",),
+        "Annual Account Summary",
     )
