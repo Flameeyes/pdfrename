@@ -39,7 +39,7 @@ class NameComponents:
     service_name: str
     account_holder: str | Sequence[str]
     document_type: str
-    account_number: str | None
+    account_number: str | None = None
 
     @property
     def account_holders(self) -> Sequence[str]:

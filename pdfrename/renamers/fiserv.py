@@ -81,7 +81,7 @@ def estatement(document: pdf_document.Document) -> NameComponents | None:
         )
 
         if card_match:
-            account_number += f"xx-{card_match.group(1)}"
+            account_number = f"xx-{card_match.group(1)}"
 
     return NameComponents(
         statement_date,
