@@ -91,10 +91,13 @@ class Document:
             raise ValueError(f"Invalid PDF file {filename}: {error}")
 
         with self.original_filename.open("rb") as pdf_file:
-            parser = pdfminer.pdfparser.PDFParser(pdf_file)
-            self.doc = pdfminer.pdfdocument.PDFDocument(parser)
+            self._parser = pdfminer.pdfparser.PDFParser(pdf_file)
+            self.doc = pdfminer.pdfdocument.PDFDocument(self._parser)
 
         self._extracted_pages = []
+
+    def close(self) -> None:
+        self._parser.close()
 
     def get_textboxes(self, page: int) -> PageTextBoxes:
         if page < 1:
