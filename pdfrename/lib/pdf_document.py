@@ -80,10 +80,13 @@ class PageTextBoxes:
 class Document:
     original_filename: Final[Path]
     doc: Final[pdfminer.pdfdocument.PDFDocument]
+    _logger: Final[logging.Logger]
     _extracted_pages: Final[list[PageTextBoxes]]
 
-    def __init__(self, filename: Path) -> None:
+    def __init__(self, filename: Path, logger: logging.Logger | None = None) -> None:
         self.original_filename = filename
+
+        self._logger = logger or _LOGGER
 
         try:
             self._extract_pages_generator = pdfminer.high_level.extract_pages(filename)
@@ -104,7 +107,7 @@ class Document:
             raise IndexError("Document pages are 1-indexed.")
 
         if page > len(self._extracted_pages):
-            _LOGGER.debug(
+            self._logger.debug(
                 f"{self.original_filename}: page {page} is beyond the extracted pages, extracting now."
             )
             for new_page_idx in range(len(self._extracted_pages) + 1, page + 1):
@@ -118,7 +121,7 @@ class Document:
                 if len(page_content) == 1 and isinstance(
                     page_content[0], pdfminer.layout.LTFigure
                 ):
-                    _LOGGER.debug(
+                    self._logger.debug(
                         f"{self.original_filename} p{new_page_idx}: figure-based PDF, extracting raw text instead."
                     )
                     page_text = pdfminer.high_level.extract_text(
@@ -133,11 +136,11 @@ class Document:
                     ]
 
                 if not text_boxes:
-                    _LOGGER.debug(
+                    self._logger.debug(
                         f"{self.original_filename} p{new_page_idx}: no text boxes found: {page_content!r}"
                     )
                 else:
-                    _LOGGER.debug(
+                    self._logger.debug(
                         f"{self.original_filename} p{new_page_idx}: {text_boxes!r}"
                     )
 
@@ -151,7 +154,9 @@ class Document:
         return self.get_textboxes(key)
 
     def _document_metadata(self, metadata_name: str) -> bytes | None:
-        _LOGGER.debug(f"{self.original_filename}: extracted info {self.doc.info!r}")
+        self._logger.debug(
+            f"{self.original_filename}: extracted info {self.doc.info!r}"
+        )
 
         for info in self.doc.info:
             if metadata_name in info:
