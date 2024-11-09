@@ -81,7 +81,7 @@ class Document:
     original_filename: Final[Path]
     doc: Final[pdfminer.pdfdocument.PDFDocument]
     _logger: Final[logging.Logger]
-    _extracted_pages: Final[list[PageTextBoxes]]
+    _extracted_pages: Final[dict[int, PageTextBoxes]]
 
     def __init__(self, filename: Path, logger: logging.Logger | None = None) -> None:
         self.original_filename = filename
@@ -97,7 +97,10 @@ class Document:
             self._parser = pdfminer.pdfparser.PDFParser(pdf_file)
             self.doc = pdfminer.pdfdocument.PDFDocument(self._parser)
 
-        self._extracted_pages = []
+        self._extracted_pages = {}
+
+        # Always extract the first page.
+        self.get_textboxes(1)
 
     def close(self) -> None:
         self._parser.close()
@@ -106,47 +109,47 @@ class Document:
         if page < 1:
             raise IndexError("Document pages are 1-indexed.")
 
-        if page > len(self._extracted_pages):
+        if page not in self._extracted_pages:
             self._logger.debug(
                 f"{self.original_filename}: page {page} is beyond the extracted pages, extracting now."
             )
-            for new_page_idx in range(len(self._extracted_pages) + 1, page + 1):
-                try:
-                    page_content = list(next(self._extract_pages_generator))
-                except StopIteration:
-                    raise IndexError(
-                        f"{self.original_filename} does not have page {new_page_idx}"
-                    )
 
-                if len(page_content) == 1 and isinstance(
-                    page_content[0], pdfminer.layout.LTFigure
-                ):
-                    self._logger.debug(
-                        f"{self.original_filename} p{new_page_idx}: figure-based PDF, extracting raw text instead."
-                    )
-                    page_text = pdfminer.high_level.extract_text(
-                        self.original_filename, page_numbers=[new_page_idx - 1]
-                    )
-                    text_boxes = [page_text]
-                else:
-                    text_boxes = [
-                        obj.get_text()
-                        for obj in page_content
-                        if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal)
-                    ]
+            extract_pages_generator = pdfminer.high_level.extract_pages(
+                self.original_filename, page_numbers=(page - 1,)
+            )
 
-                if not text_boxes:
-                    self._logger.debug(
-                        f"{self.original_filename} p{new_page_idx}: no text boxes found: {page_content!r}"
-                    )
-                else:
-                    self._logger.debug(
-                        f"{self.original_filename} p{new_page_idx}: {text_boxes!r}"
-                    )
+            try:
+                page_content = list(next(extract_pages_generator))
+            except StopIteration:
+                raise IndexError(f"{self.original_filename} does not have page {page}")
 
-                self._extracted_pages.append(PageTextBoxes(text_boxes))
+            if len(page_content) == 1 and isinstance(
+                page_content[0], pdfminer.layout.LTFigure
+            ):
+                self._logger.debug(
+                    f"{self.original_filename} p{page}: figure-based PDF, extracting raw text instead."
+                )
+                page_text = pdfminer.high_level.extract_text(
+                    self.original_filename, page_numbers=(page - 1,)
+                )
+                text_boxes = [page_text]
+            else:
+                text_boxes = [
+                    obj.get_text()
+                    for obj in page_content
+                    if isinstance(obj, pdfminer.layout.LTTextBoxHorizontal)
+                ]
 
-        return self._extracted_pages[page - 1]
+            if not text_boxes:
+                self._logger.debug(
+                    f"{self.original_filename} p{page}: no text boxes found: {page_content!r}"
+                )
+            else:
+                self._logger.debug(f"{self.original_filename} p{page}: {text_boxes!r}")
+
+            self._extracted_pages[page] = PageTextBoxes(text_boxes)
+
+        return self._extracted_pages[page]
 
     def __getitem__(self, key: Any) -> PageTextBoxes:
         if not isinstance(key, int):
