@@ -79,12 +79,16 @@ def contract_note(document: pdf_document.Document) -> NameComponents | None:
     first_page_set = set(first_page)
 
     if (
-        ("We have today on your instructions\n" not in first_page_set)
-        or (not first_page_set & _CONTRACT_NOTE_ACCOUNTS)
-        or b"FPDF" not in document.producer
-    ):
+        not first_page_set & _CONTRACT_NOTE_ACCOUNTS
+    ) or b"FPDF" not in document.producer:
         return None
 
+    if (
+        instructions_idx := first_page.index("We have today on your instructions\n")
+    ) is None:
+        return None
+
+    note_number = first_page[instructions_idx - 1].strip()
     account_holder = extract_account_holder_from_address(first_page[0])
     date = datetime.datetime.strptime(first_page[1], "%d/%m/%Y\n")
 
@@ -93,4 +97,5 @@ def contract_note(document: pdf_document.Document) -> NameComponents | None:
         _HL_SERVICE,
         (account_holder,),
         "Contract Note",
+        document_number=note_number,
     )
