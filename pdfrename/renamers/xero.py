@@ -34,6 +34,12 @@ def invoice(document: pdf_document.Document) -> NameComponents | None:
     if invoice_date is None:
         return None
 
+    if not (
+        invoice_number_box := text_boxes.find_box_starting_with("Invoice Number\n")
+    ):
+        return None
+    invoice_number = invoice_number_box.split("\n")[1]
+
     logger.debug(
         "It states it is a tax invoice, and has an invoice date, assuming the expected format."
     )
@@ -61,4 +67,5 @@ def invoice(document: pdf_document.Document) -> NameComponents | None:
         extract_account_holder_from_address(source_address),
         extract_account_holder_from_address(account_address),
         "Invoice",
+        document_number=invoice_number,
     )
