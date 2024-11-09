@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import datetime
 import logging
 
 from ..lib import pdf_document
@@ -62,4 +63,34 @@ def savings_statement(document: pdf_document.Document) -> NameComponents | None:
         _HL_SERVICE,
         (account_holder,),
         "Active Savings Statement",
+    )
+
+
+_CONTRACT_NOTE_ACCOUNTS = {
+    "HL Fund & Share Account\n",
+    "HL Lifetime ISA\n",
+    "HL Stock & Shares ISA\n",
+}
+
+
+@pdfrenamer
+def contract_note(document: pdf_document.Document) -> NameComponents | None:
+    first_page = document[1]
+    first_page_set = set(first_page)
+
+    if (
+        ("We have today on your instructions\n" not in first_page_set)
+        or (not first_page_set & _CONTRACT_NOTE_ACCOUNTS)
+        or b"FPDF" not in document.producer
+    ):
+        return None
+
+    account_holder = extract_account_holder_from_address(first_page[0])
+    date = datetime.datetime.strptime(first_page[1], "%d/%m/%Y\n")
+
+    return NameComponents(
+        date,
+        _HL_SERVICE,
+        (account_holder,),
+        "Contract Note",
     )
