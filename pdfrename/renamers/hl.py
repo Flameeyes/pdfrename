@@ -78,9 +78,9 @@ def contract_note(document: pdf_document.Document) -> NameComponents | None:
     first_page = document[1]
     first_page_set = set(first_page)
 
-    if (
-        not first_page_set & _CONTRACT_NOTE_ACCOUNTS
-    ) or b"FPDF" not in document.producer:
+    if (not first_page_set & _CONTRACT_NOTE_ACCOUNTS) or (
+        b"FPDF" not in (document.producer or b"")
+    ):
         return None
 
     if (
