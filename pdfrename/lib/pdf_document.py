@@ -160,7 +160,7 @@ class Document:
         return None
 
     _DATE_PROPERTY_RE: Final[re.Pattern[bytes]] = re.compile(
-        rb"^D:(\d{14})(?:Z|([+-]\d{2})'(\d{2})')$"
+        rb"^D:(\d{14})(?:Z|([+-]\d{2})'(\d{2})')?$"
     )
 
     @classmethod
