@@ -24,6 +24,8 @@ _LOGGER = logging.getLogger(__name__)
 _WEBSITES_TO_BANK = {
     "www.ulsterbank.co.uk": Bank.ULSTER_BANK_NI,
     "www.natwest.com": Bank.NATWEST,
+    # For May and June 2023, the shorter URL was used.
+    "natwest.com": Bank.NATWEST,
 }
 
 _PDF_AUTHORS_TO_BANK: dict[bytes | None, Bank] = {
