@@ -120,8 +120,10 @@ class Document:
 
             try:
                 page_content = list(next(extract_pages_generator))
-            except StopIteration:
-                raise IndexError(f"{self.original_filename} does not have page {page}")
+            except StopIteration as e:
+                raise IndexError(
+                    f"{self.original_filename} does not have page {page}"
+                ) from e
 
             if len(page_content) == 1 and isinstance(
                 page_content[0], pdfminer.layout.LTFigure
