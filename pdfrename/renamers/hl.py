@@ -69,7 +69,7 @@ def savings_statement(document: pdf_document.Document) -> NameComponents | None:
 _CONTRACT_NOTE_ACCOUNTS = {
     "HL Fund & Share Account\n",
     "HL Lifetime ISA\n",
-    "HL Stock & Shares ISA\n",
+    "HL Stocks & Shares ISA\n",
 }
 
 
