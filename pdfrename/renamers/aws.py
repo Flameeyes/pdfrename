@@ -51,15 +51,30 @@ def uk_vat_invoice(document: pdf_document.Document) -> NameComponents | None:
     first_page = document[1]
     if not first_page:
         return None
-    if not first_page[-1].startswith("AMAZON WEB SERVICES EMEA SARL, UK BRANCH\n"):
+
+    if (
+        first_page.find_box_starting_with("AMAZON WEB SERVICES EMEA SARL, UK BRANCH\n")
+        is None
+    ):
         return None
 
     details_box = first_page.find_box_starting_with("Account number:")
     assert details_box
-    account_holder = details_box.split("\n")[3]
+    details = details_box.split("\n")
+    account_number = details[1]
+    account_holder = details[3]
 
     date_str = first_page[first_page.index("VAT Invoice Date:\n") + 4]
     date = dateparser.parse(date_str, languages=["en"])
     assert date
 
-    return NameComponents(date, "AWS", account_holder, "VAT Invoice")
+    invoice_number = first_page[first_page.index("VAT Invoice Number:\n") + 4]
+
+    return NameComponents(
+        date,
+        "AWS",
+        account_holder,
+        "VAT Invoice",
+        account_number=account_number,
+        document_number=invoice_number.strip(),
+    )
