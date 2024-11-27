@@ -4,6 +4,9 @@
 
 import datetime
 import logging
+import re
+
+from more_itertools import one
 
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
@@ -52,9 +55,10 @@ def savings_statement(document: pdf_document.Document) -> NameComponents | None:
     if not (date := document.creation_date):
         return None
 
-    client_number_index = first_page.find_index_starting_with("Client number: ")
-    if not client_number_index:
-        return None
+    client_number_match = one(
+        first_page.find_all_matching_regex(re.compile("Client number: ([0-9]+)\n"))
+    )
+    client_number_index = first_page.index(client_number_match.group(0))
 
     account_holder = first_page[client_number_index - 1].strip()
 
@@ -63,6 +67,44 @@ def savings_statement(document: pdf_document.Document) -> NameComponents | None:
         _HL_SERVICE,
         (account_holder,),
         "Active Savings Statement",
+        account_number=client_number_match.group(1),
+    )
+
+
+@pdfrenamer
+def investment_report(document: pdf_document.Document) -> NameComponents | None:
+    first_page = document[1]
+
+    if not first_page.find_box_starting_with(
+        "Hargreaves Lansdown Asset Management Limited"
+    ):
+        return None
+
+    if "Your investment report\n" not in first_page:
+        return None
+
+    # The date that is present in the document is just a month, so ignore that and get it from
+    # the document creation date.
+    if not (date := document.creation_date):
+        return None
+
+    client_number_match = one(
+        first_page.find_all_matching_regex(
+            re.compile(r"[A-Z][a-z]+ [0-9]{4}\nClient Number: ([0-9]+)\n")
+        )
+    )
+    client_number_index = first_page.index(client_number_match.group(0))
+
+    account_holder = extract_account_holder_from_address(
+        first_page[client_number_index - 1]
+    )
+
+    return NameComponents(
+        date,
+        _HL_SERVICE,
+        (account_holder,),
+        "Investment Report",
+        account_number=client_number_match.group(1),
     )
 
 
