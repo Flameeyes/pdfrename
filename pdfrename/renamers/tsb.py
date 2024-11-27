@@ -7,6 +7,7 @@ from typing import Final
 
 import dateparser
 
+from ..doctypes.en import STATEMENT, STATEMENT_OF_FEES
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address
@@ -30,7 +31,7 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
     # Address box is the first box on the page.
     name = extract_account_holder_from_address(text_boxes[0])
 
-    return NameComponents(date, _TSB_SERVICE, name, "Statement")
+    return NameComponents(date, _TSB_SERVICE, name, STATEMENT)
 
 
 @pdfrenamer
@@ -64,5 +65,5 @@ def statement_of_fees(document: pdf_document.Document) -> NameComponents | None:
         date,
         _TSB_SERVICE,
         (account_holder,),
-        "Statement of Fees",
+        STATEMENT_OF_FEES,
     )

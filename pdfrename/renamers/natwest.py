@@ -9,6 +9,7 @@ import re
 
 import dateparser
 
+from ..doctypes.en import CERTIFICATE_OF_INTEREST, STATEMENT, STATEMENT_OF_FEES
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import drop_honorific
@@ -102,7 +103,7 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
     else:
         account_holders = account_holders_string.split("\n")[:-2]
 
-    return NameComponents(statement_date, bank_name, account_holders, "Statement")
+    return NameComponents(statement_date, bank_name, account_holders, STATEMENT)
 
 
 @pdfrenamer
@@ -143,7 +144,7 @@ def statement_2023(document: pdf_document.Document) -> NameComponents | None:
     statement_date = dateparser.parse(statement_date_str, languages=["en"])
     assert statement_date is not None
 
-    return NameComponents(statement_date, bank_name, account_holders, "Statement")
+    return NameComponents(statement_date, bank_name, account_holders, STATEMENT)
 
 
 _STATEMENT_OF_FEES = "Statement of Fees\n"
@@ -213,9 +214,7 @@ def statement_of_fees(document: pdf_document.Document) -> NameComponents | None:
     statement_date = dateparser.parse(date_string, languages=["en"])
     assert statement_date is not None
 
-    return NameComponents(
-        statement_date, bank_name, account_holders, "Statement of Fees"
-    )
+    return NameComponents(statement_date, bank_name, account_holders, STATEMENT_OF_FEES)
 
 
 @pdfrenamer
@@ -259,7 +258,7 @@ def certificate_of_interest(
     assert document_date is not None
 
     return NameComponents(
-        document_date, bank_name, account_holders, "Certificate of Interest"
+        document_date, bank_name, account_holders, CERTIFICATE_OF_INTEREST
     )
 
 
@@ -294,5 +293,5 @@ def certificate_of_interest_2023(
     )
 
     return NameComponents(
-        document_date, bank_name, account_name.group(1), "Certificate of Interest"
+        document_date, bank_name, account_name.group(1), CERTIFICATE_OF_INTEREST
     )
