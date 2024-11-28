@@ -13,6 +13,8 @@ from ..lib.utils import extract_account_holder_from_address
 
 _LOGGER = logging.getLogger(__name__)
 
+_SERVICE = "Facebook UK Limited"
+
 
 @pdfrenamer
 def pre_adp_payslip(document: pdf_document.Document) -> NameComponents | None:
@@ -36,7 +38,7 @@ def pre_adp_payslip(document: pdf_document.Document) -> NameComponents | None:
     payslip_date = dateparser.parse(date_box[7:], languages=["en"])
     assert payslip_date is not None
 
-    return NameComponents(payslip_date, "Facebook", account_holder_name, "Payslip")
+    return NameComponents(payslip_date, _SERVICE, account_holder_name, "Payslip")
 
 
 @pdfrenamer
@@ -68,4 +70,4 @@ def pre_adp_p60(document: pdf_document.Document) -> NameComponents | None:
 
     date = datetime.datetime.strptime(date_box, "Printed: %d/%m/%Y %H:%M:%S\n")
 
-    return NameComponents(date, "Facebook", full_name, "P60")
+    return NameComponents(date, _SERVICE, full_name, "P60")
