@@ -6,7 +6,9 @@ import logging
 import re
 
 import dateparser
+from more_itertools import one
 
+from ..doctypes.en import CREDIT_CARD_STATEMENT
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address
@@ -29,7 +31,11 @@ def estatement(document: pdf_document.Document) -> NameComponents | None:
     # but the giro credit tab at the bottom of the first page.
 
     first_page = document[1]
-    credit_limit_index = first_page.index("Total Credit Limit\n")
+    try:
+        credit_limit_index = first_page.index("Total Credit Limit\n")
+    except ValueError:
+        credit_limit_index = first_page.find_index_starting_with("Summary\n")
+        assert credit_limit_index is not None
 
     if credit_limit_index is None:
         logger.debug("But could not find the Summary table.")
@@ -50,25 +56,22 @@ def estatement(document: pdf_document.Document) -> NameComponents | None:
 
     # This is a horrible hack but it appears to be stable enough!
     minimum_payment_box_index = first_page.find_index_with_match(
-        lambda box: "Please refer overleaf for further details.\n" in box
+        lambda box: (
+            "Please refer overleaf for further details.\n" in box
+            or "No payment required this month.\n" in box
+        )
     )
-    if minimum_payment_box_index is None:
-        return None
+    if minimum_payment_box_index is not None:
+        possible_address_box = one(
+            box
+            for box in first_page[minimum_payment_box_index:]
+            # We want a box that has more than two lines (there's at least three in most
+            # addresses), but where newlines are not literally half of the content, as
+            # those are usually vertical boxes or barcodes instead.
+            if box.count("\n") > 2 and box.count("\n") < len(box) / 2
+        )
 
-    possible_address_boxes = [
-        box
-        for box in first_page[minimum_payment_box_index:]
-        # We want a box that has more than two lines (there's at least three in most
-        # addresses), but where newlines are not literally half of the content, as
-        # those are usually vertical boxes or barcodes instead.
-        if box.count("\n") > 2 and box.count("\n") < len(box) / 2
-    ]
-
-    if len(possible_address_boxes) != 1:
-        logger.debug("Unable to identify the correct card issuer!")
-        return None
-
-    bank_name = possible_address_boxes[0].split("\n", 1)[0]
+    bank_name = possible_address_box.split("\n", 1)[0]
 
     # To make it easier to detect different cards, go and find the second page, where
     # the card number would be. If it can't be found just ignore it though.
@@ -87,6 +90,6 @@ def estatement(document: pdf_document.Document) -> NameComponents | None:
         statement_date,
         bank_name,
         account_holder,
-        "Credit Card Statement",
+        CREDIT_CARD_STATEMENT,
         account_number=account_number,
     )
