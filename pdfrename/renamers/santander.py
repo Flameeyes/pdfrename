@@ -299,6 +299,7 @@ def notice_of_electronic_funds_transfer(
     account_number = account_number_box.group(1)
 
     date = dateparser.parse(first_page[account_number_index + 1], languages=["en"])
+    assert date is not None
 
     account_holder = extract_account_holder_from_address(
         first_page[account_number_index + 2]
