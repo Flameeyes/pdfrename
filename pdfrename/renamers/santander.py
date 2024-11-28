@@ -10,11 +10,14 @@ from collections.abc import Sequence
 import dateparser
 from more_itertools import one
 
+from ..doctypes.en import CREDIT_CARD_STATEMENT, STATEMENT, STATEMENT_OF_FEES
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address, find_box_starting_with
 
 _LOGGER = logging.getLogger(__name__)
+
+_SERVICE_NAME = "Santander"
 
 # This matches both 18th Oct 2024 and 3rd December 2023, which are
 # both commonly used date formats within Santander documents!
@@ -61,9 +64,9 @@ def current_account_statement(text_boxes, parent_logger) -> NameComponents | Non
 
     return NameComponents(
         statement_date,
-        "Santander",
+        _SERVICE_NAME,
         account_holders,
-        "Statement",
+        STATEMENT,
     )
 
 
@@ -100,9 +103,9 @@ def credit_card_statement(text_boxes, parent_logger) -> NameComponents | None:
 
     return NameComponents(
         statement_date,
-        "Santander",
+        _SERVICE_NAME,
         account_holder_name,
-        "Credit Card Statement",
+        CREDIT_CARD_STATEMENT,
         account_number=f"xx-{period_match.group(2)}",
     )
 
@@ -154,9 +157,9 @@ def credit_card_annual_statement(
 
     return NameComponents(
         statement_date,
-        "Santander",
+        _SERVICE_NAME,
         account_holder_name,
-        "Credit Card Annual Statement",
+        CREDIT_CARD_STATEMENT,
         account_number=f"xx-{card_number}",
     )
 
@@ -194,7 +197,7 @@ def credit_card_statement_2023(text_boxes, parent_logger) -> NameComponents | No
         statement_date,
         "Santander",
         account_holder_name,
-        "Credit Card Statement",
+        CREDIT_CARD_STATEMENT,
         account_number=f"xx-{period_match.group(2)}",
     )
 
@@ -228,9 +231,9 @@ def statement_of_fees(text_boxes, parent_logger) -> NameComponents | None:
 
     return NameComponents(
         statement_date,
-        "Santander",
+        _SERVICE_NAME,
         account_holders,
-        "Statement of Fees",
+        STATEMENT_OF_FEES,
     )
 
 
@@ -271,7 +274,40 @@ def annual_account_summary(text_boxes, parent_logger) -> NameComponents | None:
 
     return NameComponents(
         statement_date,
-        "Santander",
+        _SERVICE_NAME,
         account_holder_name,
         "Annual Account Summary",
+    )
+
+
+@pdfrenamer
+def notice_of_electronic_funds_transfer(
+    document: pdf_document.Document,
+) -> NameComponents | None:
+    if not (first_page := document[1]):
+        return None
+
+    if "Call us on: 0330 9 123 123\n" not in first_page:
+        return None
+
+    account_number_box = one(
+        first_page.find_all_matching_regex(
+            re.compile(r"Sort Code: 0901\d\d\nAccount Number: (\d+)\n")
+        )
+    )
+    account_number_index = first_page.index(account_number_box.group(0))
+    account_number = account_number_box.group(1)
+
+    date = dateparser.parse(first_page[account_number_index + 1], languages=["en"])
+
+    account_holder = extract_account_holder_from_address(
+        first_page[account_number_index + 2]
+    )
+
+    return NameComponents(
+        date=date,
+        service_name=_SERVICE_NAME,
+        account_holder=(account_holder,),
+        account_number=account_number,
+        document_type="Notice Of An Electronic Funds Transfer",
     )
