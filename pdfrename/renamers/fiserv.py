@@ -35,7 +35,7 @@ def estatement(document: pdf_document.Document) -> NameComponents | None:
         credit_limit_index = first_page.index("Total Credit Limit\n")
     except ValueError:
         credit_limit_index = first_page.find_index_starting_with("Summary\n")
-        assert credit_limit_index is not None
+    assert credit_limit_index is not None
 
     if credit_limit_index is None:
         logger.debug("But could not find the Summary table.")
