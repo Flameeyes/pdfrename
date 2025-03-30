@@ -36,25 +36,39 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
     bill_details = first_page[bill_details_index]
     logger.debug(f"Found bill details: {bill_details!r}")
 
-    account_holder_index = first_page.index("Your energy account\n") - 1
-    # More recent (2025) statements appear to have moved things around a bit.
-    if account_holder_index == bill_details_index:
-        account_holder_index -= 1
+    # It looks like 2025 has seen multiple statement templates, but for all of them,
+    # the bill details are right after the account holder address.
+    if bill_details_index == 1:
+        account_holder_index = 0
+    else:
+        account_holder_index = first_page.index("Your energy account\n") - 1
+        if account_holder_index == bill_details_index:
+            account_holder_index -= 1
+
     account_holder_name = extract_account_holder_from_address(
         first_page[account_holder_index]
     )
 
-    date_match = re.search(
-        r"\nBill Reference: .+ \(([0-9]+[a-z]{2}\s[A-Z][a-z.]{2,}\s[0-9]{4})\)\n$",
+    bill_details_match = re.search(
+        r"Your Account Number: (?P<account_number>[A-Z0-9\-]+)\n"
+        r"Bill Reference: (?P<bill_number>[0-9]+)"
+        r" \((?P<bill_date>[0-9]+[a-z]{2}\s[A-Z][a-z.]{2,}\s[0-9]{4})\)\n$",
         bill_details,
     )
-    if not date_match:
-        logger.debug("Failed to match date.")
+    if not bill_details_match:
+        logger.debug("Failed to match bill details.")
         return None
 
-    statement_date = dateparser.parse(date_match.group(1), languages=["en"])
+    statement_date = dateparser.parse(
+        bill_details_match.group("bill_date"), languages=["en"]
+    )
     assert statement_date is not None
 
     return NameComponents(
-        statement_date, "Octopus Energy", account_holder_name, "Statement"
+        statement_date,
+        "Octopus Energy",
+        account_holder_name,
+        "Statement",
+        account_number=bill_details_match.group("account_number"),
+        document_number=bill_details_match.group("bill_number"),
     )
