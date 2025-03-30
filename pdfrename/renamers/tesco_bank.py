@@ -17,12 +17,14 @@ from ..lib.utils import (
 @pdfrenamer
 def tesco_bank(text_boxes, parent_logger) -> NameComponents | None:
     # Before checking for statements, check other communications.
-    if text_boxes[0].startswith("Tesco Bank\n") and find_box_starting_with(
-        text_boxes, "Annual Summary of Interest\n"
+    if text_boxes[0].startswith("Tesco Bank\n") and (
+        metadata := find_box_starting_with(text_boxes, "Annual Summary of Interest\n")
     ):
         assert "Minicom:" in text_boxes[2]
 
-        account_holder_name = text_boxes[4].strip()
+        metadata_idx = text_boxes.index(metadata)
+
+        account_holder_name = text_boxes[metadata_idx - 2].strip()
         tax_year_line = find_box_starting_with(text_boxes, "Tax Year:")
         assert tax_year_line is not None
 
