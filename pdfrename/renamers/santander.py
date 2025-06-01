@@ -296,7 +296,9 @@ def notice_of_electronic_funds_transfer(
 
     account_number_box = one(
         first_page.find_all_matching_regex(
-            re.compile(r"Sort Code: 0901\d\d\nAccount Number: (\d+)\n")
+            re.compile(
+                r"Sort Code: 0901\d\d\nAccount Number: (\d+)\n", flags=re.IGNORECASE
+            )
         )
     )
     account_number_index = first_page.index(account_number_box.group(0))
