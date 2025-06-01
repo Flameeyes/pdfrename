@@ -13,7 +13,11 @@ from more_itertools import one
 from ..doctypes.en import CREDIT_CARD_STATEMENT, STATEMENT, STATEMENT_OF_FEES
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import extract_account_holder_from_address, find_box_starting_with
+from ..lib.utils import (
+    extract_account_holder_from_address,
+    find_box_starting_with,
+    normalize_account_holder_name,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -301,8 +305,15 @@ def notice_of_electronic_funds_transfer(
     date = dateparser.parse(first_page[account_number_index + 1], languages=["en"])
     assert date is not None
 
-    account_holder = extract_account_holder_from_address(
-        first_page[account_number_index + 2]
+    account_holder_re = re.compile(r"^Dear (.*)\n$")
+
+    recipient_box = first_page.find_box_with_match(
+        lambda box: bool(account_holder_re.match(box))
+    )
+    assert recipient_box is not None
+
+    account_holder = normalize_account_holder_name(
+        account_holder_re.match(recipient_box).group(1), True
     )
 
     return NameComponents(
