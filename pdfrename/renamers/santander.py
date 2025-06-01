@@ -312,9 +312,10 @@ def notice_of_electronic_funds_transfer(
     )
     assert recipient_box is not None
 
-    account_holder = normalize_account_holder_name(
-        account_holder_re.match(recipient_box).group(1), True
-    )
+    recipient_match = account_holder_re.match(recipient_box)
+    assert recipient_match is not None
+
+    account_holder = normalize_account_holder_name(recipient_match.group(1), True)
 
     return NameComponents(
         date=date,
