@@ -46,7 +46,7 @@ def tax_certificate(document: pdf_document.Document) -> NameComponents | None:
 def savings_statement(document: pdf_document.Document) -> NameComponents | None:
     first_page = document[1]
 
-    if not first_page.find_box_starting_with("Hargreaves Lansdown Savings Limited"):
+    if not any("Hargreaves Lansdown Savings Limited" in box for box in first_page):
         return None
 
     if "Account: Active Savings Account\n" not in first_page:
@@ -73,6 +73,8 @@ def savings_statement(document: pdf_document.Document) -> NameComponents | None:
 
 @pdfrenamer
 def investment_report(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("investment_report")
+
     first_page = document[1]
 
     if not first_page.find_box_starting_with(
@@ -80,8 +82,14 @@ def investment_report(document: pdf_document.Document) -> NameComponents | None:
     ):
         return None
 
-    if "Your investment report\n" not in first_page:
+    if not first_page.find_box_with_match(
+        lambda box: re.search(
+            r"^Your( Spring|Summer|Autumn|Winter) investment report\n$", box
+        )
+    ):
         return None
+
+    logger.debug("Possible HL Investment Report.")
 
     # The date that is present in the document is just a month, so ignore that and get it from
     # the document creation date.
