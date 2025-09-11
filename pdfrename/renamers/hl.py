@@ -83,9 +83,9 @@ def investment_report(document: pdf_document.Document) -> NameComponents | None:
         return None
 
     if not first_page.find_box_with_match(
-        lambda box: bool(re.search(
-            r"^Your( Spring|Summer|Autumn|Winter) investment report\n$", box
-        ))
+        lambda box: bool(
+            re.search(r"^Your( Spring|Summer|Autumn|Winter) investment report\n$", box)
+        )
     ):
         return None
 
