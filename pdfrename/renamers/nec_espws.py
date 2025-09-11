@@ -24,10 +24,10 @@ def tax_bill(document: pdf_document.Document) -> NameComponents | None:
 
     try:
         first_page = document[1]
+
+        possible_council = first(first_page[1].split("\n", 1))
     except IndexError:
         return None
-
-    possible_council = first(first_page[1].split("\n", 1))
 
     if possible_council not in _KNOWN_COUNCILS:
         return None
