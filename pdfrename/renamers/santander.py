@@ -49,16 +49,25 @@ def current_account_statement(document: pdf_document.Document) -> NameComponents
     if not is_santander_123 and not is_santander_select:
         return None
 
-    # Always include the account holder name. This is extracted from the address,
-    # which precedes two boxes like these: ('? \n', '%%SSC\n')
-    ssc_idx = text_boxes.index("%%SSC\n")
-    if ssc_idx is None or ssc_idx < 2:
+    # Use the account name instead of the address, to identify holders.
+    # This will always be the first box after the first page.
+    second_page = document[2]
+
+    account_info_match = re.search(
+        r"Account name: (.+)\nAccount number: (\d+) \(Sort Code \d\d \d\d \d\d\)\nStatement number: (\d\d/\d\d\d\d)\n",
+        second_page[0],
+        flags=re.MULTILINE | re.DOTALL,
+    )
+
+    if not account_info_match:
+        logger.debug("Not a valid Santander statement, missing account name on page 2")
         return None
 
-    address_box = text_boxes[ssc_idx - 2]
-
-    logger.debug(f"Found address: {address_box!r}")
-    account_holders = _extract_account_holders(address_box)
+    account_holders = _extract_account_holders(
+        account_info_match.group(1).replace("\n", " ")
+    )
+    account_number = account_info_match.group(2)
+    statement_number = account_info_match.group(3)
 
     period_line = text_boxes.find_box_starting_with("Your account summary for  \n")
     assert period_line is not None
@@ -78,6 +87,8 @@ def current_account_statement(document: pdf_document.Document) -> NameComponents
         _SERVICE_NAME,
         account_holders,
         STATEMENT,
+        account_number=account_number,
+        document_number=statement_number,
     )
 
 
