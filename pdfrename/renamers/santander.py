@@ -33,14 +33,15 @@ def _extract_account_holders(address_box: str) -> Sequence[str]:
 
     # In case of joint accounts!
     if "&" in extracted_name:
-        return extracted_name.split("&")
+        return tuple(name.strip() for name in extracted_name.split("&"))
     else:
         return (extracted_name,)
 
 
 @pdfrenamer
-def current_account_statement(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("santander.current_account_statement")
+def current_account_statement(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("santander.current_account_statement")
+    text_boxes = document[1]
 
     is_santander_select = "Select Current Account\n" in text_boxes
     is_santander_123 = "1l2l3 Current Account earnings\n" in text_boxes
@@ -48,12 +49,18 @@ def current_account_statement(text_boxes, parent_logger) -> NameComponents | Non
     if not is_santander_123 and not is_santander_select:
         return None
 
-    # Always include the account holder name, which is found in the third text box.
-    address_box = text_boxes[2]
+    # Always include the account holder name. This is extracted from the address,
+    # which precedes two boxes like these: ('? \n', '%%SSC\n')
+    ssc_idx = text_boxes.index("%%SSC\n")
+    if ssc_idx is None or ssc_idx < 2:
+        return None
+
+    address_box = text_boxes[ssc_idx - 2]
+
     logger.debug(f"Found address: {address_box!r}")
     account_holders = _extract_account_holders(address_box)
 
-    period_line = find_box_starting_with(text_boxes, "Your account summary for  \n")
+    period_line = text_boxes.find_box_starting_with("Your account summary for  \n")
     assert period_line is not None
 
     logger.debug(f"found period specification: {period_line!r}")
