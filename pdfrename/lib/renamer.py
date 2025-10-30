@@ -72,7 +72,7 @@ class NameComponents:
             filename_components.append(self.account_number)
 
         if self.document_number:
-            filename_components.append(self.document_number)
+            filename_components.append(self.document_number.replace("/", "-"))
 
         filename = Path(" - ".join(filename_components) + ".pdf")
 
