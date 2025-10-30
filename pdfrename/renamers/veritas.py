@@ -51,7 +51,7 @@ def bolletta_2022(document: pdf_document.Document) -> NameComponents | None:
     logger.debug(f"Veritas date string: {date_str}")
     date = datetime.datetime.strptime(date_str, "%d.%m.%Y")
 
-    return NameComponents(date, "Veritas", account_holder, f"Bolletta {bill_type}")
+    return NameComponents(date, f"Veritas ({bill_type})", account_holder, "Bolletta")
 
 
 @pdfrenamer
@@ -107,7 +107,7 @@ def bolletta_idrico_2019(document: pdf_document.Document) -> NameComponents | No
     date_str = details["Emessa il"]
     date = datetime.datetime.strptime(date_str, ": %d.%m.%Y")
 
-    return NameComponents(date, "Veritas", account_holder, f"Bolletta {bill_type}")
+    return NameComponents(date, f"Veritas ({bill_type})", account_holder, "Bolletta")
 
 
 @pdfrenamer
@@ -169,5 +169,5 @@ def avviso_pagamento_rifiuti_2019(
     date = datetime.datetime.strptime(date_str, ": %d.%m.%Y")
 
     return NameComponents(
-        date, "Veritas", account_holder, f"Avviso di Pagamento {bill_type}"
+        date, f"Veritas ({bill_type})", account_holder, "Avviso di Pagamento"
     )
