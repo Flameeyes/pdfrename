@@ -38,7 +38,7 @@ def bolletta_2022(document: pdf_document.Document) -> NameComponents | None:
         details_match = one(
             first_page.find_all_matching_regex(
                 re.compile(
-                    r"(?P<bill_type>.*)\n.+ n\. \d+ del\s(?P<date>[0-9]{2}[.][0-9]{2}[.][0-9]{4})\n"
+                    r"(?P<bill_type>.*)\n.+ n\. (?P<docnumber>\d+) del\s(?P<date>[0-9]{2}[.][0-9]{2}[.][0-9]{4})\n"
                 )
             )
         )
@@ -51,7 +51,17 @@ def bolletta_2022(document: pdf_document.Document) -> NameComponents | None:
     logger.debug(f"Veritas date string: {date_str}")
     date = datetime.datetime.strptime(date_str, "%d.%m.%Y")
 
-    return NameComponents(date, f"Veritas ({bill_type})", account_holder, "Bolletta")
+    account_id_box = first_page.find_box_starting_with("codice utente ")
+    assert account_id_box is not None
+
+    return NameComponents(
+        date,
+        f"Veritas ({bill_type})",
+        account_holder,
+        "Bolletta",
+        account_number=account_id_box[len("codice utente ") : -1],
+        document_number=details_match.group("docnumber"),
+    )
 
 
 @pdfrenamer
