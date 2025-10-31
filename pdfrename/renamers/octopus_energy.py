@@ -41,7 +41,8 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
     # So, Octopus Energy sells their billing platform to other suppliers
     # which means we're looking for statements that are generated with
     # their software, rather than specifically *their* bills.
-    if b"octopusenergy-" not in (document.producer or b""):
+    producer = document.producer or b""
+    if b"kraken-tech-" not in producer and b"octopusenergy-" not in producer:
         return None
 
     try:
