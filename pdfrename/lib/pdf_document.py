@@ -2,14 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-import io
 import logging
 import re
 from collections.abc import Callable, Iterator, Sequence
 from datetime import datetime
 from functools import cached_property
 from pathlib import Path
-from typing import Any, Final
+from typing import Any, BinaryIO, Final
 
 import pdfminer.high_level
 import pdfminer.layout
@@ -80,7 +79,7 @@ class PageTextBoxes:
 
 class Document:
     original_filename: Final[Path]
-    _pdf_file: Final[io.IOBase]
+    _pdf_file: Final[BinaryIO]
     doc: Final[pdfminer.pdfdocument.PDFDocument]
     _logger: Final[logging.Logger]
     _extracted_pages: Final[dict[int, PageTextBoxes]]
@@ -89,7 +88,7 @@ class Document:
         self,
         filename: Path,
         *,
-        pdf_file: io.IOBase | None = None,
+        pdf_file: BinaryIO | None = None,
         logger: logging.Logger | None = None,
     ) -> None:
         self.original_filename = filename
