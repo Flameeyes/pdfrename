@@ -76,7 +76,7 @@ def _find_and_extract_date_and_document_number(
     if not (
         date_box := page.find_box_with_match(lambda box: bool(expression.search(box)))
     ):
-        return None
+        return None, None
 
     date_match = expression.search(date_box)
     assert date_match is not None  # It's safe, or we wouldn't have matched earlier!
@@ -169,7 +169,9 @@ def bill_2023(document: pdf_document.Document) -> NameComponents | None:
     logger.debug(f"Possible account holder found: {account_holder_name!r}")
 
     account_number_box = first_page.find_box_starting_with("N° Cliente")
+    assert account_number_box is not None
     account_number_match = re.search(r"N° Cliente\n(\d+)\s", account_number_box)
+    assert account_number_match is not None
     account_number = account_number_match.group(1)
 
     # There's a lot of text running together in the same box as the date, we can't easily
