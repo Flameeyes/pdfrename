@@ -59,7 +59,7 @@ def letter(text_boxes: Sequence[str], parent_logger) -> NameComponents | None:
         statement_date = _find_statement_date(text_boxes, logger)
 
         return NameComponents(
-            statement_date, "Schwab", account_holder, "Brokerage Statement"
+            statement_date, "Charles Schwab", account_holder, "Brokerage Statement"
         )
 
     # Brokerage Accounts, Trade Confirmations and Year-End documents from 2017 onwards.
@@ -106,7 +106,9 @@ def letter(text_boxes: Sequence[str], parent_logger) -> NameComponents | None:
             document_type = "Brokerage Statement"
 
         assert document_date is not None
-        return NameComponents(document_date, "Schwab", account_holder, document_type)
+        return NameComponents(
+            document_date, "Charles Schwab", account_holder, document_type
+        )
 
     # Letters
     if any(
@@ -134,6 +136,6 @@ def letter(text_boxes: Sequence[str], parent_logger) -> NameComponents | None:
         assert account_holder
         assert letter_date is not None
 
-        return NameComponents(letter_date, "Schwab", account_holder, "Letter")
+        return NameComponents(letter_date, "Charles Schwab", account_holder, "Letter")
 
     return None
