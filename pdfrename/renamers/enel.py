@@ -70,9 +70,9 @@ def bill(document: pdf_document.Document) -> NameComponents | None:
     )
 
 
-def _find_and_extract_date(
+def _find_and_extract_date_and_document_number(
     page: pdf_document.PageTextBoxes, expression: re.Pattern[str]
-) -> datetime.datetime | None:
+) -> tuple[datetime.datetime | None, str | None]:
     if not (
         date_box := page.find_box_with_match(lambda box: bool(expression.search(box)))
     ):
@@ -81,12 +81,15 @@ def _find_and_extract_date(
     date_match = expression.search(date_box)
     assert date_match is not None  # It's safe, or we wouldn't have matched earlier!
 
-    date_string = date_match.group(1)
-    return datetime.datetime.strptime(date_string, "%d/%m/%Y")
+    date_string = date_match.group("date")
+    return (
+        datetime.datetime.strptime(date_string, "%d/%m/%Y"),
+        date_match.group("docnumber"),
+    )
 
 
 _DATE_EXTRACTION_2021_RE = re.compile(
-    r".*\nN. Fattura .*\nDel ([0-9]{2}/[0-9]{2}/[0-9]{4})\n.*",
+    r".*\nN. Fattura (?P<docnumber>.*)\nDel (?P<date>[0-9]{2}/[0-9]{2}/[0-9]{4})\n.*",
     flags=re.MULTILINE | re.DOTALL,
 )
 
@@ -113,7 +116,9 @@ def bill_2021(document: pdf_document.Document) -> NameComponents | None:
 
     # There's a lot of text running together in the same box as the date, we can't easily
     # search for a prefix, so we actually re-use the regex.
-    bill_date = _find_and_extract_date(first_page, _DATE_EXTRACTION_2021_RE)
+    bill_date, document_number = _find_and_extract_date_and_document_number(
+        first_page, _DATE_EXTRACTION_2021_RE
+    )
     assert bill_date
 
     return NameComponents(
@@ -121,11 +126,12 @@ def bill_2021(document: pdf_document.Document) -> NameComponents | None:
         "Enel Energia",
         account_holder_name,
         "Bolletta",
+        document_number=document_number,
     )
 
 
 _DATE_EXTRACTION_2023_RE = re.compile(
-    r"[Ff]attura elettronica n. \d+ del ([0-9]{2}/[0-9]{2}/[0-9]{4}) ",
+    r"[Ff]attura elettronica n. (?P<docnumber>\d+) del (?P<date>[0-9]{2}/[0-9]{2}/[0-9]{4}) ",
     flags=re.MULTILINE | re.DOTALL,
 )
 
@@ -162,9 +168,15 @@ def bill_2023(document: pdf_document.Document) -> NameComponents | None:
 
     logger.debug(f"Possible account holder found: {account_holder_name!r}")
 
+    account_number_box = first_page.find_box_starting_with("N° Cliente")
+    account_number_match = re.search(r"N° Cliente\n(\d+)\s", account_number_box)
+    account_number = account_number_match.group(1)
+
     # There's a lot of text running together in the same box as the date, we can't easily
     # search for a prefix, so we actually re-use the regex.
-    bill_date = _find_and_extract_date(first_page, _DATE_EXTRACTION_2023_RE)
+    bill_date, document_number = _find_and_extract_date_and_document_number(
+        first_page, _DATE_EXTRACTION_2023_RE
+    )
     assert bill_date
 
     return NameComponents(
@@ -172,4 +184,6 @@ def bill_2023(document: pdf_document.Document) -> NameComponents | None:
         service,
         account_holder_name,
         "Bolletta",
+        account_number=account_number,
+        document_number=document_number,
     )
