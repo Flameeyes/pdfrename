@@ -99,7 +99,7 @@ class Document:
         self._logger = logger or _LOGGER
 
         try:
-            pdfminer.high_level.extract_pages(self._pdf_file)
+            pdfminer.high_level.extract_pages(self._pdf_file)  # type: ignore
         except pdfminer.pdfparser.PDFSyntaxError as error:
             raise ValueError(f"Invalid PDF file {self.original_filename}: {error}")
 
@@ -124,7 +124,7 @@ class Document:
             )
 
             extract_pages_generator = pdfminer.high_level.extract_pages(
-                self._pdf_file, page_numbers=(page - 1,)
+                self._pdf_file, page_numbers=(page - 1,)  # type: ignore
             )
 
             try:
@@ -141,7 +141,7 @@ class Document:
                     f"{self.original_filename} p{page}: figure-based PDF, extracting raw text instead."
                 )
                 page_text = pdfminer.high_level.extract_text(
-                    self._pdf_file, page_numbers=(page - 1,)
+                    self._pdf_file, page_numbers=(page - 1,)  # type: ignore
                 )
                 text_boxes = [page_text]
             else:
