@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import io
 import logging
 import re
 from collections.abc import Callable, Iterator, Sequence
@@ -79,23 +80,32 @@ class PageTextBoxes:
 
 class Document:
     original_filename: Final[Path]
+    _pdf_file: Final[io.IOBase]
     doc: Final[pdfminer.pdfdocument.PDFDocument]
     _logger: Final[logging.Logger]
     _extracted_pages: Final[dict[int, PageTextBoxes]]
 
-    def __init__(self, filename: Path, logger: logging.Logger | None = None) -> None:
+    def __init__(
+        self,
+        filename: Path,
+        *,
+        pdf_file: io.IOBase | None = None,
+        logger: logging.Logger | None = None,
+    ) -> None:
         self.original_filename = filename
+        if pdf_file is None:
+            pdf_file = self.original_filename.open("rb")
+        self._pdf_file = pdf_file
 
         self._logger = logger or _LOGGER
 
         try:
-            self._extract_pages_generator = pdfminer.high_level.extract_pages(filename)
+            pdfminer.high_level.extract_pages(self._pdf_file)
         except pdfminer.pdfparser.PDFSyntaxError as error:
-            raise ValueError(f"Invalid PDF file {filename}: {error}")
+            raise ValueError(f"Invalid PDF file {self.original_filename}: {error}")
 
-        with self.original_filename.open("rb") as pdf_file:
-            self._parser = pdfminer.pdfparser.PDFParser(pdf_file)
-            self.doc = pdfminer.pdfdocument.PDFDocument(self._parser)
+        self._parser = pdfminer.pdfparser.PDFParser(self._pdf_file)
+        self.doc = pdfminer.pdfdocument.PDFDocument(self._parser)
 
         self._extracted_pages = {}
 
@@ -115,7 +125,7 @@ class Document:
             )
 
             extract_pages_generator = pdfminer.high_level.extract_pages(
-                self.original_filename, page_numbers=(page - 1,)
+                self._pdf_file, page_numbers=(page - 1,)
             )
 
             try:
@@ -132,7 +142,7 @@ class Document:
                     f"{self.original_filename} p{page}: figure-based PDF, extracting raw text instead."
                 )
                 page_text = pdfminer.high_level.extract_text(
-                    self.original_filename, page_numbers=(page - 1,)
+                    self._pdf_file, page_numbers=(page - 1,)
                 )
                 text_boxes = [page_text]
             else:
