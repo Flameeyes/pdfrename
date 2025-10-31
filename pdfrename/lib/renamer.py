@@ -49,30 +49,42 @@ class NameComponents:
         else:
             return self.account_holder
 
-    def render_filename(
-        self, include_account_holder: bool, drop_honorific: bool
-    ) -> Path:
+    @property
+    def normalized_account_holders(self) -> str | None:
+        if not self.account_holder:
+            return None
+
+        return " & ".join(
+            utils.normalize_account_holder_name(name, True)
+            for name in self.account_holders
+        )
+
+    @property
+    def normalized_document_number(self) -> str | None:
+        """Normalize the document number in a form compatible with file names."""
+
+        if not self.document_number:
+            return None
+
+        return self.document_number.replace("/", "-")
+
+    def render_filename(self) -> Path:
         filename_components = []
 
         filename_components.append(self.date.strftime("%Y-%m-%d"))
 
         filename_components.append(self.service_name)
 
-        if include_account_holder and self.account_holder:
-            account_holder = " & ".join(
-                utils.normalize_account_holder_name(name, drop_honorific)
-                for name in self.account_holders
-            )
-
-            filename_components.append(account_holder)
+        if account_holders := self.normalized_account_holders:
+            filename_components.append(account_holders)
 
         filename_components.append(self.document_type)
 
         if self.account_number:
             filename_components.append(self.account_number)
 
-        if self.document_number:
-            filename_components.append(self.document_number.replace("/", "-"))
+        if document_number := self.normalized_document_number:
+            filename_components.append(document_number)
 
         filename = Path(" - ".join(filename_components) + ".pdf")
 

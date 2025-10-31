@@ -35,7 +35,7 @@ def find_filename(original_filename: Path) -> Path | None:
 
     try:
         if name := only(try_all_renamers(document), too_long=MultipleRenamersError):
-            return name.render_filename(True, True)
+            return name.render_filename()
 
     except MultipleRenamersError:
         logging.error(
