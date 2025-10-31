@@ -144,9 +144,10 @@ def bill_2023(document: pdf_document.Document) -> NameComponents | None:
     if not text_boxes[0].startswith("Page 1 of "):
         return None
 
-    latest_bill_idx = text_boxes.index("Your latest bill\n")
-    if latest_bill_idx is None:
+    if "Your latest bill\n" not in text_boxes:
         return None
+
+    latest_bill_idx = text_boxes.index("Your latest bill\n")
 
     account_holder_name = extract_account_holder_from_address(
         text_boxes[latest_bill_idx - 1]
