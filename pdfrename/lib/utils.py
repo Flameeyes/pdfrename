@@ -2,9 +2,27 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
+import warnings
 from collections.abc import Mapping, Sequence
 
+import pdfminer
+
 _honorifics = {"mr", "mr.", "mrs", "ms", "miss"}
+
+
+def apply_pdfminer_log_filters():
+    # Disable warnings on PDF extractions not allowed. This is no longer working with modern pdfminer.
+    # So for now we'll have to live with the warnings.
+    warnings.filterwarnings(
+        "ignore", category=pdfminer.pdfdocument.PDFTextExtractionNotAllowedWarning
+    )
+    logging.getLogger("pdfminer.pdfpage").setLevel(logging.ERROR)
+    # Disable some debug-level logs even when we want debug logging. These make the output unreadable
+    # if there is an exception when parsing a new type of document.
+    logging.getLogger("pdfminer.psparser").setLevel(logging.INFO)
+    logging.getLogger("pdfminer.pdfinterp").setLevel(logging.ERROR)
+    logging.getLogger("pdfminer.pdffont").setLevel(logging.ERROR)
 
 
 def drop_honorific(holder_name: str) -> str:

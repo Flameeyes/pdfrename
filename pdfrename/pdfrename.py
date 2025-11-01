@@ -4,18 +4,16 @@
 
 import logging
 import sys
-import warnings
 from collections.abc import Sequence
 from pathlib import Path
 
 import click
 import click_log
-import pdfminer.high_level
-import pdfminer.layout
 from more_itertools import only
 
 from .lib.pdf_document import Document
 from .lib.renamer import try_all_renamers
+from .lib.utils import apply_pdfminer_log_filters
 from .renamers import load_all_renamers
 
 tool_logger = logging.getLogger("pdfrename")
@@ -43,18 +41,6 @@ def find_filename(original_filename: Path) -> Path | None:
         )
 
     return None
-
-
-def apply_pdfminer_log_filters():
-    # Disable warnings on PDF extractions not allowed. This is no longer working with modern pdfminer.
-    # So for now we'll have to live with the warnings.
-    warnings.filterwarnings(
-        "ignore", category=pdfminer.pdfdocument.PDFTextExtractionNotAllowedWarning
-    )
-    # Disable some debug-level logs even when we want debug logging. These make the output unreadable
-    # if there is an exception when parsing a new type of document.
-    logging.getLogger("pdfminer.psparser").setLevel(logging.INFO)
-    logging.getLogger("pdfminer.pdfinterp").setLevel(logging.INFO)
 
 
 @click.command()
