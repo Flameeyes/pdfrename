@@ -2,27 +2,40 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
 import re
 
 import dateparser
 
+from ..doctypes.en import INVOICE
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import find_box_starting_with
+
+_LOGGER = logging.getLogger("scaleway")
 
 
 @pdfrenamer
-def invoice(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("scaleway.invoice")
+def invoice(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("invoice")
 
-    is_scaleway = bool(
-        find_box_starting_with(text_boxes, "Online SAS,")
-        or find_box_starting_with(text_boxes, "Scaleway SAS, ")
-    )
+    match document.creator:
+        case b"Scaleway billing system":
+            assert document.subject is not None
+            subject = document.subject.decode("ascii")
+        case b"\xfe\xff\x00S\x00c\x00a\x00l\x00e\x00w\x00a\x00y\x00 \x00b\x00i\x00l\x00l\x00i\x00n\x00g\x00 \x00s\x00y\x00s\x00t\x00e\x00m":
+            assert document.subject is not None
+            subject = document.subject.decode("utf-16")
+        case _:
+            return None
 
-    if not is_scaleway:
+    if not subject.startswith("\n            Invoice\n"):
         return None
 
-    customer_box = find_box_starting_with(text_boxes, "Customer \n")
+    invoice_number = subject.split("\n")[2].strip().lstrip("#")
+
+    text_boxes = document[1]
+
+    customer_box = text_boxes.find_box_starting_with("Customer \n")
     if customer_box:
         # Latest template
         account_holder = customer_box.split("\n")[1].strip()
@@ -33,7 +46,7 @@ def invoice(text_boxes, parent_logger) -> NameComponents | None:
         assert customer_box is not None
         account_holder = customer_box.strip()
 
-    date_box = find_box_starting_with(text_boxes, "Issued: \n")
+    date_box = text_boxes.find_box_starting_with("Issued: \n")
     if date_box:
         # Latest template
         date_str = date_box.split("\n")[1].strip()
@@ -58,4 +71,10 @@ def invoice(text_boxes, parent_logger) -> NameComponents | None:
     bill_date = dateparser.parse(date_str)
     assert bill_date is not None
 
-    return NameComponents(bill_date, "Scaleway", account_holder, "Invoice")
+    return NameComponents(
+        bill_date,
+        "Scaleway",
+        account_holder,
+        INVOICE,
+        document_number=invoice_number,
+    )
