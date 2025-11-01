@@ -21,7 +21,10 @@ def invoice(document: pdf_document.Document) -> NameComponents | None:
     match document.creator:
         case b"Scaleway billing system":
             assert document.subject is not None
-            subject = document.subject.decode("ascii")
+            try:
+                subject = document.subject.decode("ascii")
+            except UnicodeDecodeError:
+                subject = document.subject.decode("utf-16")
         case b"\xfe\xff\x00S\x00c\x00a\x00l\x00e\x00w\x00a\x00y\x00 \x00b\x00i\x00l\x00l\x00i\x00n\x00g\x00 \x00s\x00y\x00s\x00t\x00e\x00m":
             assert document.subject is not None
             subject = document.subject.decode("utf-16")
