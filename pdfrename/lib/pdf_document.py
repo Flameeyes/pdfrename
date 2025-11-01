@@ -4,7 +4,7 @@
 
 import logging
 import re
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from datetime import datetime
 from functools import cached_property
 from pathlib import Path
@@ -167,16 +167,18 @@ class Document:
             raise TypeError("Only integer page indexes are supported.")
         return self.get_textboxes(key)
 
-    def _document_metadata(self, metadata_name: str) -> bytes | None:
-        self._logger.debug(
-            f"{self.original_filename}: extracted info {self.doc.info!r}"
-        )
-
+    @cached_property
+    def _info(self) -> Mapping[str, bytes]:
+        doc_info = {}
         for info in self.doc.info:
-            if metadata_name in info:
-                return info[metadata_name]
+            doc_info.update(info)
 
-        return None
+        self._logger.debug(f"{self.original_filename}: extracted info {doc_info!r}")
+
+        return doc_info
+
+    def _document_metadata(self, metadata_name: str) -> bytes | None:
+        return self._info.get(metadata_name, None)
 
     _DATE_PROPERTY_RE: Final[re.Pattern[bytes]] = re.compile(
         rb"^D:(\d{14})(?:Z|([+-]\d{2})'(\d{2})')?$"
