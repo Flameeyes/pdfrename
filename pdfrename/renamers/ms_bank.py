@@ -18,7 +18,7 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
     logger = _LOGGER.getChild("ms_bank.statement")
     text_boxes = document[1]
 
-    if "M&S Bank" not in text_boxes[-1]:
+    if not text_boxes or "M&S Bank" not in text_boxes[-1]:
         return None
 
     account_name_box = text_boxes.find_box_starting_with("Account Name\n")

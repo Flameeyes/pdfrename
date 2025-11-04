@@ -165,7 +165,7 @@ def letter(document: pdf_document.Document) -> NameComponents | None:
     logger = _LOGGER.getChild("thameswater.letter")
     text_boxes = document[1]
 
-    if "Thames Water Utilities Limited," not in text_boxes[-1]:
+    if not text_boxes or "Thames Water Utilities Limited," not in text_boxes[-1]:
         return None
 
     date_line = text_boxes.find_box_starting_with("Date\n")

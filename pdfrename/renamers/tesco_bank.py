@@ -14,6 +14,9 @@ from ..lib.utils import build_dict_from_fake_table, extract_account_holder_from_
 @pdfrenamer
 def tesco_bank(document: pdf_document.Document) -> NameComponents | None:
     text_boxes = document[1]
+    if not text_boxes:
+        return None
+
     # Before checking for statements, check other communications.
     if text_boxes[0].startswith("Tesco Bank\n") and (
         metadata := text_boxes.find_box_starting_with("Annual Summary of Interest\n")
