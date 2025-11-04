@@ -19,9 +19,7 @@ Keep instructions short and code-focused; follow the conventions below when addi
 
 ### Renamer contract (exact, important)
 - A renamer must return either `None` or a `NameComponents` instance from `pdfrename.lib.renamer`.
-- Two supported signatures:
-  - V2 (preferred): `def foo(document: pdf_document.Document) -> NameComponents | None` — you get the `Document`.
-  - V1 (legacy): `def foo(text_boxes: Sequence[str], logger: logging.Logger) -> NameComponents | None` — the decorator auto-converts it.
+  - Signature: `def foo(document: pdf_document.Document) -> NameComponents | None` — you get the `Document`.
 - Use `@pdfrenamer` to register. The registry is used by `try_all_renamers()`.
 - `NameComponents` fields matter for filename generation: `date` (datetime), `service_name` (str),
   `account_holder` (str or sequence), `document_type` (str), optional `account_number` and `document_number`.
@@ -62,7 +60,6 @@ pip install -e .[dev]
 - When a renamer raises, `renamer.py` logs the exception and continues — check tool logs for stack traces.
 
 ### Conventions & cautions
-- Prefer V2 renamer signature — it gives access to helpers and metadata.
 - Be conservative: return `None` unless the match is unambiguous. The CLI treats multiple matches as an error (`MultipleRenamersError`).
 
 ### Key files to inspect when changing behavior

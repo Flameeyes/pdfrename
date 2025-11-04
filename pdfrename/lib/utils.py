@@ -4,7 +4,7 @@
 
 import logging
 import warnings
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 
 import pdfminer
 
@@ -66,11 +66,3 @@ def build_dict_from_fake_table(fields_box: str, values_box: str) -> Mapping[str,
 
 def extract_account_holder_from_address(address: str) -> str:
     return address.split("\n", 1)[0].strip().title()
-
-
-def find_box_starting_with(text_boxes: Sequence[str], startswith: str) -> str | None:
-    box = [box for box in text_boxes if box.startswith(startswith)]
-    if not box:
-        return None
-    assert len(box) == 1
-    return box[0]

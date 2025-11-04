@@ -2,15 +2,21 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
+
 import dateparser
 
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address
 
+_LOGGER = logging.getLogger(__name__)
+
 
 @pdfrenamer
-def mouser_invoice(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("mouser_invoice")
+def mouser_invoice(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("mouser_invoice")
+    text_boxes = document[1]
 
     if len(text_boxes) < 28:
         return None

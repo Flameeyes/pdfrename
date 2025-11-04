@@ -2,22 +2,26 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
 import re
 
 import dateparser
 
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import find_box_starting_with
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
-def statement(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("ms_bank.statement")
+def statement(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("ms_bank.statement")
+    text_boxes = document[1]
 
     if "M&S Bank" not in text_boxes[-1]:
         return None
 
-    account_name_box = find_box_starting_with(text_boxes, "Account Name\n")
+    account_name_box = text_boxes.find_box_starting_with("Account Name\n")
     assert account_name_box
 
     account_holder_name = account_name_box.split("\n")[1].strip()
@@ -29,7 +33,7 @@ def statement(text_boxes, parent_logger) -> NameComponents | None:
     logger.debug(f"found period specification {period_line!r}")
 
     period_match = re.search(
-        r"^[0-9]{2} [A-Z][a-z]+(?: [0-9]{4})? to ([0-9]{2} [A-Z][a-z]+ [0-9]{4})\n$",
+        r"^[0-9]{2} [A-Z][a-z]+(?: [0-9]{4})? to ([0-9]{2} [A-Z][a-z]+ [0-9]{4})\\n$",
         period_line,
     )
     assert period_match

@@ -6,26 +6,24 @@ import re
 
 import dateparser
 
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import (
-    build_dict_from_fake_table,
-    extract_account_holder_from_address,
-    find_box_starting_with,
-)
+from ..lib.utils import build_dict_from_fake_table, extract_account_holder_from_address
 
 
 @pdfrenamer
-def tesco_bank(text_boxes, parent_logger) -> NameComponents | None:
+def tesco_bank(document: pdf_document.Document) -> NameComponents | None:
+    text_boxes = document[1]
     # Before checking for statements, check other communications.
     if text_boxes[0].startswith("Tesco Bank\n") and (
-        metadata := find_box_starting_with(text_boxes, "Annual Summary of Interest\n")
+        metadata := text_boxes.find_box_starting_with("Annual Summary of Interest\n")
     ):
         assert "Minicom:" in text_boxes[2]
 
         metadata_idx = text_boxes.index(metadata)
 
         account_holder_name = text_boxes[metadata_idx - 2].strip()
-        tax_year_line = find_box_starting_with(text_boxes, "Tax Year:")
+        tax_year_line = text_boxes.find_box_starting_with("Tax Year:")
         assert tax_year_line is not None
 
         tax_year_match = re.search(

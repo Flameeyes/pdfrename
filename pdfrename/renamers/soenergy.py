@@ -10,10 +10,9 @@ import dateparser
 
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import extract_account_holder_from_address, find_box_starting_with
+from ..lib.utils import extract_account_holder_from_address
 
 _LOGGER = logging.getLogger(__name__)
-
 _DOCUMENT_TYPES = {
     "Hello, here is your final bill.\n": "Final Bill",
     "Hello, here is your statement.\n": "Statement",
@@ -21,8 +20,9 @@ _DOCUMENT_TYPES = {
 
 
 @pdfrenamer
-def bills_2019(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("soenergy.bills_2019")
+def bills_2019(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("soenergy.bills_2019")
+    text_boxes = document[1]
 
     if "www.so.energy\n" in text_boxes:
         for subject, document_type in _DOCUMENT_TYPES.items():
@@ -41,7 +41,7 @@ def bills_2019(text_boxes, parent_logger) -> NameComponents | None:
         period_line = text_boxes[subject_index + 1]
         logger.debug(f"found period specification: {period_line!r}")
         period_match = re.match(
-            r"^For the period of [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4} - ([0-9]{1,2} [A-Z][a-z]{2} [0-9]{4})\n$",
+            r"^For the period of [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4} - ([0-9]{1,2} [A-Z][a-z]{2} [0-9]{4})\\n$",
             period_line,
         )
         assert period_match
@@ -55,8 +55,8 @@ def bills_2019(text_boxes, parent_logger) -> NameComponents | None:
             document_type,
         )
 
-    annual_electricity_summary_period_line = find_box_starting_with(
-        text_boxes, "Your annual electricity\nsummary\n"
+    annual_electricity_summary_period_line = text_boxes.find_box_starting_with(
+        "Your annual electricity\nsummary\n"
     )
 
     if annual_electricity_summary_period_line:

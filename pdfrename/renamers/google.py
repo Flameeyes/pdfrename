@@ -2,15 +2,20 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
+
 import dateparser
 
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import find_box_starting_with
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
-def invoice(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("google.invoice")
+def invoice(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("google.invoice")
+    text_boxes = document[1]
 
     is_google = any("Google Commerce Limited\n" in box for box in text_boxes)
     if not is_google:
@@ -21,7 +26,7 @@ def invoice(text_boxes, parent_logger) -> NameComponents | None:
     address_idx = text_boxes.index("Bill to\n")
     account_holder_name = text_boxes[address_idx + 1].strip()
 
-    invoice_number_box = find_box_starting_with(text_boxes, "Invoice number\n")
+    invoice_number_box = text_boxes.find_box_starting_with("Invoice number\n")
     assert invoice_number_box
     match invoice_number_box.count("\n"):
         case 2:
@@ -30,7 +35,7 @@ def invoice(text_boxes, parent_logger) -> NameComponents | None:
         case 3:
             invoice_number = invoice_number_box.split("\n")[2]
 
-    invoice_date_box = find_box_starting_with(text_boxes, "Invoice date\n")
+    invoice_date_box = text_boxes.find_box_starting_with("Invoice date\n")
     assert invoice_date_box
     match invoice_date_box.count("\n"):
         case 2:

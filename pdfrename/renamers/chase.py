@@ -2,19 +2,24 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
 import re
 
 import dateparser
 
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import extract_account_holder_from_address, find_box_starting_with
+from ..lib.utils import extract_account_holder_from_address
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
-def statement(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("chase.statement")
+def statement(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("chase.statement")
+    text_boxes = document[1]
 
-    if not find_box_starting_with(text_boxes, "JPMorgan Chase Bank, N.A.\n"):
+    if not text_boxes.find_box_starting_with("JPMorgan Chase Bank, N.A.\n"):
         return None
 
     # Period line changes from statement to statement, so try fuzzy-matching it instead.
@@ -40,7 +45,7 @@ def statement(text_boxes, parent_logger) -> NameComponents | None:
 
     # We anchor the address on the contact numbers on the side, but that's not working for
     # older statements.
-    deaf_contact_box = find_box_starting_with(text_boxes, "Deaf and Hard of Hearing: ")
+    deaf_contact_box = text_boxes.find_box_starting_with("Deaf and Hard of Hearing: ")
     if deaf_contact_box:
         deaf_contact_index = text_boxes.index(deaf_contact_box)
 
@@ -49,7 +54,8 @@ def statement(text_boxes, parent_logger) -> NameComponents | None:
     else:
         # If we couldn't find the account holder through the contact number, it probably is a newer version of the template.
         # We can find the address box based on the period line instead.
-        period_box = find_box_starting_with(text_boxes, period_match.group(0))
+        period_box = text_boxes.find_box_starting_with(period_match.group(0))
+        assert period_box is not None
         address_box_index = text_boxes.index(period_box) - 1
         address_box = text_boxes[address_box_index]
         if address_box.count("\n") < 2:

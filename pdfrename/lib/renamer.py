@@ -4,8 +4,6 @@
 
 import dataclasses
 import datetime
-import functools
-import inspect
 import logging
 import typing
 from collections.abc import Callable, Iterator, Sequence
@@ -95,36 +93,13 @@ class NameComponents:
 
 
 Boxes = Sequence[str]
-RenamerV1 = Callable[[Boxes, logging.Logger], NameComponents | None]
 RenamerV2 = Callable[[pdf_document.Document], NameComponents | None]
-
-AnyRenamer = RenamerV1 | RenamerV2
 
 _ALL_RENAMERS: list[RenamerV2] = []
 
 
-def _convert_to_renamer_v2(renamer: RenamerV1) -> RenamerV2:
-    @functools.wraps(renamer)
-    def _wrapper(document: pdf_document.Document) -> NameComponents | None:
-        first_page_text_boxes = list(document[1])
-        if not first_page_text_boxes:
-            return None
-
-        new_logger = logging.getLogger(renamer.__module__)
-        return renamer(first_page_text_boxes, new_logger)
-
-    return _wrapper
-
-
-def pdfrenamer(func: AnyRenamer) -> RenamerV2:
-    version = 2 if len(inspect.signature(func).parameters) == 1 else 1
-
-    match version:
-        case 2:
-            func = typing.cast(RenamerV2, func)
-        case 1:
-            func = _convert_to_renamer_v2(typing.cast(RenamerV1, func))
-
+def pdfrenamer(func: RenamerV2) -> RenamerV2:
+    """Register a renamer."""
     func = typing.cast(RenamerV2, func)
 
     _ALL_RENAMERS.append(func)

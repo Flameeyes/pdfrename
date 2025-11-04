@@ -15,7 +15,6 @@ from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import (
     extract_account_holder_from_address,
-    find_box_starting_with,
     normalize_account_holder_name,
 )
 
@@ -93,15 +92,16 @@ def current_account_statement(document: pdf_document.Document) -> NameComponents
 
 
 @pdfrenamer
-def credit_card_statement(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("santander.credit_card_statement")
+def credit_card_statement(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("santander.credit_card_statement")
+    text_boxes = document[1]
 
     if "Santander Credit Card \n" not in text_boxes:
         return None
 
     # Could be an annual statement, look for it.
-    annual_statement_period_line = find_box_starting_with(
-        text_boxes, "Annual Statement:"
+    annual_statement_period_line = text_boxes.find_box_starting_with(
+        "Annual Statement:"
     )
     if annual_statement_period_line is not None:
         return None
@@ -109,7 +109,7 @@ def credit_card_statement(text_boxes, parent_logger) -> NameComponents | None:
     # Always include the account holder name, which is found in the second text box.
     account_holder_name = extract_account_holder_from_address(text_boxes[1])
 
-    statement_period_line = find_box_starting_with(text_boxes, "Account summary as at:")
+    statement_period_line = text_boxes.find_box_starting_with("Account summary as at:")
     assert statement_period_line is not None
 
     logger.debug(f"found period specification: {statement_period_line!r}")
@@ -187,15 +187,18 @@ def credit_card_annual_statement(
 
 
 @pdfrenamer
-def credit_card_statement_2023(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("santander.credit_card")
+def credit_card_statement_2023(
+    document: pdf_document.Document,
+) -> NameComponents | None:
+    logger = _LOGGER.getChild("santander.credit_card")
+    text_boxes = document[1]
 
     if "Santander Credit Card\n" not in text_boxes:
         return None
 
     if (
-        statement_period_line := find_box_starting_with(
-            text_boxes, "Account summary as at:"
+        statement_period_line := text_boxes.find_box_starting_with(
+            "Account summary as at:"
         )
     ) is None:
         logger.debug("statement period not found, ignoring.")
@@ -225,11 +228,12 @@ def credit_card_statement_2023(text_boxes, parent_logger) -> NameComponents | No
 
 
 @pdfrenamer
-def statement_of_fees(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("santander.statement_of_fees")
+def statement_of_fees(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("santander.statement_of_fees")
+    text_boxes = document[1]
 
     if (
-        not find_box_starting_with(text_boxes, "Santander UK plc\n")
+        not text_boxes.find_box_starting_with("Santander UK plc\n")
         or "Statement of Fees\n" not in text_boxes
     ):
         return None
@@ -260,14 +264,15 @@ def statement_of_fees(text_boxes, parent_logger) -> NameComponents | None:
 
 
 @pdfrenamer
-def annual_account_summary(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("santander.annual_account_summary")
+def annual_account_summary(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("santander.annual_account_summary")
+    text_boxes = document[1]
 
     if len(text_boxes) < 31:
         return None
 
-    annual_account_summary_period_line = find_box_starting_with(
-        text_boxes, "Your Account Summary for "
+    annual_account_summary_period_line = text_boxes.find_box_starting_with(
+        "Your Account Summary for "
     )
 
     if not annual_account_summary_period_line:

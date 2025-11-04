@@ -2,15 +2,21 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
+
 import dateparser
 
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address
 
+_LOGGER = logging.getLogger(__name__)
+
 
 @pdfrenamer
-def statement(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("kbc.statement")
+def statement(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("kbc.statement")
+    text_boxes = document[1]
 
     is_kbc = any("ICONIE2D\n" in box for box in text_boxes)
     if not is_kbc:

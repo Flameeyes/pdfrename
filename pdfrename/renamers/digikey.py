@@ -2,17 +2,23 @@
 #
 # SPDX-License-Identifier: MIT
 
+
+import logging
 import re
 
 import dateparser
 
+from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import extract_account_holder_from_address, find_box_starting_with
+from ..lib.utils import extract_account_holder_from_address
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @pdfrenamer
-def invoice(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("digikey.invoice")
+def invoice(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("digikey.invoice")
+    text_boxes = document[1]
 
     if len(text_boxes) < 2:
         return None
@@ -29,7 +35,7 @@ def invoice(text_boxes, parent_logger) -> NameComponents | None:
 
     account_holder_name = extract_account_holder_from_address(account_holder_name_str)
 
-    invoice_date_line = find_box_starting_with(text_boxes, "Invoice Date:\n")
+    invoice_date_line = text_boxes.find_box_starting_with("Invoice Date:\n")
     assert invoice_date_line
 
     logger.debug(f"Found an invoice date line {invoice_date_line!r}")

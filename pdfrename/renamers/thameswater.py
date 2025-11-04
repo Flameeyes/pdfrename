@@ -10,7 +10,7 @@ import dateparser
 
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
-from ..lib.utils import extract_account_holder_from_address, find_box_starting_with
+from ..lib.utils import extract_account_holder_from_address
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -161,13 +161,14 @@ def bill_2023(document: pdf_document.Document) -> NameComponents | None:
 
 
 @pdfrenamer
-def letter(text_boxes, parent_logger) -> NameComponents | None:
-    logger = parent_logger.getChild("thameswater.letter")
+def letter(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("thameswater.letter")
+    text_boxes = document[1]
 
     if "Thames Water Utilities Limited," not in text_boxes[-1]:
         return None
 
-    date_line = find_box_starting_with(text_boxes, "Date\n")
+    date_line = text_boxes.find_box_starting_with("Date\n")
     if not date_line:
         return None
 
