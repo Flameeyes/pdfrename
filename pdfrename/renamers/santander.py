@@ -26,6 +26,10 @@ _SERVICE_NAME = "Santander"
 # both commonly used date formats within Santander documents!
 _DATE_REGEX_COMPONENT = "[0-9]{1,2}(?:[a-z]{2})? [A-Z][a-z]{2,} [0-9]{4}"
 
+_STATEMENT_PERIOD_REGEX = re.compile(
+    rf"^Your account summary for *\n{_DATE_REGEX_COMPONENT} to ({_DATE_REGEX_COMPONENT})\n$"
+)
+
 
 def _extract_account_holders(address_box: str) -> Sequence[str]:
     extracted_name = extract_account_holder_from_address(address_box)
@@ -53,7 +57,7 @@ def current_account_statement(document: pdf_document.Document) -> NameComponents
     second_page = document[2]
 
     account_info_match = re.search(
-        r"Account name: (.+)\nAccount number: (\d+) \(Sort Code \d\d \d\d \d\d\)\nStatement number: (\d\d/\d\d\d\d)\n",
+        r"Account name: (.+)\nAccount number: (\d+) +\(Sort Code \d\d \d\d \d\d\)\nStatement number: (\d\d/\d\d\d\d)\n",
         second_page[0],
         flags=re.MULTILINE | re.DOTALL,
     )
@@ -68,15 +72,10 @@ def current_account_statement(document: pdf_document.Document) -> NameComponents
     account_number = account_info_match.group(2)
     statement_number = account_info_match.group(3)
 
-    period_line = text_boxes.find_box_starting_with("Your account summary for  \n")
-    assert period_line is not None
+    period_match = one(text_boxes.find_all_matching_regex(_STATEMENT_PERIOD_REGEX))
 
-    logger.debug(f"found period specification: {period_line!r}")
+    logger.debug(f"found period specification: {period_match.group(0)!r}")
 
-    period_match = re.match(
-        rf"^Your account summary for  \n{_DATE_REGEX_COMPONENT} to ({_DATE_REGEX_COMPONENT})\n$",
-        period_line,
-    )
     assert period_match
     statement_date = dateparser.parse(period_match.group(1), languages=["en"])
     assert statement_date is not None
