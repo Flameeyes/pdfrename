@@ -14,7 +14,6 @@ from . import pdf_document, utils
 # This is only implemented for Windows, unfortunately.
 # So fall back to something else if not implemented.
 try:
-
     from os.path import isreserved  # type: ignore[attr-defined]
 except ImportError:
 

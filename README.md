@@ -80,26 +80,25 @@ focuses on bills and statements from UK, Italian, or Irish services and banks.
 
 ## Usage
 
-Set up the virtual environment as follows. Select the script for bash (Linux, OSX, etc.)
-or Windows PowerShell (especially for Visual Studio Code).
-
-```
-$ python -m venv venv
-$ . venv/bin/activate  # bash
-$ venv\Scripts\activate.ps1  # Windows PowerShell
-(venv) $ pip install -e .
-```
-
-Once the venv is activated and the dependencies installed, you can run the script from the
-directory and point it to one or more PDFs:
+This project uses [uv](https://docs.astral.sh/uv/). Dependencies and a suitable Python
+are installed automatically on first run, so you can run the script from the checkout and
+point it to one or more PDFs:
 
 ```
 # Only prints suggested renames
-(venv) $ pdfrename unsortedbill.pdf
+$ uv run pdfrename unsortedbill.pdf
 
 # Actually rename files
-(venv) $ pdfrename --rename unsortedbill.pdf
+$ uv run pdfrename --rename unsortedbill.pdf
+```
 
-# Verifies names
-(venv) $ pdfrename --list-all "2155-10-28 - AWS - Neo - Bill.pdf"
+To install it as a standalone tool instead, use `uv tool install .` and run `pdfrename`
+directly.
+
+## Development
+
+```
+$ uv sync                        # create .venv with the dev dependency group
+$ uv run pytest --mypy           # type checks
+$ uvx pre-commit run --all-files # ruff, reuse, etc.
 ```

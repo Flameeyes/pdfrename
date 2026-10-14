@@ -40,21 +40,21 @@ Keep instructions short and code-focused; follow the conventions below when addi
 2. Implement a function with signature V2 (takes `Document`) and decorate with `@pdfrenamer`.
 3. Import `NameComponents` and return it when you can confidently match; otherwise return `None`.
 4. Use `utils.build_dict_from_fake_table()` for the common two-column fake table pattern.
-5. Run `python -m venv venv && . venv/bin/activate && pip install -e .` then test with `pdfrename <file.pdf>` and `--rename`.
+5. Run `uv run pdfrename <file.pdf>` (and `--rename`) to test.
 
 ### Running & debugging
 - Setup: Python 3.12 or later is required.
-- Install editable for local iteration:
+- The project uses uv; `uv sync` creates `.venv` with the dev dependency group, and `uv run <cmd>` runs inside it:
 
 ```bash
-python -m venv venv
-. venv/bin/activate
-pip install -e .[dev]
+uv sync
+uv run pdfrename unsorted.pdf
+uv run ruff check . && uv run ruff format .
 ```
 
 - Common CLI uses (from repo README):
-  - Dry-run: `pdfrename unsorted.pdf` (prints suggested renames)
-  - Apply: `pdfrename --rename unsorted.pdf`
+  - Dry-run: `uv run pdfrename unsorted.pdf` (prints suggested renames)
+  - Apply: `uv run pdfrename --rename unsorted.pdf`
   - Verbose logging: pass `-v`/`-vv` (click-log configured)
 - For noisy pdfminer logs, call `apply_pdfminer_log_filters()` (already done by `main`).
 - When a renamer raises, `renamer.py` logs the exception and continues — check tool logs for stack traces.
@@ -68,6 +68,6 @@ pip install -e .[dev]
 - `pdfrename/lib/renamer.py` — renamer registry, `@pdfrenamer`, `NameComponents`.
 - `pdfrename/lib/utils.py` — normalization and helpers.
 - `pdfrename/renamers/*` — real examples of detection/parse patterns.
-- `setup.cfg` / `pyproject.toml` — packaging, dependencies, and linting config.
+- `pyproject.toml` / `uv.lock` — packaging, dependencies, and ruff config.
 
 If any section is ambiguous or you want examples for a specific vendor, tell me which file or renamer and I'll extend the guidance or add a small template renamer.

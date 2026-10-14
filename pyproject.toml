@@ -2,12 +2,59 @@
 #
 # SPDX-License-Identifier: 0BSD
 
-[tool.black]
-line-length = 88
-target-version = ['py312']
+[project]
+name = "pdfrenamer"
+version = "0.0.0"
+description = "Rough tool to try and rename bills and invoices"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSES/*"]
+authors = [{ name = "Diego Elio Pettenò", email = "flameeyes@flameeyes.com" }]
+keywords = ["pdf"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "click",
+    "click-log",
+    "dateparser",
+    "pdfminer.six == 20250506",
+    "more-itertools",
+]
 
-[tool.isort]
-# These settings ensure that black and isort don't disagree on the imports.
-line_length = 88
-multi_line_output = 3
-include_trailing_comma = true
+[project.urls]
+Homepage = "https://github.com/Flameeyes/pdfrenamer"
+
+[project.scripts]
+pdfrename = "pdfrename.pdfrename:main"
+
+[dependency-groups]
+dev = [
+    "pytest-mypy",
+    "mypy",
+    "types-dateparser",
+    "pre-commit",
+    "ruff",
+]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "pdfrename"
+module-root = ""
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+# Pyflakes, pycodestyle, and isort, replacing flake8 and isort.
+select = ["E", "F", "W", "I"]
+# E501: long lines are handled by the formatter.
+ignore = ["E501"]

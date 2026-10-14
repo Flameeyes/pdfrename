@@ -124,7 +124,8 @@ class Document:
             )
 
             extract_pages_generator = pdfminer.high_level.extract_pages(
-                self._pdf_file, page_numbers=(page - 1,)  # type: ignore
+                self._pdf_file,  # type: ignore[arg-type]
+                page_numbers=(page - 1,),
             )
 
             try:
@@ -141,7 +142,8 @@ class Document:
                     f"{self.original_filename} p{page}: figure-based PDF, extracting raw text instead."
                 )
                 page_text = pdfminer.high_level.extract_text(
-                    self._pdf_file, page_numbers=(page - 1,)  # type: ignore
+                    self._pdf_file,  # type: ignore[arg-type]
+                    page_numbers=(page - 1,),
                 )
                 text_boxes = [page_text]
             else:
