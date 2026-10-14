@@ -22,7 +22,7 @@ dependencies = [
     "click",
     "click-log",
     "dateparser",
-    "pdfminer.six == 20250506",
+    "pdfminer.six == 20260107",
     "more-itertools",
 ]
 

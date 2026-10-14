@@ -80,6 +80,7 @@ class PageTextBoxes:
 class Document:
     original_filename: Final[Path]
     _pdf_file: Final[BinaryIO]
+    _owns_pdf_file: Final[bool]
     doc: Final[pdfminer.pdfdocument.PDFDocument]
     _logger: Final[logging.Logger]
     _extracted_pages: Final[dict[int, PageTextBoxes]]
@@ -92,6 +93,7 @@ class Document:
         logger: logging.Logger | None = None,
     ) -> None:
         self.original_filename = filename
+        self._owns_pdf_file = pdf_file is None
         if pdf_file is None:
             pdf_file = self.original_filename.open("rb")
         self._pdf_file = pdf_file
@@ -112,7 +114,9 @@ class Document:
         self.get_textboxes(1)
 
     def close(self) -> None:
-        self._parser.close()
+        # PDFParser no longer has a close() method; only close what we opened.
+        if self._owns_pdf_file:
+            self._pdf_file.close()
 
     def get_textboxes(self, page: int) -> PageTextBoxes:
         if page < 1:
