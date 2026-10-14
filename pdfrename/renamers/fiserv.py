@@ -44,7 +44,7 @@ def estatement(document: pdf_document.Document) -> NameComponents | None:
     # Annoyingly this is not at a fix offset! Once we find the beginning
     # of the summary table we attempt the next ~8 boxes until one is a
     # simple date.
-    for date_index in range(credit_limit_index + 1, credit_limit_index + 8):
+    for date_index in range(credit_limit_index + 1, credit_limit_index + 10):
         if date_match := _DATE_RE.match(first_page[date_index]):
             statement_date = dateparser.parse(date_match.group(0), languages=["en"])
             if statement_date is not None:
