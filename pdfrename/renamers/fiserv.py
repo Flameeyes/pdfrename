@@ -14,6 +14,7 @@ from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address
 
 _LOGGER = logging.getLogger(__name__)
+_DATE_RE = re.compile("[0-9]{1,2} [JFMASOND][a-z]+ [0-9]{4}\n")
 
 
 @pdfrenamer
@@ -44,9 +45,10 @@ def estatement(document: pdf_document.Document) -> NameComponents | None:
     # of the summary table we attempt the next ~8 boxes until one is a
     # simple date.
     for date_index in range(credit_limit_index + 1, credit_limit_index + 8):
-        statement_date = dateparser.parse(first_page[date_index], languages=["en"])
-        if statement_date is not None:
-            break
+        if date_match := _DATE_RE.match(first_page[date_index]):
+            statement_date = dateparser.parse(date_match.group(0), languages=["en"])
+            if statement_date is not None:
+                break
     else:
         logging.debug("Unable to find a valid statement date")
         return None
