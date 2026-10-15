@@ -14,9 +14,7 @@ from ..lib.renamer import NameComponents, pdfrenamer
 
 _LOGGER = logging.getLogger(__name__)
 
-_SORT_CODE_ACCOUNT_NUMBER_REGEX = re.compile(
-    r"Sort Code\nAccount Number\n(\d{2}-\d{2}-\d{2})\n(\d+)\n"
-)
+_ACCOUNT_NUMBER_REGEX = re.compile(r"(\d{2}-\d{2}-\d{2})\n(\d+)\n")
 
 
 @pdfrenamer
@@ -56,11 +54,13 @@ def statement(document: pdf_document.Document) -> NameComponents | None:
 
     # Account number – optional, present on both Lloyds and Bank of Scotland
     account_number = None
-    sort_code_box = text_boxes.find_box_starting_with("Sort Code\n")
-    if sort_code_box is not None:
-        account_match = _SORT_CODE_ACCOUNT_NUMBER_REGEX.search(sort_code_box)
-        if account_match:
-            account_number = account_match.group(2)
+    if sort_code_box := text_boxes.find_box_starting_with("Sort Code\n"):
+        idx = text_boxes.index(sort_code_box)
+        if idx + 1 < len(text_boxes):
+            value_box = text_boxes[idx + 1]
+            account_match = _ACCOUNT_NUMBER_REGEX.search(value_box)
+            if account_match:
+                account_number = account_match.group(2)
 
     return NameComponents(
         bill_date,
