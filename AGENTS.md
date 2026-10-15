@@ -101,7 +101,7 @@ debug: No match for sample.pdf
   NewDay statement."). That is normal. A traceback logged as `renamer <function …>
   failed` means some renamer raised an exception on this file. If it's an existing
   renamer, check whether your sample is triggering an `assert` in it (see
-  "Avoiding false matches" below).
+  "The renamer contract" below).
 
 To save it all to a file:
 
@@ -213,10 +213,14 @@ and only ask for page 2+ **after** the page-1 checks have passed.
 
 ### Dates
 
-- Fixed format: `datetime.strptime(s, "%d/%m/%Y\n")`. Include the trailing `\n` (or
-  `.strip()` first).
-- Free-form or localised: `dateparser.parse(s, languages=["en"])` (or `["it"]`), then
-  `assert date is not None`.
+- All-numeric dates: `datetime.strptime(s, "%d/%m/%Y\n")`. Include the trailing `\n`
+  (or `.strip()` first).
+- Dates with month names (`3rd December 2023`, `18 ottobre 2024`): use
+  `dateparser.parse(s, languages=["en"])` (or `["it"]`, matching the document's
+  language), then `assert date is not None`. **Prefer this over `strptime` with
+  `%b`/`%B`.** Those directives use the current process locale, so the same renamer
+  would parse English month names on one machine and fail on another. `dateparser`
+  with an explicit language behaves the same everywhere.
 - Last resort: `document.creation_date` (used by `hl.py`).
 
 ## Writing a new renamer from samples
