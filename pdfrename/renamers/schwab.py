@@ -8,6 +8,7 @@ import re
 
 import dateparser
 
+from ..doctypes.en import STATEMENT
 from ..lib import pdf_document
 from ..lib.renamer import NameComponents, pdfrenamer
 from ..lib.utils import extract_account_holder_from_address
@@ -149,3 +150,54 @@ def letter(document: pdf_document.Document) -> NameComponents | None:
         return NameComponents(letter_date, "Charles Schwab", account_holder, "Letter")
 
     return None
+
+
+@pdfrenamer
+def account_summary(document: pdf_document.Document) -> NameComponents | None:
+    first_page = document[1]
+    if not first_page:
+        return None
+
+    logger = _LOGGER.getChild("schwab.account_summary")
+
+    # Identify account summary documents
+    if not first_page[0].startswith("Schwab One International® Account of\n"):
+        return None
+
+    logger.debug("Found Schwab One Account Summary")
+
+    # Extract account holder
+    account_holder = first_page[1].strip()
+    assert account_holder
+
+    # Find statement date by looking directly for the date pattern in the PDF
+    # Looking at the structure from our debugging:
+    # Box 3: 'Statement Period\n'
+    # Box 4: '<account-number>\n' (account number)
+    # Box 5: '<date-range>\n' (date)
+    period_idx = first_page.index("Statement Period\n")
+    # The date should be right after the account number, which is immediately after "Statement Period"
+    # In our PDF, this is box 5
+    assert period_idx + 2 < len(first_page), "not enough boxes for date"
+    date_box = first_page[period_idx + 2]
+    period_end_str = date_box.strip()
+    logger.debug("Using date from position %d: %r", period_idx + 2, period_end_str)
+    statement_date = dateparser.parse(period_end_str, languages=["en"])
+    assert statement_date is not None, f"Could not parse date from {period_end_str}"
+
+    # Account number is the box after "Account Number"
+    account_number = None
+    account_number_label_box = first_page.find_box_starting_with("Account Number\n")
+    if account_number_label_box is not None:
+        account_number_idx = first_page.index(account_number_label_box) + 2
+        if account_number_idx < len(first_page):
+            account_number = first_page[account_number_idx].strip()
+            # Keep the original XXXX-YYYY format, including ****- masking
+
+    return NameComponents(
+        statement_date,
+        "Charles Schwab",
+        account_holder,
+        STATEMENT,
+        account_number=account_number,
+    )
