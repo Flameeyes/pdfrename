@@ -217,3 +217,49 @@ def account_summary(document: pdf_document.Document) -> NameComponents | None:
         STATEMENT,
         account_number=account_number,
     )
+
+
+@pdfrenamer
+def stock_plan_statement(document: pdf_document.Document) -> NameComponents | None:
+    logger = _LOGGER.getChild("schwab.stock_plan_statement")
+    try:
+        third_page = document[3]
+    except IndexError:
+        return None
+
+    # Identify old Schwab Stock Plan statements generated with Apache FOP
+    if document.producer != b"Apache FOP Version 0.94":
+        return None
+
+    # Look for the header box containing period information
+    header_idx = None
+    for idx, box in enumerate(third_page):
+        if "Account Statement" in box and "For Period:" in box:
+            header_idx = idx
+            break
+
+    if header_idx is None:
+        return None
+
+    logger.debug("Found likely Schwab Stock Plan statement on page 3.")
+
+    header_box = third_page[header_idx]
+    period_match = re.search(
+        r"For Period: (\d{2}/\d{2}/\d{4}) - (\d{2}/\d{2}/\d{4})", header_box
+    )
+    assert period_match is not None, "Period not found in header"
+    period_end_str = period_match.group(2)
+    statement_date = datetime.datetime.strptime(period_end_str, "%m/%d/%Y")
+
+    # Address box is typically the next box after the header
+    assert header_idx + 1 < len(third_page), "Address box missing"
+    address_box = third_page[header_idx + 1]
+    account_holder = extract_account_holder_from_address(address_box)
+    assert account_holder
+
+    return NameComponents(
+        statement_date,
+        "Charles Schwab",
+        account_holder,
+        "Account Statement",
+    )
