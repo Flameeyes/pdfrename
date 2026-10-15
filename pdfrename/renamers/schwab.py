@@ -182,7 +182,23 @@ def account_summary(document: pdf_document.Document) -> NameComponents | None:
     date_box = first_page[period_idx + 2]
     period_end_str = date_box.strip()
     logger.debug("Using date from position %d: %r", period_idx + 2, period_end_str)
-    statement_date = dateparser.parse(period_end_str, languages=["en"])
+
+    # Parse date range and extract end date (statements are issued at end of period)
+    # Format is like "July 1-31, 2026"
+    date_match = re.search(
+        r"([A-Z][a-z]+) (\d{1,2})-(\d{1,2}), (\d{4})", period_end_str
+    )
+    if date_match:
+        month_name = date_match.group(1)
+        end_day = date_match.group(3)
+        year = date_match.group(4)
+        # Reconstruct as end date
+        end_date_str = f"{month_name} {end_day}, {year}"
+        logger.debug("Extracted end date string: %r", end_date_str)
+        statement_date = dateparser.parse(end_date_str, languages=["en"])
+    else:
+        # Fall back to regular parsing
+        statement_date = dateparser.parse(period_end_str, languages=["en"])
     assert statement_date is not None, f"Could not parse date from {period_end_str}"
 
     # Account number is the box after "Account Number"
