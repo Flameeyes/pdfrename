@@ -52,7 +52,7 @@ uv run pytest --mypy
 ```
 
 ```bash
-uvx pre-commit run --all-files
+uv run prek run --all-files
 ```
 
 - `uv run pdfrename FILE...` is a dry run: it prints `ren "old" "new"` lines for matches.
@@ -60,9 +60,10 @@ uvx pre-commit run --all-files
   no match and `# ✓` for files whose name is already right.
 - `uv run pytest --mypy` is the test suite. Right now it only type-checks with mypy.
   CI runs it on Linux, Windows and macOS.
-- pre-commit runs ruff check + format (line length 88, isort rules), REUSE licence
-  checks and whitespace fixers. **Every new file needs an SPDX header** (see the
-  existing renamers), or the `reuse` hook will fail.
+- [prek](https://github.com/j178/prek), a drop-in replacement for pre-commit, runs the
+  hooks in `.pre-commit-config.yaml`: ruff check + format (line length 88, isort
+  rules), REUSE licence checks and whitespace fixers. **Every new file needs an SPDX
+  header** (see the existing renamers), or the `reuse` hook will fail.
 
 ## Seeing what is inside a PDF
 
@@ -249,7 +250,7 @@ and only ask for page 2+ **after** the page-1 checks have passed.
      `dump.txt`.
    - If other PDFs are available (e.g. ones another renamer already handles), run on
      them too and check that your renamer doesn't match them.
-   - `uv run pytest --mypy` and `uvx pre-commit run --all-files` both pass.
+   - `uv run pytest --mypy` and `uv run prek run --all-files` both pass.
 7. **Add the service to the "Supported PDFs" list in `README.md`** (alphabetical, with
    the document types covered).
 

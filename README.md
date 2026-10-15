@@ -100,5 +100,5 @@ directly.
 ```
 $ uv sync                        # create .venv with the dev dependency group
 $ uv run pytest --mypy           # type checks
-$ uvx pre-commit run --all-files # ruff, reuse, etc.
+$ uv run prek run --all-files # ruff, reuse, etc.
 ```

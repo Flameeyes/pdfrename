@@ -37,8 +37,8 @@ dev = [
     "pytest-mypy",
     "mypy",
     "types-dateparser",
-    "pre-commit",
     "ruff",
+    "prek",
 ]
 
 [build-system]
